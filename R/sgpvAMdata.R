@@ -81,7 +81,10 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
     if(look < 4){ return( c(-10^10, 10^10) ) }
 
     if(dataType=="rnorm"){
-      ci <- t.test(y[1:look] ~ trt[1:look], conf.level = 1 - monitoringIntervalLevel)$conf.int
+      f     <- lm(y[1:look] ~ trt[1:look])
+      coefs <- summary(f)$coefficients
+      est   <- coefs[2,"Estimate"]
+      ci    <- est + c(-1,1) * qt(1-monitoringIntervalLevel/2, df = f$df.residual) * coefs[2,"Std. Error"]
     } else if(dataType=="rbinom"){
       f     <- glm(y[1:look] ~ trt[1:look], family = binomial)
       coefs <- summary(f)$coefficients
@@ -126,8 +129,16 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
   }
 
 
-  # 6 Return matrix of data, confidence interval, and sgpvs
-  cbind(n = 1:length(y), y, trt, ci, sgpvNonTrivial, sgpvFutility, z)
+
+  # 6 Errors
+  rej0  <- ci[,"lo"] < 0 & ci[,"lo"] < 0 | ci[,"lo"] > 0 & ci[,"lo"] > 0
+  cover <- ci[,"lo"] < z & z < ci[,"up"]
+
+
+
+
+  # 7 Return matrix of data, confidence interval, estimate, errors, and sgpvs
+  cbind(n = 1:length(y), y, trt, ci, est, rej0, cover, sgpvNonTrivial, sgpvFutility, z)
 
 }
 
