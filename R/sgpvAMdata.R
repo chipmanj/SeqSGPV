@@ -85,7 +85,7 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
       coefs <- summary(f)$coefficients
       est   <- coefs[2,"Estimate"]
       ci    <- est + c(-1,1) * qt(1-monitoringIntervalLevel/2, df = f$df.residual) * coefs[2,"Std. Error"]
-      typeI <- as.numeric(ci[1] < 0 & ci[2] < 0 | ci[1] > 0 & ci[2] > 0)
+      rejPN <- as.numeric(ci[1] < 0 & ci[2] < 0 | ci[1] > 0 & ci[2] > 0)
 
     } else if(dataType=="rbinom"){
       f     <- glm(y[1:look] ~ trt[1:look], family = binomial)
@@ -95,24 +95,24 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
       # Infinite CI bounds may occur with binomial data and insufficient
       #  data to estimate an effect and error.  Set infinite bounds to 10^10
       ci[is.infinite(ci)] <- 10^10
-      typeI <- as.numeric(ci[1] < 1 & ci[2] < 1 | ci[1] > 1 & ci[2] > 1)
+      rejPN <- as.numeric(ci[1] < 1 & ci[2] < 1 | ci[1] > 1 & ci[2] > 1)
     }
 
     cover <- as.numeric(ci[1] < z & z < ci[2])
 
 
-    return(c(est,ci,typeI,cover))
+    return(c(est,ci,rejPN,cover))
 
   }
 
   if(! missing(existingData) ) {
-    eci <- rbind(existingData[,c("est","lo","hi","typeI","cover")],
+    eci <- rbind(existingData[,c("est","lo","hi","rejPN","cover")],
                 t(sapply( (length(y)-dataGenArgs[["n"]] + 1):length(y),
                           fullySequentialCIs)))
   } else {
     eci <- t(sapply(1:length(y),fullySequentialCIs))
   }
-  colnames(eci) <- c("est","lo","hi","typeI","cover")
+  colnames(eci) <- c("est","lo","hi","rejPN","cover")
 
 
 
@@ -147,16 +147,16 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
 
 
 # Examples
-mcmcMonotiringFixed <- sgpvAMdata(rnorm, dataGenArgs = list(n=70), effectGeneration = 0.5,
-                                  deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
-                                  monitoringIntervalLevel = 0.05)
-head(mcmcMonotiringFixed)
-
-mcmcMonotiringNorm <- sgpvAMdata(rnorm, dataGenArgs = list(n=700),
-                                 effectGeneration = rnorm, effectGenArgs = list(n=1),
-                                  deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
-                                  monitoringIntervalLevel = 0.05)
-head(mcmcMonotiringNorm)
+# mcmcMonotiringFixed <- sgpvAMdata(rnorm, dataGenArgs = list(n=70), effectGeneration = 0.5,
+#                                   deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
+#                                   monitoringIntervalLevel = 0.05)
+# head(mcmcMonotiringFixed)
+#
+# mcmcMonotiringNorm <- sgpvAMdata(rnorm, dataGenArgs = list(n=700),
+#                                  effectGeneration = rnorm, effectGenArgs = list(n=1),
+#                                   deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
+#                                   monitoringIntervalLevel = 0.05)
+# head(mcmcMonotiringNorm)
 
 
 # development
