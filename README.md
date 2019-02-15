@@ -3,4 +3,4 @@ Adaptive Monitoring Design Features using the second generation p-value
 
 
 # install.packages("devtools")
-devtools::install_github("chipmanj/sgpv")
+devtools::install_github("chipmanj/sgpvAM")
