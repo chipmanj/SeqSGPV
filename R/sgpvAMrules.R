@@ -39,12 +39,14 @@ sgpvAMrules <- function(data, waitWidth, monitoringIntervalLevel, lookSteps, max
   affirmEndOfStudy <- function(alertK){
 
     if(alertNonTrivialAny) {
-      stopNonTrivial <- min(alertNonTrivial[alertNonTrivial %in% (alertNonTrivial + alertK)], na.rm = TRUE)
-    } else stopNonTrivial <- NA
+      sNT                                <- alertNonTrivial[alertNonTrivial %in% (alertNonTrivial + alertK)]
+      if(length(sNT) > 0) stopNonTrivial <- min(sNT)
+    } else                stopNonTrivial <- NA
 
     if(alertFutilityAny) {
-      stopFutility <- min(alertFutility[alertFutility %in% (alertFutility + alertK)], na.rm = TRUE)
-    } else stopFutility <- NA
+      sF                                 <- alertFutility[alertFutility %in% (alertFutility + alertK)]
+      if(length(sF) > 0)    stopFutility <- min(sF)
+    } else                  stopFutility <- NA
 
     stop   <- min(stopNonTrivial,stopFutility,na.rm = TRUE)
     eos    <- data[data[,"n"]==stop,]
