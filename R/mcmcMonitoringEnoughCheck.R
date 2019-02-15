@@ -12,7 +12,7 @@ mcmcMonitoringEnoughCheck <- function(o, maxAlertSteps, minWW){
 
   # Check that sufficient n for burn in CI width
   minN <- ceiling((2 * 1.96 / minWW)^2)
-  if(nrow(obs) - minN < 0) {
+  if(obs - minN < 0) {
     waitMoreN <- minN - nrow(obs)
   }
 

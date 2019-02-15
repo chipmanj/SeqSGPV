@@ -1,21 +1,25 @@
 # sgpvAM.R
 # J Chipman
+#
+# Adaptive monitoring design
+#
+#
+# library(plyr)
 
-library(plyr)
 
-
-sgpvAM <- function(mcmcMonitoring, nreps, maxAlertSteps=100, lookSteps=1,
+sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
                    waitWidths = c(0.15, 0.20, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60),
                    monitoringIntervalLevel = 0.05, ...){
 
 
   # 1 collect array of simulated data
-  if(!missing(mcmcMonitoring)){
-    mcmcMonitoring <- rlply(.n = nreps, .expr = {
-      # sgpvAMdata(rnorm, dataGenArgs = list(n=900), effectGeneration = 0.5,
-      #            deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
+  if(is.null(mcmcData)){
+    mcmcMonitoring <- plyr::rlply(.n = nreps, .expr = {
+      # sgpvAMdata(rnorm, dataGenArgs = list(n=800), waitWidths = seq(0.15, 0.6, by = 0.05),
+      #            lookSteps = 5, effectGeneration = 0.3,
+      #            deltaL2 = -0.4, deltaL1 = -0.3, deltaG1 = 0.3, deltaG2 = 0.4,
       #            monitoringIntervalLevel = 0.05)})
-      sgpvAMdata( ... )
+      sgpvAMdata( monitoringIntervalLevel = monitoringIntervalLevel, ... )
     })
   }
 
@@ -34,16 +38,25 @@ sgpvAM <- function(mcmcMonitoring, nreps, maxAlertSteps=100, lookSteps=1,
 
     for (i in getMoreWhich){
 
-      # mcmcMonitoring[[i]] <- sgpvAMdata(dataGeneration = rnorm, dataGenArgs = list(n=getMore[i]),
+      mcmcMonitoring[[i]] <- sgpvAMdata(rnorm, dataGenArgs = list(n=800), waitWidths = seq(0.15, 0.6, by = 0.05),
+                                              lookSteps = 5, effectGeneration = 0.3,
+                                              deltaL2 = -0.4, deltaL1 = -0.3, deltaG1 = 0.3, deltaG2 = 0.4,
+                                              monitoringIntervalLevel = 0.05)
+
+
+
+      # sgpvAMdata(dataGeneration = rnorm, dataGenArgs = list(n=getMore[i]),
       #                                    effectGeneration = 0.5,
       #                                    deltaL2 = -1, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 1,
       #                                    monitoringIntervalLevel = 0.05, existingData = mcmcMonitoring[[i]])
 
-      mcmcMonitoring[[i]] <- sgpvAMdata(...)
+      # mcmcMonitoring[[i]] <- sgpvAMdata(monitoringIntervalLevel = monitoringIntervalLevel, ...)
 
     }
 
-    getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck, maxAlertSteps = 50))
+    getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck,
+                                  maxAlertSteps = maxAlertSteps,
+                                  minWW         = min(waitWidths)))
     getMoreWhich <- which(getMore > 0)
 
   }
@@ -65,12 +78,18 @@ sgpvAM <- function(mcmcMonitoring, nreps, maxAlertSteps=100, lookSteps=1,
                                      monitoringIntervalLevel = monitoringIntervalLevel))
 
 
+    # i = 1
+    # i = i+1
+    # sgpvAMrules(mcmcMonitoring[[i]], waitWidth = ww, lookSteps = lookSteps, maxAlertSteps = maxAlertSteps,
+    #             monitoringIntervalLevel = monitoringIntervalLevel)
+
+
 
     # 4 aggregate simulated data
     #   average performance and mse
     #   ecdf of n and bias
-    ooAve <- aaply(mcmcEOS, .margins = c(1,2), .fun = mean)
-    ooVar <- aaply(mcmcEOS, .margins = c(1,2), .fun = var )
+    ooAve <- plyr::aaply(mcmcEOS, .margins = c(1,2), .fun = mean)
+    ooVar <- plyr::aaply(mcmcEOS, .margins = c(1,2), .fun = var )
 
     mcmcEndOfStudyAve[[paste0("width_",ww)]] <- cbind(ooAve, mse = ooVar[,"bias"] + ooAve[,"bias"]^2)
 
@@ -78,7 +97,7 @@ sgpvAM <- function(mcmcMonitoring, nreps, maxAlertSteps=100, lookSteps=1,
     names(mcmcEndOfStudyEcdfSize) <- paste0("alertK_",mcmcEOS[,"alertK",1])
 
     mcmcEndOfStudyEcdfBias        <- apply(mcmcEOS[,"bias",], 1, ecdf)
-    names(mcmcEndOfEcdfBias)      <- paste0("alertK_",mcmcEOS[,"alertK",1])
+    names(mcmcEndOfStudyEcdfBias) <- paste0("alertK_",mcmcEOS[,"alertK",1])
 
 
     mcmcEndOfStudy[[paste0("width_",ww)]] <-
@@ -95,19 +114,26 @@ sgpvAM <- function(mcmcMonitoring, nreps, maxAlertSteps=100, lookSteps=1,
 }
 
 
+# # With no previously generated data
+# a <- sgpvAM(nreps = 10, maxAlertSteps = 100, lookSteps = 5, waitWidths = seq(0.15, 0.6, by = 0.05),
+#             dataGeneration = rnorm,   dataGenArgs = list(n=800),
+#             effectGeneration = 0.3,
+#             deltaL2 = -0.4, deltaL1=-0.3, deltaG1=0.3, deltaG2=0.4,
+#             monitoringIntervalLevel=0.05)
+
 
 
 
 
 
 # 2 adaptively monitor simulated data across multiple burn ins
-a <- aaply(mcmcMonitoringFixed, .margins = 3, .fun = function(x) {
-  t(sgpvAMrules(data = x, waitWidth = 0.3,
-                lookSteps = 1, maxAlertSteps = 100,
-                monitoringIntervalLevel = 0.05))
-})
-
-
-# 3 aggregate simulated data
-aa <- t(aaply(a, .margins = c(2,3), .fun = mean))
-
+# a <- aaply(mcmcMonitoringFixed, .margins = 3, .fun = function(x) {
+#   t(sgpvAMrules(data = x, waitWidth = 0.3,
+#                 lookSteps = 1, maxAlertSteps = 100,
+#                 monitoringIntervalLevel = 0.05))
+# })
+#
+#
+# # 3 aggregate simulated data
+# aa <- t(aaply(a, .margins = c(2,3), .fun = mean))
+#
