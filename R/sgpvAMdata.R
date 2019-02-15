@@ -66,7 +66,10 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
 
 
   # 3.5 Add to previous data if any (ie previous data was insufficient)
-  if(! missing(existingData) ) { y <- c(existingData[,"y"], y) }
+  if(! missing(existingData) ) {
+    y   <- c(existingData[,"y"], y)
+    trt <- c(existingData[,"trt"], trt)
+    }
 
 
 
@@ -124,7 +127,7 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
 
 
   # 6 Return matrix of data, confidence interval, and sgpvs
-  cbind(n = 1:length(y), y, ci, sgpvNonTrivial, sgpvFutility, z)
+  cbind(n = 1:length(y), y, trt, ci, sgpvNonTrivial, sgpvFutility, z)
 
 }
 
