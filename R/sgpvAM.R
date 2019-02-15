@@ -4,73 +4,93 @@
 library(plyr)
 
 
-sgpvAM <- function(){
-  
-  
+sgpvAM <- function(mcmcMonitoring, nreps, maxAlertSteps=100, lookSteps=1,
+                   waitWidths = c(0.15, 0.20, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60),
+                   monitoringIntervalLevel = 0.05, ...){
+
+
   # 1 collect array of simulated data
-  mcmcMonitoring <- replicate(n = 300, expr = {
-      sgpvAMdata(rnorm, dataGenArgs = list(n=700), effectGeneration = 0.5,
-                 deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
-                 monitoringIntervalLevel = 0.05)
-  })
-  
-  
+  if(!missing(mcmcMonitoring)){
+    mcmcMonitoring <- rlply(.n = nreps, .expr = {
+      # sgpvAMdata(rnorm, dataGenArgs = list(n=900), effectGeneration = 0.5,
+      #            deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
+      #            monitoringIntervalLevel = 0.05)})
+      sgpvAMdata( ... )
+    })
+  }
+
+
+
   # 2 Make sure all simulations will continue until completion
   #   Look for stability of sgpv for last set of maxAlert patients
-  
-  getMore <- max(aaply(mcmcMonitoringFixed, .margins = 3, .fun = mcmcMonitoringEnoughCheck))
-  while(getMore > 0){
-    print("Generating more data to ensure simulations go to completion.")
-    print(paste("Current observations = ", nrow(mcmcMonitoring[,,1]), " adding another ", getMore))
-  
-    
-    aaply(mcmcMonitoring, .margins = 3, .fun = sgpvAMdata,
-          rnorm, dataGenArgs = list(n=getMore), effectGeneration = 0.5,
-          deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
-          monitoringIntervalLevel = 0.05, exisitingY =)
-      sgpvAMdata(rnorm, dataGenArgs = list(n=getMore), effectGeneration = 0.5,
-                 deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
-                 monitoringIntervalLevel = 0.05, exisitingY = )
-    })
-    
-      
-    
+  getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck,
+                                maxAlertSteps = maxAlertSteps,
+                                minWW         = min(waitWidths)))
+  getMoreWhich <- which(getMore > 0)
+  getMoreWhich
+
+  while(sum(getMore) > 0){
+    print(paste("Adding another", max(getMore), "observations to ensure simulations go to completion."))
+
+    for (i in getMoreWhich){
+
+      # mcmcMonitoring[[i]] <- sgpvAMdata(dataGeneration = rnorm, dataGenArgs = list(n=getMore[i]),
+      #                                    effectGeneration = 0.5,
+      #                                    deltaL2 = -1, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 1,
+      #                                    monitoringIntervalLevel = 0.05, existingData = mcmcMonitoring[[i]])
+
+      mcmcMonitoring[[i]] <- sgpvAMdata(...)
+
+    }
+
+    getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck, maxAlertSteps = 50))
+    getMoreWhich <- which(getMore > 0)
+
   }
-  
-  
-  
-  mcmcTest <- replicate(n = 3, expr = {
-    sgpvAMdata(rnorm, dataGenArgs = list(n=750), effectGeneration = 0.5,
-               deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
-               monitoringIntervalLevel = 0.05)
-  })
-  
-  
-  waitWidths <- c(0.15, 0.20, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60)
+
+
+
+
+  # waitWidths        <- c(0.15, 0.20, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60)
+  mcmcEndOfStudyAve <- list()
+  mcmcEndOfStudyVar <- list()
+  mcmcEndOfStudy    <- list()
   for (w in 1:length(waitWidths)){
 
-    ww <- waithWidths[w]
-    
-    # 2 adaptively monitor simulated data across multiple burn ins
-    mcmcEndOfStudy <- aaply(mcmcMonitoringFixed, .margins = 3, .fun = function(x) {
-                              t(sgpvAMrules(data = x, waitWidth = ww,
-                                            lookSteps = 1, maxAlertSteps = 100,
-                                            monitoringIntervalLevel = 0.05))
-    })
-    
-    
-    
-    # 3 Check that all simulations ran to completion. If not supplement data
-    
-    
-    
-    
-    
-    # 3 aggregate simulated data
-    mcmcEndOfStudyAve <- t(aaply(mcmcEndOfStudy, .margins = c(2,3), .fun = mean))
-    
+    ww <- waitWidths[w]
+
+    # 3 adaptively monitor simulated data across multiple burn ins
+    mcmcEOS <- simplify2array(lapply(mcmcMonitoring, sgpvAMrules, waitWidth = ww,
+                                     lookSteps = lookSteps,  maxAlertSteps = maxAlertSteps,
+                                     monitoringIntervalLevel = monitoringIntervalLevel))
+
+
+
+    # 4 aggregate simulated data
+    #   average performance and mse
+    #   ecdf of n and bias
+    ooAve <- aaply(mcmcEOS, .margins = c(1,2), .fun = mean)
+    ooVar <- aaply(mcmcEOS, .margins = c(1,2), .fun = var )
+
+    mcmcEndOfStudyAve[[paste0("width_",ww)]] <- cbind(ooAve, mse = ooVar[,"bias"] + ooAve[,"bias"]^2)
+
+    mcmcEndOfStudyEcdfSize        <- apply(mcmcEOS[,"n",], 1, ecdf)
+    names(mcmcEndOfStudyEcdfSize) <- paste0("alertK_",mcmcEOS[,"alertK",1])
+
+    mcmcEndOfStudyEcdfBias        <- apply(mcmcEOS[,"bias",], 1, ecdf)
+    names(mcmcEndOfEcdfBias)      <- paste0("alertK_",mcmcEOS[,"alertK",1])
+
+
+    mcmcEndOfStudy[[paste0("width_",ww)]] <-
+      list(mcmcEndOfStudyAve      = mcmcEndOfStudyAve,
+           mcmcEndOfStudyEcdfSize = mcmcEndOfStudyEcdfSize,
+           mcmcEndOfStudyEcdfBias = mcmcEndOfStudyEcdfBias)
+
   }
-  
+
+
+
+  return(mcmcEndOfStudy)
 
 }
 
