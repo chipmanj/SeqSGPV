@@ -75,7 +75,7 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
 
   # 4 Obtain 1-alpha/2 monitoring confidence intervals
   # Wait until at least two observations in each group
-  fullySequentialCIs <- function(look){
+  fullySequentialCIs <- function(look, miLevel){
 
     # For first for looks provide essentially infinite intervals
     if(look < 4){ return( c(NA, -10^10, 10^10, NA, NA) ) }
@@ -84,14 +84,14 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
       f     <- lm(y[1:look] ~ trt[1:look])
       coefs <- summary(f)$coefficients
       est   <- coefs[2,"Estimate"]
-      ci    <- est + c(-1,1) * qt(1-monitoringIntervalLevel/2, df = f$df.residual) * coefs[2,"Std. Error"]
+      ci    <- est + c(-1,1) * qt(1-miLevel/2, df = f$df.residual) * coefs[2,"Std. Error"]
       rejPN <- as.numeric(ci[1] < 0 & ci[2] < 0 | ci[1] > 0 & ci[2] > 0)
 
     } else if(dataType=="rbinom"){
       f     <- glm(y[1:look] ~ trt[1:look], family = binomial)
       coefs <- summary(f)$coefficients
       est   <- exp( coefs[2,"Estimate"] )
-      ci    <- exp( coefs[2,"Estimate"] + c(-1,1) * qnorm(1-monitoringIntervalLevel/2) * coefs[2,"Std. Error"] )
+      ci    <- exp( coefs[2,"Estimate"] + c(-1,1) * qnorm(1-miLevel/2) * coefs[2,"Std. Error"] )
       # Infinite CI bounds may occur with binomial data and insufficient
       #  data to estimate an effect and error.  Set infinite bounds to 10^10
       ci[is.infinite(ci)] <- 10^10
@@ -108,9 +108,9 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
   if(! missing(existingData) ) {
     eci <- rbind(existingData[,c("est","lo","hi","rejPN","cover")],
                 t(sapply( (length(y)-dataGenArgs[["n"]] + 1):length(y),
-                          fullySequentialCIs)))
+                          fullySequentialCIs, miLevel = monitoringIntervalLevel)))
   } else {
-    eci <- t(sapply(1:length(y),fullySequentialCIs))
+    eci <- t(sapply(1:length(y),fullySequentialCIs, miLevel = monitoringIntervalLevel))
   }
   colnames(eci) <- c("est","lo","hi","rejPN","cover")
 
