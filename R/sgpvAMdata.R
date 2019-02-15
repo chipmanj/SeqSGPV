@@ -69,7 +69,7 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
   if(! missing(existingData) ) {
     y   <- c(existingData[,"y"], y)
     trt <- c(existingData[,"trt"], trt)
-    }
+  }
 
 
 
