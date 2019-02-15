@@ -92,7 +92,7 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
 
   if(! missing(existingData) ) {
     ci <- rbind(existingData[,c("lo","hi")],
-                t(sapply( (length(y)-nrow(existingData) + 1):length(y),
+                t(sapply( (length(y)-dataGenArgs[["n"]] + 1):length(y),
                           fullySequentialCIs)))
   } else {
     ci <- t(sapply(1:length(y),fullySequentialCIs))
