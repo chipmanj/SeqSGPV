@@ -34,7 +34,7 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
                        modelFit,         modelFitArgs,
                        deltaL2, deltaL1, deltaG1, deltaG2,
                        monitoringIntervalLevel,
-                       exisitingData, ...){
+                       existingData, ...){
 
 
   # 0 Set arguments for dataGeneration and effectGeneration
@@ -66,7 +66,7 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
 
 
   # 3.5 Add to previous data if any (ie previous data was insufficient)
-  if(! missing(exisitingData) ) { y <- c(exisitingData[,"y"], y) }
+  if(! missing(existingData) ) { y <- c(existingData[,"y"], y) }
 
 
 
@@ -92,7 +92,7 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
 
   if(! missing(existingData) ) {
     ci <- rbind(existingData[,c("lo","hi")],
-                t(sapply( (length(y)-nrow(exisitingData) + 1):length(y),
+                t(sapply( (length(y)-nrow(existingData) + 1):length(y),
                           fullySequentialCIs)))
   } else {
     ci <- t(sapply(1:length(y),fullySequentialCIs))
