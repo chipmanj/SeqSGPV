@@ -147,7 +147,7 @@ sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
 
 
 sgpvAMdata <- function(nreps, ...){
-  mcmcMonitoring <- plyr::rlply(.n = nreps, .expr = { sgpvAMdata( ... ) })
+  mcmcMonitoring <- plyr::rlply(.n = nreps, .expr = { sgpvAMdataSingle( ... ) })
 }
 
 
