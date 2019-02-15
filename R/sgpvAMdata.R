@@ -29,12 +29,12 @@
 #                   previous data.
 
 
-sgpvAMdata <- function(dataGeneration,   dataGenArgs,
-                       effectGeneration, effectGenArgs,
-                       modelFit,         modelFitArgs,
-                       deltaL2, deltaL1, deltaG1, deltaG2,
-                       monitoringIntervalLevel,
-                       existingData=NULL, ...){
+sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
+                             effectGeneration, effectGenArgs,
+                             modelFit,         modelFitArgs,
+                             deltaL2, deltaL1, deltaG1, deltaG2,
+                             monitoringIntervalLevel,
+                             existingData=NULL, ...){
 
 
   # 0 Set arguments for dataGeneration and effectGeneration
@@ -144,6 +144,15 @@ sgpvAMdata <- function(dataGeneration,   dataGenArgs,
   cbind(n = 1:length(y), y, trt, eci, bias=eci[,"est"] - z, sgpvNonTrivial, sgpvFutility, z)
 
 }
+
+
+sgpvAMdata <- function(nreps, ...){
+  mcmcMonitoring <- plyr::rlply(.n = nreps, .expr = { sgpvAMdata( ... ) })
+}
+
+
+
+
 
 
 # Examples
