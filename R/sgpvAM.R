@@ -110,22 +110,4 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
 #
 #
 # am <- sgpvAM(mcmcData = amData, maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.15, 0.6, by = 0.05))
-
-
-
-
-save(am,file="/data/am1.RData")
-
-
-
-# 2 adaptively monitor simulated data across multiple burn ins
-# a <- aaply(mcmcMonitoringFixed, .margins = 3, .fun = function(x) {
-#   t(sgpvAMrules(data = x, waitWidth = 0.3,
-#                 lookSteps = 1, maxAlertSteps = 100,
-#                 monitoringIntervalLevel = 0.05))
-# })
-#
-#
-# # 3 aggregate simulated data
-# aa <- t(aaply(a, .margins = c(2,3), .fun = mean))
-#
+# save(am,file="/data/am1.RData")
