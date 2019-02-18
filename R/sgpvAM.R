@@ -32,10 +32,9 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
 
     for (i in getMoreWhich){
 
-      mcmcMonitoring[[i]] <- sgpvAMdata(rnorm, dataGenArgs = list(n=800), waitWidths = seq(0.15, 0.6, by = 0.05),
-                                              lookSteps = 5, effectGeneration = 0.3,
-                                              deltaL2 = -0.4, deltaL1 = -0.3, deltaG1 = 0.3, deltaG2 = 0.4,
-                                              monitoringIntervalLevel = 0.05)
+      mcmcMonitoring[[i]] <- sgpvAMdataSingle(monitoringIntervalLevel = 0.05,
+                                              existingData = mcmcMonitoring[[i]],
+                                              ... )
 
     }
 
@@ -95,12 +94,12 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
 # Examples
 
 # No previously generated data
-# am1 <- sgpvAM(nreps = 100, maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.15, 0.6, by = 0.05),
+# am1 <- sgpvAM(nreps = 20, maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.15, 0.6, by = 0.05),
 #              dataGeneration = rnorm,   dataGenArgs = list(n=800),
 #              effectGeneration = 0.3,
 #              deltaL2 = -0.4, deltaL1=-0.3, deltaG1=0.3, deltaG2=0.4,
 #              monitoringIntervalLevel=0.05)
-
+# save(am1,file="~/Dropbox/test/am1.RData")
 
 # Previously generated data
 # amData <- sgpvAMdata(dataGeneration = rnorm,   dataGenArgs = list(n=800),
@@ -110,4 +109,4 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
 #
 #
 # am <- sgpvAM(mcmcData = amData, maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.15, 0.6, by = 0.05))
-# save(am,file="/data/am1.RData")
+# save(am,file="~/Dropbox/test/am1.RData")
