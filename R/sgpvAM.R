@@ -15,6 +15,12 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
   # 1 collect list of simulated data
   if(is.null(mcmcData)){
          mcmcMonitoring <- sgpvAMdata(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel, ... )
+         # mcmcMonitoring <- sgpvAMdata(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel,
+         #                              maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.15 ,0.6, by = 0.05),
+         #                              dataGenArgs = list(n=800), dataGeneration = rnorm,
+         #                              effectGeneration = 0,
+         #                              deltaL2 = -0.4, deltaL1=-0.3, deltaG1=0.3, deltaG2=0.4)
+
   } else mcmcMonitoring <- mcmcData
 
 
@@ -70,11 +76,11 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
     ooAve <- plyr::aaply(mcmcEOS, .margins = c(1,2), .fun = mean)
     ooVar <- plyr::aaply(mcmcEOS, .margins = c(1,2), .fun = var )
 
-    mcmcEndOfStudyAve[[paste0("width_",ww)]] <- cbind(ooAve, mse = ooVar[,"bias"] + ooAve[,"bias"]^2)
-    mcmcEndOfStudyEcdfSize                   <- apply(mcmcEOS[,"n",], 1, ecdf)
-    mcmcEndOfStudyEcdfBias                   <- apply(mcmcEOS[,"bias",], 1, ecdf)
-    names(mcmcEndOfStudyEcdfSize)            <- paste0("alertK_",mcmcEOS[,"alertK",1])
-    names(mcmcEndOfStudyEcdfBias)            <- paste0("alertK_",mcmcEOS[,"alertK",1])
+    mcmcEndOfStudyAve                <- cbind(ooAve, mse = ooVar[,"bias"] + ooAve[,"bias"]^2)
+    mcmcEndOfStudyEcdfSize           <- apply(mcmcEOS[,"n",], 1, ecdf)
+    mcmcEndOfStudyEcdfBias           <- apply(mcmcEOS[,"bias",], 1, ecdf)
+    names(mcmcEndOfStudyEcdfSize)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
+    names(mcmcEndOfStudyEcdfBias)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
 
 
     mcmcEndOfStudy[[paste0("width_",ww)]] <-
@@ -96,10 +102,21 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
 # No previously generated data
 # am1 <- sgpvAM(nreps = 20, maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.15, 0.6, by = 0.05),
 #              dataGeneration = rnorm,   dataGenArgs = list(n=800),
-#              effectGeneration = 0.3,
+#              effectGeneration = 0,
 #              deltaL2 = -0.4, deltaL1=-0.3, deltaG1=0.3, deltaG2=0.4,
 #              monitoringIntervalLevel=0.05)
 # save(am1,file="~/Dropbox/test/am1.RData")
+
+# Testing and development
+# mcmcData = NULL
+# nreps = 20; maxAlertSteps = 100; lookSteps = 1; waitWidths = seq(0.15 ,0.6, by = 0.05);
+# dataGenArgs = list(n=800);
+# effectGeneration = 0;
+# deltaL2 = -0.4; deltaL1=-0.3; deltaG1=0.3; deltaG2=0.4;
+# monitoringIntervalLevel=0.05
+
+
+
 
 # Previously generated data
 # amData <- sgpvAMdata(dataGeneration = rnorm,   dataGenArgs = list(n=800),
