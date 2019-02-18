@@ -14,7 +14,7 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
 
   # 1 collect list of simulated data
   if(is.null(mcmcData)){
-         mcmcMonitoring <- sgpvAMdata(nreps=nreps, monitoringIntervalLevel = monitoringIntervalLevel, ... )
+         mcmcMonitoring <- sgpvAMdata(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel, ... )
   } else mcmcMonitoring <- mcmcData
 
 
