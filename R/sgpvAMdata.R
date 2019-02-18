@@ -153,14 +153,51 @@ sgpvAMdata <- function(nreps, ...){
 }
 
 
+# library(doParallel)
 
 
+sgpvAMdataPP <- function(nreps, ...){
+
+  cl <- makeCluster(detectCores())
+  registerDoParallel(cl)
+
+  mcmcMonitoring <- foreach(i = 1:nreps) %dopar% {
+    sgpvAMdataSingle( ... )
+  }
+
+  # i       <- seq_len(nreps)
+  # fe_call <- as.call(c(list(quote(foreach::foreach), i = i)))
+  # fe      <- eval(fe_call)
+  #
+  # result <- foreach::`%dopar%`(fe, sgpvAMdataSingle( ... ))
+}
+
+
+# a <- sgpvAMdataPP(nreps=10, rnorm, dataGenArgs = list(n=70), effectGeneration = 0.5,
+#                   deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
+#                   monitoringIntervalLevel = 0.05)
+
+
+# else {
+#   result <- loop_apply(n, do.ply)
+# }
+# cl <- makeCluster(detectCores())
+# registerDoParallel(cl)
+#
+# mcmcMonitoring <- foreach(i = 1:nreps) %dopar% {
+#   sgpvAMdataSingle( ... )
+# }
+#
+# stopCluster(cl)
+# mcmcMonitoring
+#
+# }
 
 
 # Examples
-# mcmcMonotiringFixed <- sgpvAMdata(rnorm, dataGenArgs = list(n=70), effectGeneration = 0.5,
-#                                   deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
-#                                   monitoringIntervalLevel = 0.05)
+mcmcMonotiringFixed <- sgpvAMdata(rnorm, dataGenArgs = list(n=70), effectGeneration = 0.5,
+                                  deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
+                                  monitoringIntervalLevel = 0.05)
 # head(mcmcMonotiringFixed)
 #
 # mcmcMonotiringNorm <- sgpvAMdata(rnorm, dataGenArgs = list(n=700),
