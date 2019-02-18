@@ -55,7 +55,9 @@ sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
 
   # 3 Randomly treat half with effect
   # Use block 2 randomization for sims but not in practice
-  trt <- c(replicate(n=length(y)/2, sample(c(0,1))))
+  # Enough enough treatments if generating an odd number of observations
+  trt <- c(replicate(n=ceiling(length(y)/2), sample(c(0,1))))[1:dataGenArgs$n]
+
 
   if(dataType=="rnorm"){
     y[trt==1] <- y[trt==1] + z
