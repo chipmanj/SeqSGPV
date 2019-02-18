@@ -24,7 +24,7 @@ mcmcMonitoringEnoughCheck <- function(o, maxAlertSteps, minWW){
   getMore0 <- min(maxAlertSteps - stabilityNonTrivial, maxAlertSteps - stabilityFutility) * 5
 
 
-  # If required burn in time is greater than n to achive stability, use burn in time (burning in too long)
+  # Use burn in time if greater than n needed for stability (burning in too long)
   # Else use n required to achieve greater stability
   if(waitMoreN > getMore0){
     getMore <- waitMoreN
