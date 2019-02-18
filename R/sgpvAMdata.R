@@ -74,47 +74,59 @@ sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
   }
 
 
-
-  # 4 Obtain 1-alpha/2 monitoring confidence intervals
+  # 4 Denote point null and obtain 1-alpha/2 monitoring confidence intervals
   # Wait until at least two observations in each group
-  fullySequentialCIs <- function(look, miLevel){
 
-    # For first for looks provide essentially infinite intervals
-    if(look < 4){ return( c(NA, -10^10, 10^10, NA, NA) ) }
+  if(dataType=="rnorm" & missing(modelFit)){
 
-    if(dataType=="rnorm"){
+    pointNull <- 0
+
+    modelFit <- function(look, miLevel){
       f     <- lm(y[1:look] ~ trt[1:look])
       coefs <- summary(f)$coefficients
       est   <- coefs[2,"Estimate"]
-      ci    <- est + c(-1,1) * qt(1-miLevel/2, df = f$df.residual) * coefs[2,"Std. Error"]
-      rejPN <- as.numeric(ci[1] < 0 & ci[2] < 0 | ci[1] > 0 & ci[2] > 0)
+      eci   <- c(est, est + c(-1,1) * qt(1-miLevel/2, df = f$df.residual) * coefs[2,"Std. Error"])
+      return(eci)
+    }
 
-    } else if(dataType=="rbinom"){
+  } else if(dataType=="rbinom" & missing(modelFit)){
+
+    pointNull <- 1
+
+    modelFit <- function(look, miLevel){
+
       f     <- glm(y[1:look] ~ trt[1:look], family = binomial)
       coefs <- summary(f)$coefficients
       est   <- exp( coefs[2,"Estimate"] )
-      ci    <- exp( coefs[2,"Estimate"] + c(-1,1) * qnorm(1-miLevel/2) * coefs[2,"Std. Error"] )
+      eci   <- c(est,exp( coefs[2,"Estimate"] + c(-1,1) * qnorm(1-miLevel/2) * coefs[2,"Std. Error"] ))
       # Infinite CI bounds may occur with binomial data and insufficient
       #  data to estimate an effect and error.  Set infinite bounds to 10^10
-      ci[is.infinite(ci)] <- 10^10
-      rejPN <- as.numeric(ci[1] < 1 & ci[2] < 1 | ci[1] > 1 & ci[2] > 1)
+      eci[is.infinite(eci)] <- 10^10
+      return(ci)
+
     }
 
-    cover <- as.numeric(ci[1] < z & z < ci[2])
-
-
-    return(c(est,ci,rejPN,cover))
-
   }
+
 
   if(! is.null(existingData) ) {
-    eci <- rbind(existingData[,c("est","lo","hi","rejPN","cover")],
+    eci <- rbind(existingData[,c("est","lo","up")],
                 t(sapply( (length(y)-dataGenArgs[["n"]] + 1):length(y),
-                          fullySequentialCIs, miLevel = monitoringIntervalLevel)))
+                          modelFit, miLevel = monitoringIntervalLevel)))
   } else {
-    eci <- t(sapply(1:length(y),fullySequentialCIs, miLevel = monitoringIntervalLevel))
+    eci <- rbind(matrix(rep(c(NA,-10^10,10^10),4),byrow = TRUE,nrow=4),
+                 t(sapply(5:length(y),modelFit, miLevel = monitoringIntervalLevel)))
+    colnames(eci) <- c("est", "lo", "up")
   }
-  colnames(eci) <- c("est","lo","hi","rejPN","cover")
+
+
+  # Add whether reject point null, coverage, and bias
+  rejPN <- as.numeric(eci[,"lo"] < pointNull & eci[,"up"] < pointNull |
+                      eci[,"lo"] > pointNull & eci[,"up"] > pointNull)
+  cover <- as.numeric(eci[,"lo"] < z & z < eci[,"up"])
+  bias  <- eci[,"est"] - z
+  eci   <- cbind(eci,rejPN,cover)
+
 
 
 
@@ -122,18 +134,18 @@ sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
   if(!anyNA(c(deltaL2, deltaL1, deltaG1, deltaG2))){
 
     # Two sided
-    sgpvNonTrivial <- 1 - sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"hi"], null.lo = deltaL1, null.hi = deltaG1)$p.delta
-    sgpvFutility   <-     sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"hi"], null.lo = deltaL2, null.hi = deltaG2)$p.delta
+    sgpvNonTrivial <- 1 - sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"up"], null.lo = deltaL1, null.hi = deltaG1)$p.delta
+    sgpvFutility   <-     sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"up"], null.lo = deltaL2, null.hi = deltaG2)$p.delta
   } else if(!anyNA(c(deltaL2, deltaL1))){
 
     # One sided: efficacy when less than null
-    sgpvNonTrivial <- 1 - sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"hi"], null.lo =  -10^10, null.hi = deltaL1)$p.delta
-    sgpvFutility   <-     sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"hi"], null.lo = deltaL2, null.hi = 10^10)$p.delta
+    sgpvNonTrivial <- 1 - sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"up"], null.lo =  -10^10, null.hi = deltaL1)$p.delta
+    sgpvFutility   <-     sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"up"], null.lo = deltaL2, null.hi = 10^10)$p.delta
   } else if(!anyNA(c(deltaG1, deltaG2))){
 
     # One sided: efficacy when less than null
-    sgpvNonTrivial <- 1 - sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"hi"], null.lo = deltaG1, null.hi = 10^10)$p.delta
-    sgpvFutility   <-     sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"hi"], null.lo =  -10^10, null.hi = deltaG2)$p.delta
+    sgpvNonTrivial <- 1 - sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"up"], null.lo = deltaG1, null.hi = 10^10)$p.delta
+    sgpvFutility   <-     sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"up"], null.lo =  -10^10, null.hi = deltaG2)$p.delta
   } else{
 
     stop("A one sided study requires both deltas to be strictly greater or lower than point null")
@@ -143,7 +155,7 @@ sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
 
 
   # 6 Return matrix of data, confidence interval, estimate, errors, and sgpvs
-  cbind(n = 1:length(y), y, trt, eci, bias=eci[,"est"] - z, sgpvNonTrivial, sgpvFutility, z)
+  cbind(n = 1:length(y), y, trt, eci, sgpvNonTrivial, sgpvFutility, z)
 
 }
 
@@ -161,19 +173,24 @@ sgpvAMdataPP <- function(nreps, ...){
   cl <- makeCluster(detectCores())
   registerDoParallel(cl)
 
-  mcmcMonitoring <- foreach(i = 1:nreps) %dopar% {
-    sgpvAMdataSingle( ... )
+  amNames  <- names(formals(sgpvAMdataSingle))
+  dots     <- list(...)
+
+  mcmcMonitoring <- foreach(i = 1:nreps, .packages = "sgpvAM") %dopar% {
+    do.call('sgpvAMdataSingle', c(dots[names(dots) %in% amNames]))
   }
 
-  # i       <- seq_len(nreps)
-  # fe_call <- as.call(c(list(quote(foreach::foreach), i = i)))
-  # fe      <- eval(fe_call)
-  #
-  # result <- foreach::`%dopar%`(fe, sgpvAMdataSingle( ... ))
+  stopCluster(cl)
+
 }
 
 
-# a <- sgpvAMdataPP(nreps=10, rnorm, dataGenArgs = list(n=70), effectGeneration = 0.5,
+# a <- sgpvAMdataPP(nreps=10, dataGeneration = rnorm, dataGenArgs = list(n=70), effectGeneration = 0.5,
+#                   deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
+#                   monitoringIntervalLevel = 0.05)
+#
+#
+# a <- sgpvAMdataSingle(dataGeneration = rnorm, dataGenArgs = list(n=70), effectGeneration = 0.5,
 #                   deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
 #                   monitoringIntervalLevel = 0.05)
 
@@ -195,9 +212,9 @@ sgpvAMdataPP <- function(nreps, ...){
 
 
 # Examples
-mcmcMonotiringFixed <- sgpvAMdata(rnorm, dataGenArgs = list(n=70), effectGeneration = 0.5,
-                                  deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
-                                  monitoringIntervalLevel = 0.05)
+# mcmcMonotiringFixed <- sgpvAMdata(rnorm, dataGenArgs = list(n=70), effectGeneration = 0.5,
+#                                   deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
+#                                   monitoringIntervalLevel = 0.05)
 # head(mcmcMonotiringFixed)
 #
 # mcmcMonotiringNorm <- sgpvAMdata(rnorm, dataGenArgs = list(n=700),
