@@ -95,7 +95,7 @@ sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
                       eci[,"lo"] > pointNull & eci[,"up"] > pointNull)
   cover <- as.numeric(eci[,"lo"] < z & z < eci[,"up"])
   bias  <- eci[,"est"] - z
-  eci   <- cbind(eci,rejPN,cover)
+  eci   <- cbind(eci,bias,rejPN,cover)
 
 
 
