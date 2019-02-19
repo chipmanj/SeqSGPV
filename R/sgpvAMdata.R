@@ -30,7 +30,7 @@
 
 
 sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
-                             effectGeneration, effectGenArgs,
+                             effectGeneration, effectGenArgs,  effectScale,
                              modelFit,         modelFitArgs,
                              deltaL2, deltaL1, deltaG1, deltaG2,
                              monitoringIntervalLevel,
@@ -38,7 +38,7 @@ sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
 
 
   # 0 Set arguments for dataGeneration and effectGeneration
-  dataType <- deparse(substitute(dataGeneration))
+  dataType <- class(modelFit)
 
 
   # 1 Generate data under null of no difference
@@ -55,15 +55,18 @@ sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
 
   # 3 Randomly treat half with effect
   # Use block 2 randomization for sims but not in practice
-  # Enough enough treatments if generating an odd number of observations
+  # Ensure enough treatments if generating an odd number of observations
+  # Indicate the point null
   trt <- c(replicate(n=ceiling(length(y)/2), sample(c(0,1))))[1:dataGenArgs$n]
 
 
-  if(dataType=="rnorm"){
+  if(dataType=="normal"){
     y[trt==1] <- y[trt==1] + z
-  } else if(dataType=="rbinom"){
+    pointNull <- 0
+  } else if(dataType=="binomial"){
     oddsNull  <- dataGenArgs[["prob"]] / (1 - dataGenArgs[["prob"]])
     y[trt==1] <- rbinom(n = length(trt)/2,size = 1,prob = z * oddsNull / (1 + z * oddsNull))
+    pointNull <- 1
   }
 
 
@@ -74,48 +77,15 @@ sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
   }
 
 
-  # 4 Denote point null and obtain 1-alpha/2 monitoring confidence intervals
-  # Wait until at least two observations in each group
-
-  if(dataType=="rnorm" & missing(modelFit)){
-
-    pointNull <- 0
-
-    modelFit <- function(look, miLevel){
-      f     <- lm(y[1:look] ~ trt[1:look])
-      coefs <- summary(f)$coefficients
-      est   <- coefs[2,"Estimate"]
-      eci   <- c(est, est + c(-1,1) * qt(1-miLevel/2, df = f$df.residual) * coefs[2,"Std. Error"])
-      return(eci)
-    }
-
-  } else if(dataType=="rbinom" & missing(modelFit)){
-
-    pointNull <- 1
-
-    modelFit <- function(look, miLevel){
-
-      f     <- glm(y[1:look] ~ trt[1:look], family = binomial)
-      coefs <- summary(f)$coefficients
-      est   <- exp( coefs[2,"Estimate"] )
-      eci   <- c(est,exp( coefs[2,"Estimate"] + c(-1,1) * qnorm(1-miLevel/2) * coefs[2,"Std. Error"] ))
-      # Infinite CI bounds may occur with binomial data and insufficient
-      #  data to estimate an effect and error.  Set infinite bounds to 10^10
-      eci[is.infinite(eci)] <- 10^10
-      return(ci)
-
-    }
-
-  }
-
-
+  # 4 Obtain (or add to) 1-alpha/2 monitoring confidence intervals
+  #   Wait until at least two observations in each group
   if(! is.null(existingData) ) {
     eci <- rbind(existingData[,c("est","lo","up")],
                 t(sapply( (length(y)-dataGenArgs[["n"]] + 1):length(y),
-                          modelFit, miLevel = monitoringIntervalLevel)))
+                          modelFit, y=y, trt=trt, miLevel = monitoringIntervalLevel, ... )))
   } else {
     eci <- rbind(matrix(rep(c(NA,-10^10,10^10),4),byrow = TRUE,nrow=4),
-                 t(sapply(5:length(y),modelFit, miLevel = monitoringIntervalLevel)))
+                 t(sapply(5:length(y), modelFit, y=y, trt=trt, miLevel = monitoringIntervalLevel, ... )))
     colnames(eci) <- c("est", "lo", "up")
   }
 
@@ -160,39 +130,36 @@ sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
 }
 
 
-sgpvAMdata <- function(nreps, ...){
-  mcmcMonitoring <- plyr::rlply(.n = nreps, .expr = { sgpvAMdataSingle( ... ) })
-}
+sgpvAMdata <- function(nreps, fork=TRUE, socket = TRUE, cores = detectCores(), ...){
 
-
-# library(doParallel)
-
-
-sgpvAMdataPP <- function(nreps, ...){
-
-  cl <- makeCluster(detectCores())
-  registerDoParallel(cl)
-
-  amNames  <- names(formals(sgpvAMdataSingle))
-  dots     <- list(...)
-
-  mcmcMonitoring <- foreach(i = 1:nreps, .packages = "sgpvAM") %dopar% {
-    do.call('sgpvAMdataSingle', c(dots[names(dots) %in% amNames]))
+  if(fork==TRUE){
+    # Only works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.
+    mcmcMonitoring <- parallel::mclapply(1:nreps, sgpvAMdataSingle, ... , mc.cores = cores)
+  } else if(socket==TRUE){
+    # Works on Mac and Windows; only slightly slower
+    cl             <- parallel::makeCluster(cores)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+    mcmcMonitoring <- parallel::parLapply(cl, 1:nreps, sgpvAMdataSingle, ...)
+  } else {
+    mcmcMonitoring <- plyr::rlply(.n = nreps, .expr = { sgpvAMdataSingle( ... ) })
   }
 
-  stopCluster(cl)
-
+  return(mcmcMonitoring)
 }
 
 
-# a <- sgpvAMdataPP(nreps=10, dataGeneration = rnorm, dataGenArgs = list(n=70), effectGeneration = 0.5,
-#                   deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
-#                   monitoringIntervalLevel = 0.05)
+
+
+# system.time(a <- sgpvAMdata(nreps=1000, dataGeneration = rnorm, dataGenArgs = list(n=1600), effectGeneration = 0.5,
+#                             modelFit = lmCI,
+#                             deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
+#                             monitoringIntervalLevel = 0.05))
 #
 #
-# a <- sgpvAMdataSingle(dataGeneration = rnorm, dataGenArgs = list(n=70), effectGeneration = 0.5,
-#                   deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
-#                   monitoringIntervalLevel = 0.05)
+# a <- sgpvAMdataSingle(dataGeneration = rnorm, dataGenArgs = list(n=120), effectGeneration = 0.5,
+#                       modelFit = lmCI,
+#                       deltaL2 = -0.5, deltaL1 = -0.15, deltaG1 = 0.15, deltaG2 = 0.5,
+#                       monitoringIntervalLevel = 0.05)
 
 
 # else {
