@@ -26,8 +26,4 @@ lrCI <- function(y, trt, look, miLevel, ... ){
   return(ci)
 
 }
-<<<<<<< HEAD
 class(lrCI) <- "binomial"
-=======
-class(lrIC) <- "binomial"
->>>>>>> 7b88bc6c395f83bdde021a7548824e14b4dcd257
