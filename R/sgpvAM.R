@@ -1,15 +1,10 @@
 # sgpvAM.R
 # J Chipman
-#
-# Adaptive monitoring design
-# Change
-#
-# library(plyr)
 
 
 sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
                    waitWidths = c(0.15, 0.20, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60),
-                   monitoringIntervalLevel = 0.05, ...){
+                   monitoringIntervalLevel = 0.05, returnSimData = FALSE, ...){
 
 
   # 1 collect list of simulated data
@@ -91,8 +86,14 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
   }
 
 
+  if(returnSimData){
+    out <- list(mcmcMonitoring = mcmcMonitoring,
+                mcmcEndOfStudy = mcmcEndOfStudy)
+  } else {
+    out <- mcmcEndOfStudy
+  }
 
-  return(mcmcEndOfStudy)
+  return(out)
 
 }
 
