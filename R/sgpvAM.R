@@ -4,12 +4,14 @@
 
 sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
                    waitWidths = c(0.15, 0.20, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60),
-                   monitoringIntervalLevel = 0.05, returnSimData = FALSE, ...){
+                   monitoringIntervalLevel = 0.05, returnSimData = FALSE, cores, ...){
 
 
   # 1 collect list of simulated data
   if(is.null(mcmcData)){
-         mcmcMonitoring <- sgpvAMdata(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel, ... )
+         mcmcMonitoring <- sgpvAMdata(nreps = nreps,
+                                      monitoringIntervalLevel = monitoringIntervalLevel,
+                                      cores = cores, ... )
          # mcmcMonitoring <- sgpvAMdata(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel,
          #                              maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.15 ,0.6, by = 0.05),
          #                              dataGenArgs = list(n=800), dataGeneration = rnorm,
