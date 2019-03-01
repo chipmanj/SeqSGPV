@@ -2,7 +2,14 @@
 # J Chipman
 
 
-sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
+sgpvAM <- function(mcmcData=NULL,
+                   nreps,
+                   dataGeneration,   dataGenArgs,
+                   effectGeneration, effectGenArgs,
+                   modelFit,         modelFitArgs,
+                   deltaL2, deltaL1, deltaG1, deltaG2,
+                   monitoringIntervalLevel,
+                   maxAlertSteps=100, lookSteps=1,
                    waitWidths = c(0.15, 0.20, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60),
                    monitoringIntervalLevel = 0.05, returnSimData = FALSE, cores, ...){
 
@@ -34,7 +41,7 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
     print(paste("Adding another", max(getMore), "observations to ensure simulations go to completion."))
 
     for (i in getMoreWhich){
-
+      dataGenArgs$n       <- getMore[i]
       mcmcMonitoring[[i]] <- sgpvAMdataSingle(monitoringIntervalLevel = 0.05,
                                               existingData = mcmcMonitoring[[i]],
                                               cores = cores,

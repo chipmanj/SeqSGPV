@@ -30,11 +30,11 @@
 
 
 sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
-                             effectGeneration, effectGenArgs,  effectScale,
+                             effectGeneration, effectGenArgs,
                              modelFit,         modelFitArgs,
                              deltaL2, deltaL1, deltaG1, deltaG2,
                              monitoringIntervalLevel,
-                             existingData=NULL, ...){
+                             existingData=NULL){
 
 
   # 0 Set arguments for dataGeneration and effectGeneration
