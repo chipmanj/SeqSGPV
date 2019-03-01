@@ -17,10 +17,6 @@
 #                   If missing, will default to t.test for normal data and glm for
 #                   binomial data.
 # modelFitArgs:     Arguments for modelFit
-# deltaL1:          The delta less than and closest to the point null.
-# deltaL2:          The delta less than and furthest from the point null.
-# deltaG1:          The delta greater than and closest to the point null.
-# deltaG2:          The delta greater than and furthest from the point null.
 # monitoringIntervalLevel: The traditional alpha in the (1-alpha) monitoring interval.
 #                   These intervals are purely for monitoring, and we do not report the
 #                   frequency properties of monitoring intervals.
@@ -32,7 +28,6 @@
 sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
                              effectGeneration, effectGenArgs,
                              modelFit,         modelFitArgs,
-                             deltaL2, deltaL1, deltaG1, deltaG2,
                              monitoringIntervalLevel,
                              existingData=NULL){
 
@@ -100,32 +95,8 @@ sgpvAMdataSingle <- function(dataGeneration,   dataGenArgs,
 
 
 
-  # 5 Obtain sgpv
-  if(!anyNA(c(deltaL2, deltaL1, deltaG1, deltaG2))){
-
-    # Two sided
-    sgpvNonTrivial <- 1 - sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"up"], null.lo = deltaL1, null.hi = deltaG1)$p.delta
-    sgpvFutility   <-     sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"up"], null.lo = deltaL2, null.hi = deltaG2)$p.delta
-  } else if(!anyNA(c(deltaL2, deltaL1))){
-
-    # One sided: efficacy when less than null
-    sgpvNonTrivial <- 1 - sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"up"], null.lo =  -10^10, null.hi = deltaL1)$p.delta
-    sgpvFutility   <-     sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"up"], null.lo = deltaL2, null.hi = 10^10)$p.delta
-  } else if(!anyNA(c(deltaG1, deltaG2))){
-
-    # One sided: efficacy when less than null
-    sgpvNonTrivial <- 1 - sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"up"], null.lo = deltaG1, null.hi = 10^10)$p.delta
-    sgpvFutility   <-     sgpv::sgpvalue(est.lo = eci[,"lo"], est.hi = eci[,"up"], null.lo =  -10^10, null.hi = deltaG2)$p.delta
-  } else{
-
-    stop("A one sided study requires both deltas to be strictly greater or lower than point null")
-  }
-
-
-
-
-  # 6 Return matrix of data, confidence interval, estimate, errors, and sgpvs
-  cbind(n = 1:length(y), y, trt, eci, sgpvNonTrivial, sgpvFutility, z)
+  # 5 Return matrix of data, confidence interval, estimate, errors, and sgpvs
+  cbind(n = 1:length(y), y, trt, eci, z)
 
 }
 
@@ -192,11 +163,13 @@ sgpvAMdata <- function(nreps, fork=TRUE, socket = TRUE, cores = detectCores(), .
 
 
 # development
-# dataGeneration <- rnorm
-# dataGenArgs <- list(n=700)
-# effectGeneration <- 0
+dataGeneration   <- rnorm
+dataGenArgs      <- list(n=700)
+effectGeneration <- 0
+modelFit         <- lmCI
+monitoringIntervalLevel <- 0.05
 # deltaL2 <- -0.5
 # deltaL1 <- -0.15
 # deltaG1 <-  0.15
 # deltaG2 <-  0.5
-# monitoringIntervalLevel <- 0.05
+monitoringIntervalLevel <- 0.05
