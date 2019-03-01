@@ -21,14 +21,14 @@ sgpvAMrules <- function(data, waitWidth, monitoringIntervalLevel, lookSteps, max
 
 
 
-  # 2 Establish observations that surpass wait time and occur at lookSteps
+  # 1 Establish observations that surpass wait time and occur at lookSteps
   waitTime  <- ceiling((2 * qnorm(1 - monitoringIntervalLevel / 2) * 1 / waitWidth)^2)
   looks     <- waitTime + (0:nrow(data)) * lookSteps
   monitor   <- data[,"n"] %in% looks
 
 
 
-  # 3 Raise Alert
+  # 2 Raise Alert
   alertNonTrivial <- which(data[,"sgpvNonTrivial"] == 1 & monitor==TRUE)
   alertFutility   <- which(data[,"sgpvFutility"]   == 1 & monitor==TRUE)
 
@@ -37,7 +37,7 @@ sgpvAMrules <- function(data, waitWidth, monitoringIntervalLevel, lookSteps, max
 
 
 
-  # 4 Affirm alert and report end of study (eos)
+  # 3 Affirm alert and report end of study (eos)
   affirmEndOfStudy <- function(alertK){
 
     if(alertNonTrivialAny) {
