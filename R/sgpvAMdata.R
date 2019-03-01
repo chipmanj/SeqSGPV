@@ -163,13 +163,9 @@ sgpvAMdata <- function(nreps, fork=TRUE, socket = TRUE, cores = detectCores(), .
 
 
 # development
-dataGeneration   <- rnorm
-dataGenArgs      <- list(n=700)
-effectGeneration <- 0
-modelFit         <- lmCI
-monitoringIntervalLevel <- 0.05
-# deltaL2 <- -0.5
-# deltaL1 <- -0.15
-# deltaG1 <-  0.15
-# deltaG2 <-  0.5
-monitoringIntervalLevel <- 0.05
+# dataGeneration   <- rnorm
+# dataGenArgs      <- list(n=700)
+# effectGeneration <- 0
+# modelFit         <- lmCI
+# monitoringIntervalLevel <- 0.05
+# monitoringIntervalLevel <- 0.05
