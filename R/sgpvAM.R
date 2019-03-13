@@ -1,24 +1,20 @@
 # sgpvAM.R
 # J Chipman
+#
+# Adaptive monitoring design
+# Change
+#
+# library(plyr)
 
 
-sgpvAM <- function(mcmcData=NULL,
-                   nreps,
-                   dataGeneration,   dataGenArgs,
-                   effectGeneration, effectGenArgs,
-                   modelFit,         modelFitArgs,
-                   deltaL2, deltaL1, deltaG1, deltaG2,
-                   monitoringIntervalLevel,
-                   maxAlertSteps=100, lookSteps=1,
+sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
                    waitWidths = c(0.15, 0.20, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60),
-                   monitoringIntervalLevel = 0.05, returnSimData = FALSE, cores, ...){
+                   monitoringIntervalLevel = 0.05, ...){
 
 
   # 1 collect list of simulated data
   if(is.null(mcmcData)){
-         mcmcMonitoring <- sgpvAMdata(nreps = nreps,
-                                      monitoringIntervalLevel = monitoringIntervalLevel,
-                                      cores = cores, ... )
+         mcmcMonitoring <- sgpvAMdata(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel, ... )
          # mcmcMonitoring <- sgpvAMdata(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel,
          #                              maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.15 ,0.6, by = 0.05),
          #                              dataGenArgs = list(n=800), dataGeneration = rnorm,
@@ -41,10 +37,9 @@ sgpvAM <- function(mcmcData=NULL,
     print(paste("Adding another", max(getMore), "observations to ensure simulations go to completion."))
 
     for (i in getMoreWhich){
-      dataGenArgs$n       <- getMore[i]
+
       mcmcMonitoring[[i]] <- sgpvAMdataSingle(monitoringIntervalLevel = 0.05,
                                               existingData = mcmcMonitoring[[i]],
-                                              cores = cores,
                                               ... )
 
     }
@@ -96,32 +91,17 @@ sgpvAM <- function(mcmcData=NULL,
   }
 
 
-  if(returnSimData){
-    out <- list(mcmcMonitoring = mcmcMonitoring,
-                mcmcEndOfStudy = mcmcEndOfStudy)
-  } else {
-    out <- mcmcEndOfStudy
-  }
 
-  return(out)
+  return(mcmcEndOfStudy)
 
 }
 
 
 # Examples
-# Generate Data
-# am <- sgpvAMdata(nreps = 20, maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.25, 0.6, by = 0.05),
-#                  dataGeneration = rnorm,   dataGenArgs = list(n=800),
-#                  modelFit = lmCI,
-#                  effectGeneration = 0,
-#                  deltaL2 = -0.4, deltaL1=-0.3, deltaG1=0.3, deltaG2=0.4,
-#                  monitoringIntervalLevel=0.05)
-
 
 # No previously generated data
-# am1 <- sgpvAM(nreps = 20, maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.25, 0.6, by = 0.05),
+# am1 <- sgpvAM(nreps = 20, maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.15, 0.6, by = 0.05),
 #              dataGeneration = rnorm,   dataGenArgs = list(n=800),
-#              modelFit = lmCI,
 #              effectGeneration = 0,
 #              deltaL2 = -0.4, deltaL1=-0.3, deltaG1=0.3, deltaG2=0.4,
 #              monitoringIntervalLevel=0.05)

@@ -7,8 +7,8 @@
 #  end of study results for affirming an alert starting from 0 to
 #  maxAlertSteps by how frequently data are monitored.
 #
-# Data:                    matrix from sgpvAMdata.  Or a similar matrix with columns:
-#                          n, y, lo, hi, z
+# Data: matrix from sgpvAMdata.  Or a similar matrix with columns:
+#       n, y, lo, hi, sgpvNonTrivial, sgpvFutility, z
 # waitWidth:               The width of the confidence interval under an assumed variance
 # monitoringIntervalLevel: The traditional alpha
 # lookSteps:               How frequently will data be monitored after burn in
@@ -17,8 +17,6 @@
 
 
 sgpvAMrules <- function(data, waitWidth, monitoringIntervalLevel, lookSteps, maxAlertSteps=100){
-
-
 
 
   # 1 Establish observations that surpass wait time and occur at lookSteps
