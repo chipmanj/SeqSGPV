@@ -29,8 +29,8 @@ addStats <- function(o, pointNull, deltaL2, deltaL1, deltaG1, deltaG2){
   # Add whether reject point null, coverage, and bias
   rejPN <- as.numeric(o[,"lo"] < pointNull & o[,"up"] < pointNull |
                       o[,"lo"] > pointNull & o[,"up"] > pointNull)
-  cover <- as.numeric(o[,"lo"] < theta & theta < o[,"up"])
-  bias  <- o[,"est"] - theta
+  cover <- as.numeric(o[,"lo"] < o[,"theta"] & o[,"theta"] < o[,"up"])
+  bias  <- o[,"est"] - o[,"theta"]
 
 
   # Obtain sgpv
