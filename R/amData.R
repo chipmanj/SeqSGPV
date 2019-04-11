@@ -42,8 +42,8 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
 
   # 2 Generate treatment effect if not provided
   if( is.function(effectGeneration) ){
-         z <- do.call(effectGeneration,effectGenArgs)
-  } else z <- effectGeneration
+         theta <- do.call(effectGeneration,effectGenArgs)
+  } else theta <- effectGeneration
 
 
 
@@ -55,11 +55,11 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
 
 
   if(dataType=="normal"){
-    y[trt==1] <- y[trt==1] + z
+    y[trt==1] <- y[trt==1] + theta
     pointNull <- 0
   } else if(dataType=="binomial"){
     oddsNull  <- dataGenArgs[["prob"]] / (1 - dataGenArgs[["prob"]])
-    y[trt==1] <- rbinom(n = length(trt)/2,size = 1,prob = z * oddsNull / (1 + z * oddsNull))
+    y[trt==1] <- rbinom(n = length(trt)/2,size = 1,prob = theta * oddsNull / (1 + theta * oddsNull))
     pointNull <- 1
   }
 
@@ -87,7 +87,7 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
 
 
   # 5 Return matrix of data, confidence interval, estimate, errors, and sgpvs
-  cbind(z, n = 1:length(y), y, trt, eci)
+  cbind(theta, n = 1:length(y), y, trt, eci)
 
 }
 
