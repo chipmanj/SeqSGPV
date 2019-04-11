@@ -17,14 +17,19 @@ mcmcMonitoringEnoughCheck <- function(o, maxAlertSteps, minWW){
   } else waitMoreN <- 0
 
   # Check for stability of sgpv
-  stabilityNonTrivial <- sum(o[(obs-maxAlertSteps + 1):obs,"sgpvNonTrivial"]==1)
-  stabilityFutility   <- sum(o[(obs-maxAlertSteps + 1):obs,"sgpvFutility"]==1)
+  #  - Require at least as many observations as maxAlertSteps
+  if(obs < maxAlertSteps){
+    stabilityNonTrivial <- sum(o[(obs-maxAlertSteps + 1):obs,"sgpvNonTrivial"]==1)
+    stabilityFutility   <- sum(o[(obs-maxAlertSteps + 1):obs,"sgpvFutility"]==1)
 
-  # Get a sense of how many additional observations needed and multiple by arbitraty factor of 4
-  getMore0 <- min(maxAlertSteps - stabilityNonTrivial, maxAlertSteps - stabilityFutility) * 5
+    # Get a sense of how many additional observations needed and multiple by arbitraty factor of 4
+    getMore0 <- min(maxAlertSteps - stabilityNonTrivial, maxAlertSteps - stabilityFutility) * 5
+  } else {
+    getMore0 <- maxAlertSteps * 5
+  }
 
 
-  # Use burn in time if greater than n needed for stability (burning in too long)
+  # Use burn in time if greater than the additional number of obs needed for stability
   # Else use n required to achieve greater stability
   if(waitMoreN > getMore0){
     getMore <- waitMoreN
