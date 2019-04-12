@@ -8,9 +8,9 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
                    waitWidths = c(0.15, 0.20, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60),
                    dataGeneration,   dataGenArgs,
                    effectGeneration, effectGenArgs,
-                   modelFit,         modelFitArgs,
+                   modelFit,
                    pointNull, deltaL2, deltaL1, deltaG1, deltaG2,
-                   monitoringIntervalLevel = 0.05, outData = TRUE, ...){
+                   monitoringIntervalLevel = 0.05, outData = TRUE){
 
 
   # 1 collect list of simulated data
@@ -18,7 +18,7 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
          mcmcMonitoring <- amData(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel,
                                   dataGeneration=dataGeneration, dataGenArgs=dataGenArgs,
                                   effectGeneration=effectGeneration, effectGenArgs=effectGenArgs,
-                                  modelFit=modelFit, ... )
+                                  modelFit=modelFit)
          # mcmcMonitoring <- amData(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel,
          #                          dataGenArgs = list(n=50), dataGeneration = rnorm,
          #                          effectGeneration = 0,
@@ -57,7 +57,7 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
                                             existingData = mcmcMonitoring[[i]],
                                             dataGeneration = dataGeneration, dataGenArgs = dataGenArgs,
                                             effectGeneration=effectGeneration, effectGenArgs=effectGenArgs,
-                                            modelFit = modelFit, ... )
+                                            modelFit = modelFit)
         mcmcMonitoring[[i]] <- addStats(o = mcmcMonitoring[[i]],
                                         pointNull = pointNull,
                                         deltaL2 = deltaL2, deltaL1=deltaL1, deltaG1=deltaG1, deltaG2=deltaG2)
