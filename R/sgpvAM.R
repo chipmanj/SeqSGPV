@@ -9,16 +9,17 @@
 
 sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
                    waitWidths = c(0.15, 0.20, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60),
+                   pointNull, deltaL2, deltaL1, deltaG1, deltaG2,
                    monitoringIntervalLevel = 0.05, ...){
 
 
   # 1 collect list of simulated data
   if(is.null(mcmcData)){
-         # mcmcMonitoring <- sgpvAMdata(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel, ... )
-         mcmcMonitoring <- amData(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel,
-                                  dataGenArgs = list(n=50), dataGeneration = rnorm,
-                                  effectGeneration = 0,
-                                  modelFit = lmCI)
+         mcmcMonitoring <- amData(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel, ... )
+         # mcmcMonitoring <- amData(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel,
+         #                          dataGenArgs = list(n=50), dataGeneration = rnorm,
+         #                          effectGeneration = 0,
+         #                          modelFit = lmCI)
 
   } else mcmcMonitoring <- mcmcData
 
@@ -27,7 +28,8 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
   # 2 Add stats (bias, rejPN, cover, sgpvNonTrival, sgpvFutility)
   mcmcMonitoring <- lapply(mcmcMonitoring,
                            addStats,
-                           pointNull = 0, deltaL2 = -0.4, deltaL1=-0.3, deltaG1=0.3, deltaG2=0.4)
+                           pointNull = pointNull,
+                           deltaL2 = deltaL2, deltaL1=deltaL1, deltaG1=deltaG1, deltaG2=deltaG2)
 
 
 
@@ -47,11 +49,12 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
 
       for (i in getMoreWhich){
 
-        # mcmcMonitoring[[i]] <- amDataSingle(monitoringIntervalLevel = monitoringIntervalLevel,
-        #                                     existingData = mcmcMonitoring[[i]],
-        #                                     ... )
+        mcmcMonitoring[[i]] <- amDataSingle(monitoringIntervalLevel = monitoringIntervalLevel,
+                                            existingData = mcmcMonitoring[[i]],
+                                            ... )
         mcmcMonitoring[[i]] <- addStats(o = mcmcMonitoring[[i]],
-                                        pointNull = 0, deltaL2 = -0.4, deltaL1=-0.3, deltaG1=0.3, deltaG2=0.4)
+                                        pointNull = pointNull,
+                                        deltaL2 = deltaL2, deltaL1=deltaL1, deltaG1=deltaG1, deltaG2=deltaG2)
 
       }
 
@@ -102,9 +105,10 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
 
   }
 
+  out <- list(mcmcMonitoring=mcmcMonitoring,
+              mcmcEndOfStudy=mcmcEndOfStudy)
 
-
-  return(mcmcEndOfStudy)
+  return(out)
 
 }
 
@@ -112,21 +116,26 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
 # Examples
 
 # No previously generated data
-# am1 <- sgpvAM(nreps = 20, maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.15, 0.6, by = 0.05),
-#              dataGeneration = rnorm,   dataGenArgs = list(n=800),
-#              effectGeneration = 0,
-#              deltaL2 = -0.4, deltaL1=-0.3, deltaG1=0.3, deltaG2=0.4,
-#              monitoringIntervalLevel=0.05)
+am1 <- sgpvAM(nreps = 20, maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.15, 0.6, by = 0.05),
+             dataGeneration = rnorm,   dataGenArgs = list(n=800),
+             effectGeneration = 0,
+             modelFit = lmCI,
+             pointNull = 0,
+             deltaL2 = -0.4, deltaL1=-0.3, deltaG1=0.3, deltaG2=0.4,
+             monitoringIntervalLevel=0.05)
+
+
+
 # save(am1,file="~/Dropbox/test/am1.RData")
 
 # Testing and development
-mcmcData = NULL
-nreps = 20; maxAlertSteps = 100; lookSteps = 1; waitWidths = seq(0.15 ,0.6, by = 0.05);
-dataGenArgs = list(n=800);
-effectGeneration = 0;
-deltaL2 = -0.4; deltaL1=-0.3; deltaG1=0.3; deltaG2=0.4;
-monitoringIntervalLevel=0.05
-modelFit = lmCI
+# mcmcData = NULL
+# nreps = 20; maxAlertSteps = 100; lookSteps = 1; waitWidths = seq(0.15 ,0.6, by = 0.05);
+# dataGenArgs = list(n=800);
+# effectGeneration = 0;
+# deltaL2 = -0.4; deltaL1=-0.3; deltaG1=0.3; deltaG2=0.4;
+# monitoringIntervalLevel=0.05
+# modelFit = lmCI
 
 
 
