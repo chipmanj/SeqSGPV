@@ -18,7 +18,7 @@ locationShift <- function(o, shiftedThetas){
   shiftTheta <- function(simData, shift){
 
     simData[simData[,"trt"]==1,"y"] <- simData[simData[,"trt"]==1,"y"] + shift
-    simData[,c("est","lo","up")]    <- simData[,c("est","lo","up")] + shift
+    simData[,c("est","lo","up")]    <- simData[,c("est","lo","up")]    + shift
     simData
 
   }

@@ -4,9 +4,9 @@ library(sgpvAM)
 # Simulate AM trial
 # -- n set to 2000 to motivate location shift example
 #    Will be updated so needn't be so large.
-am <-  sgpvAM(nreps = 100,
-              maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.15, 0.6, by = 0.05),
-              dataGeneration = rnorm,   dataGenArgs = list(n=2000),
+am <-  sgpvAM(nreps            = 100,
+              maxAlertSteps    = 100,       lookSteps = 1, waitWidths = seq(0.15, 0.6, by = 0.05),
+              dataGeneration   = rnorm,   dataGenArgs = list(n=2000),
               effectGeneration = 0,
               modelFit = lmCI,
               pointNull = 0, deltaL2 = -0.5, deltaL1=-0.2, deltaG1=0.2, deltaG2=0.5,
@@ -52,7 +52,7 @@ plotPower <- function(am, amShifted, waitWidth, alertK){
 
 }
 
-plotPower(am,amShifted, waitWidth = 0.35, alertK = 50)
+plotPower(am, amShifted, waitWidth = 0.35, alertK = 50)
 
 
 
