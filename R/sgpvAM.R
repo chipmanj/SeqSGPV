@@ -6,13 +6,19 @@
 
 sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
                    waitWidths = c(0.15, 0.20, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60),
+                   dataGeneration,   dataGenArgs,
+                   effectGeneration, effectGenArgs,
+                   modelFit,         modelFitArgs,
                    pointNull, deltaL2, deltaL1, deltaG1, deltaG2,
                    monitoringIntervalLevel = 0.05, outData = TRUE, ...){
 
 
   # 1 collect list of simulated data
   if(is.null(mcmcData)){
-         mcmcMonitoring <- amData(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel, ... )
+         mcmcMonitoring <- amData(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel,
+                                  dataGeneration=dataGeneration, dataGenArgs=dataGenArgs,
+                                  effectGeneration=effectGeneration, effectGenArgs=effectGenArgs,
+                                  modelFit=modelFit, ... )
          # mcmcMonitoring <- amData(nreps = nreps, monitoringIntervalLevel = monitoringIntervalLevel,
          #                          dataGenArgs = list(n=50), dataGeneration = rnorm,
          #                          effectGeneration = 0,
@@ -38,7 +44,7 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
   getMoreWhich <- which(getMore > 0)
   getMoreWhich
 
-  if(!is.null(mcmcData) & sum(getMore) > 0 & is.null(dataGeneration)){
+  if( !is.null(mcmcData) & sum(getMore) > 0 ){
     # Stop if more data needed to run to fruition but dataGeneration mechanism not provided
     stop("Provided mcmcData needs more observations to guarentee continuation to completion\n  Generate on own or provide data generation inputs.")
   } else {
@@ -49,7 +55,9 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
 
         mcmcMonitoring[[i]] <- amDataSingle(monitoringIntervalLevel = monitoringIntervalLevel,
                                             existingData = mcmcMonitoring[[i]],
-                                            ... )
+                                            dataGeneration = dataGeneration, dataGenArgs = dataGenArgs,
+                                            effectGeneration=effectGeneration, effectGenArgs=effectGenArgs,
+                                            modelFit = modelFit, ... )
         mcmcMonitoring[[i]] <- addStats(o = mcmcMonitoring[[i]],
                                         pointNull = pointNull,
                                         deltaL2 = deltaL2, deltaL1=deltaL1, deltaG1=deltaG1, deltaG2=deltaG2)

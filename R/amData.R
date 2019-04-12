@@ -15,7 +15,6 @@
 #                   must return a 2 length vector of interval lower and upper bound.
 #                   If missing, will default to t.test for normal data and glm for
 #                   binomial data.
-# modelFitArgs:     Arguments for modelFit
 # monitoringIntervalLevel: The traditional alpha in the (1-alpha) monitoring interval.
 #                   These intervals are purely for monitoring, and we do not report the
 #                   frequency properties of monitoring intervals.
@@ -28,7 +27,7 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
                          effectGeneration, effectGenArgs,
                          modelFit,         modelFitArgs,
                          monitoringIntervalLevel,
-                         existingData=NULL, ...){
+                         existingData=NULL){
 
 
   # 0 Set arguments for dataGeneration and effectGeneration
@@ -76,10 +75,10 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
   if(! is.null(existingData) ) {
     eci <- rbind(existingData[,c("est","lo","up")],
                 t(sapply( (length(y)-dataGenArgs[["n"]] + 1):length(y),
-                          modelFit, y=y, trt=trt, miLevel = monitoringIntervalLevel, ... )))
+                          modelFit, y=y, trt=trt, miLevel = monitoringIntervalLevel )))
   } else {
     eci <- rbind(matrix(rep(c(NA,-10^10,10^10),4),byrow = TRUE,nrow=4),
-                 t(sapply(5:length(y), modelFit, y=y, trt=trt, miLevel = monitoringIntervalLevel, ... )))
+                 t(sapply(5:length(y), modelFit, y=y, trt=trt, miLevel = monitoringIntervalLevel )))
     colnames(eci) <- c("est", "lo", "up")
   }
 
