@@ -13,12 +13,12 @@ mcmcMonitoringEnoughCheck <- function(o, maxAlertSteps, minWW){
   # Check that sufficient n for burn in CI width
   minN <- ceiling((2 * 1.96 / minWW)^2)
   if(obs - minN <= 0) {
-         waitMoreN <- minN - obs
+         waitMoreN <- minN - obs + maxAlertSteps
   } else waitMoreN <- 0
 
   # Check for stability of sgpv
   #  - Require at least as many observations as maxAlertSteps
-  if(obs < maxAlertSteps){
+  if(obs > maxAlertSteps){
     stabilityNonTrivial <- sum(o[(obs-maxAlertSteps + 1):obs,"sgpvNonTrivial"]==1)
     stabilityFutility   <- sum(o[(obs-maxAlertSteps + 1):obs,"sgpvFutility"]==1)
 
