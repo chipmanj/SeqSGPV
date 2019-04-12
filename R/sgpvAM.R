@@ -2,7 +2,7 @@
 # J Chipman
 #
 # Simulate operating characteristics of adaptive monitoring with SGPV
-#
+
 
 sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
                    waitWidths = c(0.15, 0.20, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60),
@@ -38,8 +38,9 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
   getMoreWhich <- which(getMore > 0)
   getMoreWhich
 
-  if(!is.null(mcmcData) & sum(getMore) > 0){
-    warning("Provided mcmcData needs more observations to guarentee continuation to completion")
+  if(!is.null(mcmcData) & sum(getMore) > 0 & is.null(dataGeneration)){
+    # Stop if more data needed to run to fruition but dataGeneration mechanism not provided
+    stop("Provided mcmcData needs more observations to guarentee continuation to completion\n  Generate on own or provide data generation inputs.")
   } else {
     while(sum(getMore) > 0){
       print(paste("Adding another", max(getMore), "observations to ensure simulations go to completion."))
