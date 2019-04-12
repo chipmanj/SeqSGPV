@@ -1,16 +1,13 @@
 # sgpvAM.R
 # J Chipman
 #
-# Adaptive monitoring design
-# Change
+# Simulate operating characteristics of adaptive monitoring with SGPV
 #
-# library(plyr)
-
 
 sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
                    waitWidths = c(0.15, 0.20, 0.30, 0.35, 0.40, 0.45, 0.50, 0.60),
                    pointNull, deltaL2, deltaL1, deltaG1, deltaG2,
-                   monitoringIntervalLevel = 0.05, ...){
+                   monitoringIntervalLevel = 0.05, outData = TRUE, ...){
 
 
   # 1 collect list of simulated data
@@ -105,8 +102,17 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
 
   }
 
+
+  # Indicate whether to keep generated data
+  if(outData==FALSE) mcmcMonitoring=NULL
+
   out <- list(mcmcMonitoring=mcmcMonitoring,
-              mcmcEndOfStudy=mcmcEndOfStudy)
+              mcmcEndOfStudy=mcmcEndOfStudy,
+              maxAlertSteps=maxAlertSteps, lookSteps=lookSteps,
+              waitWidths = waitWidths,
+              pointNull=pointNull,
+              deltaL2=deltaL2, deltaL1=deltaL1, deltaG1=deltaG1, deltaG2=deltaG2,
+              monitoringIntervalLevel = monitoringIntervalLevel)
 
   return(out)
 
@@ -116,13 +122,13 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
 # Examples
 
 # No previously generated data
-am1 <- sgpvAM(nreps = 20, maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.15, 0.6, by = 0.05),
-             dataGeneration = rnorm,   dataGenArgs = list(n=800),
-             effectGeneration = 0,
-             modelFit = lmCI,
-             pointNull = 0,
-             deltaL2 = -0.4, deltaL1=-0.3, deltaG1=0.3, deltaG2=0.4,
-             monitoringIntervalLevel=0.05)
+am1 <- sgpvAM(nreps = 100,
+              maxAlertSteps = 100, lookSteps = 1, waitWidths = seq(0.15, 0.6, by = 0.05),
+              dataGeneration = rnorm,   dataGenArgs = list(n=800),
+              effectGeneration = 0,
+              modelFit = lmCI,
+              pointNull = 0, deltaL2 = -0.4, deltaL1=-0.3, deltaG1=0.3, deltaG2=0.4,
+              monitoringIntervalLevel=0.05)
 
 
 
