@@ -14,6 +14,13 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
                    monitoringIntervalLevel = 0.05, outData = TRUE){
 
 
+  # 0 Checks
+  # If normal data and no standard deviation provided, set sd to 1
+  if(class(modelFit)=="normal"){
+    if(is.null(dataGenArgs$sd)) dataGenArgs$sd <- 1
+  }
+
+
   # 1 collect list of simulated data
   if(is.null(mcmcData)){
          mcmcMonitoring <- amData(nreps = nreps,
@@ -38,7 +45,8 @@ sgpvAM <- function(mcmcData=NULL, nreps, maxAlertSteps=100, lookSteps=1,
   #   - Look for stability of sgpv for last set of maxAlert patients
   getMore      <- unlist(lapply(mcmcMonitoring, sgpvAM::mcmcMonitoringEnoughCheck,
                                 maxAlertSteps = maxAlertSteps,
-                                minWW         = min(waitWidths)))
+                                minWW         = min(waitWidths),
+                                sd            = dataGenArgs$sd))
   getMoreWhich <- which(getMore > 0)
   getMoreWhich
 
