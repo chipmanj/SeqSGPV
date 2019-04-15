@@ -39,21 +39,3 @@ mcmcMonitoringEnoughCheck <- function(o, maxAlertSteps, minWW, sd){
 
   getMore
 }
-
-
-pooledVariance <- function(i){
-  dd  <- d[1:i,]
-  y0  <- dd[dd[,"trt"]==0,"y"]
-  y1  <- dd[dd[,"trt"]==1,"y"]
-  vp <- ((length(y0) - 1) * var(y0) + (length(y1) - 1) * var(y1)) / (i - 2)
-  vp
-}
-
-
-plot(x=4:nrow(d),y=sapply(4:nrow(d),pooledVariance),type="l",xlim=c(0,200))
-abline(v=15,col="red")
-abline(v=30,col="red")
-
-var(sapply(4:14,pooledVariance))
-var(sapply(15:24,pooledVariance))
-var(sapply(25:34,pooledVariance))
