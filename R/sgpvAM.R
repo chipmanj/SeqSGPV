@@ -182,9 +182,7 @@
 #' quantile(ooo, probs=c(0,0.05,0.1,0.2,0.5,0.8,0.9,0.95,1))
 #' ooo(200)
 #'
-
-
-
+#' @export
 sgpvAM <- function(mcmcData=NULL, nreps,
                    waitWidths,
                    dataGeneration=NULL,   dataGenArgs,
