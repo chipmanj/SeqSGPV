@@ -20,7 +20,7 @@
 
 sgpvAMrules <- function(data,      waitWidth,
                         monitoringIntervalLevel,
-                        lookSteps, maxAlertSteps=100,
+                        lookSteps, kSteps, maxAlertSteps=100,
                         maxN,      lagOutcomeN){
 
   # 1 Establish observations that surpass wait time and occur at lookSteps
@@ -103,9 +103,6 @@ sgpvAMrules <- function(data,      waitWidth,
               lag     = eosLag[keepStats],
               maxN    = eosMaxN[keepStats],
               lagMaxN = eosLagMaxN[keepStats])
-      # oc <- c(eos[c("theta", keepStats)],
-      #         lag     = eosLag[keepStats],
-      #         maxN    = eosMaxN[keepStats])
 
       return(c(oc,alertK=alertK))
     } else {
@@ -113,7 +110,7 @@ sgpvAMrules <- function(data,      waitWidth,
     }
   }
 
-  k           <- seq(0,maxAlertSteps,by=lookSteps)
+  k           <- seq(0,maxAlertSteps,by=kSteps)
   affirmedEnd <- t(sapply(k,affirmEndOfStudy))
 
 

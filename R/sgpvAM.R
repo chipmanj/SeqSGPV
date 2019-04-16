@@ -53,6 +53,7 @@
 #' @param deltaG2 Clinical guidepost greater than and furthest from point null
 #' @param maxAlertSteps Maximum number of steps before affirming an alert
 #' @param lookSteps The frequency data are observed (defaults to fully sequential)
+#' @param kSteps How refined to consider the number of affirmation steps.  kSteps = k to maxAlertSteps considers all possible affirmation steps from 0 to maxAlertSteps by k.
 #' @param maxN Maximum number of observations
 #' @param lagOutcomeN Number of units collected while awaiting an outcome
 #' @param monitoringIntervalLevel Traditional (1-alpha) used in monitoring intervals
@@ -200,7 +201,6 @@ sgpvAM <- function(mcmcData=NULL, nreps,
     if(is.null(dataGenArgs$sd)) dataGenArgs$sd <- 1
   }
 
-
   # 1 collect list of simulated data
   if(is.null(mcmcData)){
          mcmcMonitoring <- amData(nreps = nreps,
@@ -211,14 +211,11 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
   } else mcmcMonitoring <- mcmcData
 
-
-
   # 2 Add stats (bias, rejPN, cover, sgpvNonTrival, sgpvFutility)
   mcmcMonitoring <- lapply(mcmcMonitoring,
                            addStats,
                            pointNull = pointNull,
                            deltaL2 = deltaL2, deltaL1=deltaL1, deltaG1=deltaG1, deltaG2=deltaG2)
-
 
 
   # 3 Make sure all generated simulations will continue until completion
@@ -272,7 +269,6 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   # 5 aggregate simulated data
   #   average performance and mse
   #   ecdf of n and bias
-
   mcmcEndOfStudyAve <- list()
   mcmcEndOfStudyVar <- list()
   mcmcEndOfStudy    <- list()
@@ -284,10 +280,10 @@ sgpvAM <- function(mcmcData=NULL, nreps,
     mcmcEOS <- simplify2array(lapply(mcmcMonitoring, sgpvAMrules,
                                      waitWidth               = ww,
                                      lookSteps               = lookSteps,
+                                     kSteps                  = kSteps,
                                      maxAlertSteps           = maxAlertSteps,
                                      monitoringIntervalLevel = monitoringIntervalLevel,
                                      maxN = maxN, lagOutcomeN = lagOutcomeN))
-
 
     # 6 aggregate simulated data
     #   average performance and mse
@@ -301,14 +297,11 @@ sgpvAM <- function(mcmcData=NULL, nreps,
     names(mcmcEndOfStudyEcdfSize)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
     names(mcmcEndOfStudyEcdfBias)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
 
-
     mcmcEndOfStudy[[paste0("width_",ww)]] <-
       list(mcmcEndOfStudyAve      = mcmcEndOfStudyAve,
            mcmcEndOfStudyEcdfSize = mcmcEndOfStudyEcdfSize,
            mcmcEndOfStudyEcdfBias = mcmcEndOfStudyEcdfBias)
-
   }
-
 
   # Indicate whether to keep generated data
   if(outData==FALSE) mcmcMonitoring=NULL
