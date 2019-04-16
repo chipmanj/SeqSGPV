@@ -14,10 +14,9 @@
 ##' @export
 lmCI <- function(y, trt, look, miLevel){
   # ols CIs
-  f     <- lm(y[1:look] ~ trt[1:look])
-  coefs <- summary(f)$coefficients
-  est   <- coefs[2,"Estimate"]
-  eci   <- c(est, est + c(-1,1) * qt(1-miLevel/2, df = f$df.residual) * coefs[2,"Std. Error"])
+  f <- fastLmPure(X = as.matrix(cbind(1,trt[1:look])), y = y[1:look])
+  eci <- c(f$coefficients[2],
+           f$coefficients[2] + c(-1,1) * qt(1-miLevel/2, df = f$df.residual) * f$se[2])
   return(eci)
 }
 class(lmCI) <- "normal"
