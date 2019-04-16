@@ -6,9 +6,9 @@
 \usage{
 sgpvAM(mcmcData = NULL, nreps, waitWidths, dataGeneration = NULL,
   dataGenArgs, effectGeneration = NULL, effectGenArgs, modelFit,
-  pointNull, deltaL2, deltaL1, deltaG1, deltaG2, maxAlertSteps = 100,
-  lookSteps = 1, maxN = NULL, lagOutcomeN = NULL,
-  monitoringIntervalLevel = 0.05, outData = TRUE)
+  pointNull, deltaL2, deltaL1, deltaG1, deltaG2, lookSteps = 1,
+  kSteps = 10, maxAlertSteps = 100, maxN = NULL,
+  lagOutcomeN = NULL, monitoringIntervalLevel = 0.05, outData = TRUE)
 }
 \arguments{
 \item{mcmcData}{Previously generated data}
@@ -37,9 +37,11 @@ sgpvAM(mcmcData = NULL, nreps, waitWidths, dataGeneration = NULL,
 
 \item{deltaG2}{Clinical guidepost greater than and furthest from point null}
 
-\item{maxAlertSteps}{Maximum number of steps before affirming an alert}
-
 \item{lookSteps}{The frequency data are observed (defaults to fully sequential)}
+
+\item{kSteps}{How refined to consider the number of affirmation steps.  kSteps = k to maxAlertSteps considers all possible affirmation steps from 0 to maxAlertSteps by k.}
+
+\item{maxAlertSteps}{Maximum number of steps before affirming an alert}
 
 \item{maxN}{Maximum number of observations}
 
