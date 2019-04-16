@@ -1,3 +1,7 @@
+#' amData
+#'
+#' Generate adaptive monitoring data making use of parallele computing
+#'
 #' @export
 amDataSingle <- function(dataGeneration,   dataGenArgs,
                          effectGeneration, effectGenArgs,
@@ -66,7 +70,7 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
 
 }
 
-
+#' @export
 amData <- function(nreps, fork=TRUE, socket = TRUE, cores = detectCores(), ...){
 
   if(fork==TRUE){
