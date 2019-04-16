@@ -66,7 +66,7 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
 
 }
 
-
+#' @export
 amData <- function(nreps, fork=TRUE, socket = TRUE, cores = detectCores(), ...){
 
   if(fork==TRUE){
