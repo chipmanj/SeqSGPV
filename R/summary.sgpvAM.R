@@ -1,3 +1,4 @@
+#' @export
 summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
 
 

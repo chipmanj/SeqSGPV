@@ -1,3 +1,5 @@
+#' @export
+
 # sgpvAMrules.R
 # J Chipman
 #

@@ -1,7 +1,4 @@
-# fitCI.R
-# J Chipman
-#
-# Model fits for ordinary least squares and logistic regression
+#' @export
 
 # ols CIs
 lmCI <- function(y, trt, look, miLevel){

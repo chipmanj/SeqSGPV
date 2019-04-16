@@ -1,8 +1,4 @@
-# plot.sgpvAMlocationShift
-#
-# Plots average statistics across a range of thetas
-
-
+#' @export
 plot.sgpvAMlocationShift <- function( amShifted,        stat,
                                       waitWidth = NULL, alertK = NULL, treatEffect = NULL,
                                       xlim,             ylim,          maxVary     = 10 ,

@@ -1,3 +1,5 @@
+#' @export
+
 # addStats
 #
 # adds statistics following each new observation

@@ -1,3 +1,5 @@
+#' @export
+
 # mcmcMonitoringEnoughCheck.R
 # J Chipman
 #

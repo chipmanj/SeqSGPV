@@ -1,9 +1,4 @@
-# locationShift.R
-# J Chipman
-#
-# For continuous data, location shift to estimate power function
-
-
+#' @export
 locationShift <- function(o, shiftedThetas, printProgress=TRUE){
 
   # Only perform given data generated under fixed effect and of location-shift family

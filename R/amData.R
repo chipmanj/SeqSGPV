@@ -1,28 +1,4 @@
-# amData.R
-# J Chipman
-#
-# Generates data and estimates fully sequential confidence intervals.
-#
-# Currently fits t.test and logistic model
-#
-# dataGeneration: function for generating data (such as rnorm and rbinom)
-# dataGenArgs   : arguments to be included when generating data (such as
-#                 n, mean, sd for rnorm and n, size, and prob for rbinom)
-# effectGeneration: either a single numeric for a exploring a fixed effect
-#                   or a function for generating a single treatment effect
-# effectGenArgs:    arguments to be included when generating a treatment effect
-# modelFit:         a user provided model fit for estimating the treatment effect
-#                   must return a 2 length vector of interval lower and upper bound.
-#                   If missing, will default to t.test for normal data and glm for
-#                   binomial data.
-# monitoringIntervalLevel: The traditional alpha in the (1-alpha) monitoring interval.
-#                   These intervals are purely for monitoring, and we do not report the
-#                   frequency properties of monitoring intervals.
-# existingData:     If previous generation of data were insufficient to follow to completion
-#                   they can be supplied such that current call of sgpvAMdata appends to
-#                   previous data.
-
-
+#' @export
 amDataSingle <- function(dataGeneration,   dataGenArgs,
                          effectGeneration, effectGenArgs,
                          modelFit,         modelFitArgs,
