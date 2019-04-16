@@ -1,3 +1,4 @@
+#'@export
 ecdf.sgpvAM <- function(am,        stat,
                         waitWidth = NULL, alertK = NULL, treatEffect = NULL,
                         xlim,             ylim,          maxVary     = 10 ,
