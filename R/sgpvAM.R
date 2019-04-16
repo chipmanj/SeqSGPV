@@ -190,7 +190,9 @@ sgpvAM <- function(mcmcData=NULL, nreps,
                    effectGeneration=NULL, effectGenArgs,
                    modelFit,
                    pointNull, deltaL2, deltaL1, deltaG1, deltaG2,
-                   maxAlertSteps=100, lookSteps=1,
+                   lookSteps=1,
+                   kSteps=10,
+                   maxAlertSteps=100,
                    maxN=NULL, lagOutcomeN=NULL,
                    monitoringIntervalLevel = 0.05, outData = TRUE){
 
