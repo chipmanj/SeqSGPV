@@ -1,7 +1,19 @@
-#' @export
+#' @name fitCI
+#' @rdname fitCI
+#'
+#' Functions for obtaining Confidence Intervals under a linear model and under logistic regression
+#'
+#' @param y outcomes
+#' @param trt treatment assignments for each patient
+#' @param look current number of patients accrued
+#' @param miLevel alpha in traditional (1-alpha) confidence interval used in monitoring intervals
+#'
+#' @return est, lowwer bound, and upper bound
 
-# ols CIs
+#' @rdname fitCI
+#' @export
 lmCI <- function(y, trt, look, miLevel){
+  # ols CIs
   f     <- lm(y[1:look] ~ trt[1:look])
   coefs <- summary(f)$coefficients
   est   <- coefs[2,"Estimate"]
@@ -10,6 +22,9 @@ lmCI <- function(y, trt, look, miLevel){
 }
 class(lmCI) <- "normal"
 
+
+#' @rdname fitCI
+#' @export
 # logistic regression CIs
 lrCI <- function(y, trt, look, miLevel){
 
