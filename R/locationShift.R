@@ -48,7 +48,12 @@ locationShift <- function(o, shiftedThetas, printProgress=TRUE){
     mcmcEndOfStudyShifted[[paste0("theta_",o$inputs$effectGeneration)]] <- o
   }
 
+
+  # Set class
+  class(mcmcEndOfStudyShifted) <- append(class(mcmcEndOfStudyShifted),
+                                         c("sgpvAM","sgpvAMlocationShift"))
+
+
   return(mcmcEndOfStudyShifted)
 
 }
-
