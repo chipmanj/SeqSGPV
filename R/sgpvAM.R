@@ -193,8 +193,8 @@ sgpvAM <- function(mcmcData=NULL, nreps,
                    lookSteps=1,
                    kSteps=10,
                    maxAlertSteps=100,
-                   maxN=NULL, lagOutcomeN=NULL,
-                   monitoringIntervalLevel = 0.05, outData = TRUE){
+                   maxN=NULL, lagOutcomeN=0,
+                   monitoringIntervalLevel = 0.05, printProgress=TRUE, outData = TRUE){
 
 
   # 0 Checks
@@ -224,6 +224,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   #   - Look for stability of sgpv for last set of maxAlert patients
   getMore      <- unlist(lapply(mcmcMonitoring, sgpvAM::mcmcMonitoringEnoughCheck,
                                 maxAlertSteps = maxAlertSteps,
+                                lagOutcomeN   = lagOutcomeN,
                                 minWW         = min(waitWidths),
                                 sd            = dataGenArgs$sd))
   getMoreWhich <- which(getMore > 0)
@@ -238,27 +239,19 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
     while(sum(getMore) > 0){
 
-      print(paste("Adding another", max(getMore), "observations for unrestricted sample size monitoring."))
+      if(printProgress==TRUE) print(paste("Adding up to", max(getMore), "observations for unrestricted sample size monitoring."))
 
-      for (i in getMoreWhich){
-
-        # Add more data then statistics to generated dataset with insufficient n
-        mcmcMonitoring[[i]] <- amDataSingle(monitoringIntervalLevel = monitoringIntervalLevel,
-                                            existingData     = mcmcMonitoring[[i]],
-                                            dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
-                                            effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
-                                            modelFit         = modelFit)
-
-        mcmcMonitoring[[i]] <- addStats(o = mcmcMonitoring[[i]],
-                                        pointNull = pointNull,
-                                        deltaL2   = deltaL2, deltaL1 = deltaL1,
-                                        deltaG1   = deltaG1, deltaG2 = deltaG2)
-
-      }
+      mcmcMonitoring <- amDataGetMore(insufficients    = getMoreWhich,
+                                      existingDataList = mcmcMonitoring, getMore = getMore,
+                                      monitoringIntervalLevel = monitoringIntervalLevel,
+                                      dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
+                                      effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
+                                      modelFit         = modelFit)
 
       # Continue checking until all datasets have sufficient n
       getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck,
                                     maxAlertSteps = maxAlertSteps,
+                                    lagOutcomeN   = lagOutcomeN,
                                     minWW         = min(waitWidths),
                                     sd            = dataGenArgs$sd))
       getMoreWhich <- which(getMore > 0)
@@ -278,16 +271,17 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
     ww <- waitWidths[w]
 
-    # 3 adaptively monitor simulated data across multiple burn ins
-    mcmcEOS <- simplify2array(lapply(mcmcMonitoring, sgpvAMrules,
-                                     waitWidth               = ww,
-                                     lookSteps               = lookSteps,
-                                     kSteps                  = kSteps,
-                                     maxAlertSteps           = maxAlertSteps,
-                                     monitoringIntervalLevel = monitoringIntervalLevel,
-                                     maxN = maxN, lagOutcomeN = lagOutcomeN))
+    # 4 adaptively monitor simulated data across multiple burn ins
+    mcmcEOS <- sgpvAMrules(mcmcMonitoring=mcmcMonitoring,
+                           waitWidth                = ww,
+                           lookSteps                = lookSteps,
+                           kSteps                   = kSteps,
+                           maxAlertSteps            = maxAlertSteps,
+                           monitoringIntervalLevel  = monitoringIntervalLevel,
+                           maxN = maxN, lagOutcomeN = lagOutcomeN)
 
-    # 6 aggregate simulated data
+
+    # 5 aggregate simulated data
     #   average performance and mse
     #   ecdf of n and bias
     ooAve <- plyr::aaply(mcmcEOS, .margins = c(1,2), .fun = mean)
@@ -303,6 +297,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
       list(mcmcEndOfStudyAve      = mcmcEndOfStudyAve,
            mcmcEndOfStudyEcdfSize = mcmcEndOfStudyEcdfSize,
            mcmcEndOfStudyEcdfBias = mcmcEndOfStudyEcdfBias)
+
   }
 
   # Indicate whether to keep generated data
@@ -311,7 +306,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   out <- list(mcmcMonitoring = mcmcMonitoring,
               mcmcEndOfStudy = mcmcEndOfStudy,
               inputs = list(mcmcData         = mcmcData,           nreps = nreps,
-                            maxAlertSteps    = maxAlertSteps,  lookSteps = lookSteps,
+                            maxAlertSteps    = maxAlertSteps,  lookSteps = lookSteps, kSteps=kSteps,
                             waitWidths       = waitWidths,
                             dataGeneration   = dataGeneration,     dataGenArgs = dataGenArgs,
                             effectGeneration = effectGeneration,
