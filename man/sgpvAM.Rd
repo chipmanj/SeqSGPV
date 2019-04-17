@@ -7,8 +7,9 @@
 sgpvAM(mcmcData = NULL, nreps, waitWidths, dataGeneration = NULL,
   dataGenArgs, effectGeneration = NULL, effectGenArgs, modelFit,
   pointNull, deltaL2, deltaL1, deltaG1, deltaG2, lookSteps = 1,
-  kSteps = 10, maxAlertSteps = 100, maxN = NULL,
-  lagOutcomeN = NULL, monitoringIntervalLevel = 0.05, outData = TRUE)
+  kSteps = 10, maxAlertSteps = 100, maxN = NULL, lagOutcomeN = 0,
+  monitoringIntervalLevel = 0.05, printProgress = TRUE,
+  outData = TRUE)
 }
 \arguments{
 \item{mcmcData}{Previously generated data}
