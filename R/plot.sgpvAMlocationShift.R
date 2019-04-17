@@ -36,7 +36,7 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   # Limit number of alertK if specified by maxInputs
   # Set colors based on number of alertK explored
   if(is.null(alertK)){
-    alertK    <- seq(0, amShifted[[1]]$inputs$maxAlertSteps, by = amShifted[[1]]$inputs$lookSteps)
+    alertK    <- seq(0, amShifted[[1]]$inputs$maxAlertSteps, by = amShifted[[1]]$inputs$kSteps)
     if(!is.na(maxVary)){
       s      <- round(length(alertK)/maxVary)
       alertK <- alertK[unique(c(1,seq(s,length(alertK), by=s)))]
