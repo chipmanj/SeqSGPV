@@ -97,7 +97,7 @@ ecdf.sgpvAM <- function(am,        stat,
 
 
     # Blank plot canvas
-    plot(o[["mcmcEndOfStudy"]][[paste0("width_",w)]][[paste0("mcmcEndOfStudyEcdf",stat)]][[1]],
+    plot(o[["mcmcEndOfStudy"]][[paste0("width_",waitWidth[1])]][[paste0("mcmcEndOfStudyEcdf",stat)]][[1]],
          col="white", las = 1, xlim=xlim,
          main=paste0("ECDF of ", stat,"\n",paste0(mainTE,mainWW,mainK,collapse = ", ")))
     colIter <- 1
