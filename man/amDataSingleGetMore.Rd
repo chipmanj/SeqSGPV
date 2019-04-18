@@ -6,7 +6,7 @@
 \usage{
 amDataSingleGetMore(existingDataList, iInsufficient, getMore,
   monitoringIntervalLevel, dataGeneration, dataGenArgs, effectGeneration,
-  effectGenArgs, modelFit)
+  effectGenArgs, pointNull, deltaL2, deltaL1, deltaG1, deltaG2, modelFit)
 }
 \description{
 Generate additional observations for single mcmc simulation

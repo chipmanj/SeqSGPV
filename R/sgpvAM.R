@@ -194,7 +194,8 @@ sgpvAM <- function(mcmcData=NULL, nreps,
                    kSteps=10,
                    maxAlertSteps=100,
                    maxN=NULL, lagOutcomeN=0,
-                   monitoringIntervalLevel = 0.05, printProgress=TRUE, outData = TRUE){
+                   monitoringIntervalLevel = 0.05, printProgress=TRUE, outData = TRUE,
+                   getECDF=TRUE){
 
 
   # 0 Checks
@@ -246,6 +247,8 @@ sgpvAM <- function(mcmcData=NULL, nreps,
                                       monitoringIntervalLevel = monitoringIntervalLevel,
                                       dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
                                       effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
+                                      pointNull = pointNull,
+                                      deltaL2 = deltaL2, deltaL1 = deltaL1, deltaG1 = deltaG1, deltaG2 = deltaG2,
                                       modelFit         = modelFit)
 
       # Continue checking until all datasets have sufficient n
@@ -288,10 +291,15 @@ sgpvAM <- function(mcmcData=NULL, nreps,
     ooVar <- plyr::aaply(mcmcEOS, .margins = c(1,2), .fun = var )
 
     mcmcEndOfStudyAve                <- cbind(ooAve, mse = ooVar[,"bias"] + ooAve[,"bias"]^2)
-    mcmcEndOfStudyEcdfSize           <- apply(mcmcEOS[,"n",], 1, ecdf)
-    mcmcEndOfStudyEcdfBias           <- apply(mcmcEOS[,"bias",], 1, ecdf)
-    names(mcmcEndOfStudyEcdfSize)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
-    names(mcmcEndOfStudyEcdfBias)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
+    if(getECDF==TRUE){
+      mcmcEndOfStudyEcdfSize           <- apply(mcmcEOS[,"n",], 1, ecdf)
+      mcmcEndOfStudyEcdfBias           <- apply(mcmcEOS[,"bias",], 1, ecdf)
+      names(mcmcEndOfStudyEcdfSize)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
+      names(mcmcEndOfStudyEcdfBias)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
+    } else {
+      mcmcEndOfStudyEcdfSize <- NULL
+      mcmcEndOfStudyEcdfBias <- NULL
+    }
 
     mcmcEndOfStudy[[paste0("width_",ww)]] <-
       list(mcmcEndOfStudyAve      = mcmcEndOfStudyAve,
