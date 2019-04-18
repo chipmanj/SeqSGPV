@@ -37,7 +37,7 @@ locationShift <- function(o, shiftedThetas, printProgress=TRUE){
     if(printProgress) print(paste0("theta shifted by: ",shift))
 
     # Use previously generated study design if provided in object o
-    if(shift==o$inputs$effectGeneration){
+    if(shift==0){
       mcmcEndOfStudyShifted[[paste0("theta_",o$inputs$effectGeneration)]]                     <- o
       mcmcEndOfStudyShifted[[paste0("theta_",o$inputs$effectGeneration)]][["mcmcMonitoring"]] <- NULL
       next
@@ -47,13 +47,8 @@ locationShift <- function(o, shiftedThetas, printProgress=TRUE){
     o$inputs$outData          <- FALSE
     o$inputs$effectGeneration <- effectOriginal + shift
 
-    mcmcEndOfStudyShifted[[paste0("theta_",shift)]] <- do.call(sgpvAM, args=o$inputs)
+    mcmcEndOfStudyShifted[[paste0("theta_",o$inputs$effectGeneration)]] <- do.call(sgpvAM, args=o$inputs)
 
-  }
-
-  # Append the original (unshifted) theta (if not already included in mcmcEndOfStudyShifted)
-  if(! paste0("theta_",o$inputs$effectGeneration) %in% names(mcmcEndOfStudyShifted) ){
-    mcmcEndOfStudyShifted[[paste0("theta_",o$inputs$effectGeneration)]] <- o
   }
 
 
