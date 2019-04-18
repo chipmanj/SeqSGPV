@@ -5,7 +5,7 @@
 \title{amSgpvRules}
 \usage{
 sgpvAMrules(mcmcMonitoring, fork = TRUE, socket = TRUE,
-  cores = detectCores(), waitWidth, lookSteps, kSteps, maxAlertSteps,
+  cores = detectCores(), waitWidth, sd, lookSteps, kSteps, maxAlertSteps,
   monitoringIntervalLevel, maxN, lagOutcomeN)
 }
 \description{
