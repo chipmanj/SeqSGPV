@@ -301,7 +301,10 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   }
 
   # Indicate whether to keep generated data
-  if(outData==FALSE) mcmcMonitoring=NULL
+  if(outData==FALSE) {
+    mcmcMonitoring <- NULL
+    mcmcData       <- NULL
+  }
 
   out <- list(mcmcMonitoring = mcmcMonitoring,
               mcmcEndOfStudy = mcmcEndOfStudy,
