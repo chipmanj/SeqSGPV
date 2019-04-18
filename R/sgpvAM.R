@@ -328,7 +328,8 @@ sgpvAM <- function(mcmcData=NULL, nreps,
                             maxN             = maxN,
                             lagOutcomeN      = lagOutcomeN,
                             monitoringIntervalLevel = monitoringIntervalLevel,
-                            outData          = outData))
+                            outData          = outData,
+                            getECDF          = getECDF))
 
 
   # Set class
