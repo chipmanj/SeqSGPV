@@ -18,13 +18,13 @@
 
 
 
-sgpvAMrulesSingle <- function(data,      waitWidth,
+sgpvAMrulesSingle <- function(data,      waitWidth, sd,
                         monitoringIntervalLevel,
                         lookSteps, kSteps, maxAlertSteps=100,
                         maxN,      lagOutcomeN=0){
 
   # 1 Establish observations that surpass wait time and occur at lookSteps
-  waitTime  <- ceiling((2 * qnorm(1 - monitoringIntervalLevel / 2) * 1 / waitWidth)^2)
+  waitTime  <- ceiling((2 * qnorm(1 - monitoringIntervalLevel / 2) * sd / waitWidth)^2)
   looks     <- waitTime + (0:nrow(data)) * lookSteps
   monitor   <- data[,"n"] %in% looks
 

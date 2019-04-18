@@ -7,6 +7,7 @@
 #'
 sgpvAMrules <- function(mcmcMonitoring, fork=TRUE, socket = TRUE, cores = detectCores(),
                         waitWidth,
+                        sd,
                         lookSteps,
                         kSteps,
                         maxAlertSteps,
@@ -15,7 +16,9 @@ sgpvAMrules <- function(mcmcMonitoring, fork=TRUE, socket = TRUE, cores = detect
 
   if(fork==TRUE){
     # Only works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.
-    mcmcEOS <- parallel::mclapply(mcmcMonitoring, sgpvAMrulesSingle, waitWidth                = waitWidth,
+    mcmcEOS <- parallel::mclapply(mcmcMonitoring, sgpvAMrulesSingle,
+                                  waitWidth                = waitWidth,
+                                  sd                       = sd,
                                   lookSteps                = lookSteps,
                                   kSteps                   = kSteps,
                                   maxAlertSteps            = maxAlertSteps,
@@ -37,6 +40,7 @@ sgpvAMrules <- function(mcmcMonitoring, fork=TRUE, socket = TRUE, cores = detect
 
     mcmcEOS <- lapply(mcmcMonitoring, sgpvAMrulesSingle,
                       waitWidth                = waitWidth,
+                      sd                       = sd,
                       lookSteps                = lookSteps,
                       kSteps                   = kSteps,
                       maxAlertSteps            = maxAlertSteps,

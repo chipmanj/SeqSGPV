@@ -277,6 +277,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
     # 4 adaptively monitor simulated data across multiple burn ins
     mcmcEOS <- sgpvAMrules(mcmcMonitoring=mcmcMonitoring,
                            waitWidth                = ww,
+                           sd                       = dataGenArgs$sd,
                            lookSteps                = lookSteps,
                            kSteps                   = kSteps,
                            maxAlertSteps            = maxAlertSteps,
