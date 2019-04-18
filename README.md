@@ -28,7 +28,7 @@ system.time(am <-  sgpvAM(nreps            = 1000,
                           printProgress = TRUE,
                           maxN = 200, lagOutcomeN = 50))
 
-system.time(amShifted <- locationShift(am, shiftedThetas = c(-1,-0.8,seq(-0.6,-0.1,by=0.05),0,0.1,0.3)))
+system.time(amShifted <- locationShift(am, shiftedThetas = c(-1,-0.8,seq(-0.6,-0.1,by=0.05),0,0.1,0.15,0.20,0.25,0.3)))
 
 
 # Unrestricted Sample Size
