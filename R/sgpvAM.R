@@ -195,7 +195,10 @@ sgpvAM <- function(mcmcData=NULL, nreps,
                    maxAlertSteps=100,
                    maxN=NULL, lagOutcomeN=0,
                    monitoringIntervalLevel = 0.05, printProgress=TRUE, outData = TRUE,
-                   getECDF=TRUE){
+                   getECDF=TRUE,
+                   cores            = NULL,
+                   fork             = TRUE,
+                   socket           = TRUE){
 
 
   # 0 Checks
@@ -204,13 +207,18 @@ sgpvAM <- function(mcmcData=NULL, nreps,
     if(is.null(dataGenArgs$sd)) dataGenArgs$sd <- 1
   }
 
+  if(is.null(cores)) cores <- detectCores()
+
   # 1 collect list of simulated data
   if(is.null(mcmcData)){
          mcmcMonitoring <- amData(nreps = nreps,
                                   monitoringIntervalLevel = monitoringIntervalLevel,
                                   dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
                                   effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
-                                  modelFit         = modelFit)
+                                  modelFit         = modelFit,
+                                  cores            = cores,
+                                  fork             = fork,
+                                  socket           = socket)
 
   } else mcmcMonitoring <- mcmcData
 
@@ -249,7 +257,10 @@ sgpvAM <- function(mcmcData=NULL, nreps,
                                       effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
                                       pointNull = pointNull,
                                       deltaL2 = deltaL2, deltaL1 = deltaL1, deltaG1 = deltaG1, deltaG2 = deltaG2,
-                                      modelFit         = modelFit)
+                                      modelFit         = modelFit,
+                                      cores            = cores,
+                                      fork             = fork,
+                                      socket           = socket)
 
       # Continue checking until all datasets have sufficient n
       getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck,
@@ -330,7 +341,10 @@ sgpvAM <- function(mcmcData=NULL, nreps,
                             lagOutcomeN      = lagOutcomeN,
                             monitoringIntervalLevel = monitoringIntervalLevel,
                             outData          = outData,
-                            getECDF          = getECDF))
+                            getECDF          = getECDF,
+                            cores            = cores,
+                            fork             = fork,
+                            socket           = socket))
 
 
   # Set class
