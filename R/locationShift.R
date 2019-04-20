@@ -38,8 +38,8 @@ locationShift <- function(o, shiftedThetas, printProgress=TRUE){
 
     # Use previously generated study design if provided in object o
     if(shift==0){
-      mcmcEndOfStudyShifted[[paste0("theta_",o$inputs$effectGeneration)]]                     <- o
-      mcmcEndOfStudyShifted[[paste0("theta_",o$inputs$effectGeneration)]][["mcmcMonitoring"]] <- NULL
+      mcmcEndOfStudyShifted[[paste0("theta_",effectOriginal)]]                     <- o
+      mcmcEndOfStudyShifted[[paste0("theta_",effectOriginal)]][["mcmcMonitoring"]] <- NULL
       next
     }
 
