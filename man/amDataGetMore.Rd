@@ -7,6 +7,17 @@
 amDataGetMore(insufficients, existingDataList, fork = TRUE,
   socket = TRUE, cores = detectCores(), ...)
 }
+\arguments{
+\item{insufficients}{Column vector of indices corresponding to existingDataList that needs additional data}
+
+\item{fork}{Fork clustering, works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.  Defaults to TRUE.}
+
+\item{socket}{Socket clustering.  Defaults to TRUE yet only applies if FORK = FALSE.}
+
+\item{...}{Inputs to amDataSingleGetMore}
+
+\item{exisitingDataList}{List of generated mcmc data in each element.}
+}
 \description{
-Generate mcmc simulations of adaptive monitoring with parallel computing
+Generate additional data if previously generated data were insufficient to run to conclusion with unrestricted n.
 }

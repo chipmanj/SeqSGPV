@@ -1,6 +1,12 @@
 #' amDataGetMore
 #'
-#' Generate mcmc simulations of adaptive monitoring with parallel computing
+#' Generate additional data if previously generated data were insufficient to run to conclusion with unrestricted n.
+#'
+#' @param insufficients Column vector of indices corresponding to existingDataList that needs additional data
+#' @param exisitingDataList List of generated mcmc data in each element.
+#' @param fork Fork clustering, works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.  Defaults to TRUE.
+#' @param socket Socket clustering.  Defaults to TRUE yet only applies if FORK = FALSE.
+#' @param ... Inputs to amDataSingleGetMore
 #'
 #' @export
 amDataGetMore <- function(insufficients, existingDataList, fork=TRUE, socket = TRUE, cores = detectCores(), ...){
@@ -38,15 +44,3 @@ amDataGetMore <- function(insufficients, existingDataList, fork=TRUE, socket = T
   # Return updated
   return(mcmcMonitoring)
 }
-
-# test3 <- amDataGetMore(insufficients = getMoreWhich, existingDataList = mcmcMonitoring, getMore = getMore,
-#               monitoringIntervalLevel = monitoringIntervalLevel,
-#               dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
-#               effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
-#               modelFit         = modelFit, fork=FALSE,socket=FALSE)
-#
-# test <- lapply(getMoreWhich, amDataGetMore, existingDataList = mcmcMonitoring, getMore = getMore,
-#                monitoringIntervalLevel = monitoringIntervalLevel,
-#                dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
-#                effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
-#                modelFit         = modelFit)
