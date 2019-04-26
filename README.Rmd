@@ -35,16 +35,16 @@ We’ll use the sgpvAM package, making use of parallel clustering (which on this
 
 Suggest to start small with 1000 reps to explore study designs.
 
-```r
-devtools::install_github("chipmanj/sgpvAM")
+```{r}
+# devtools::install_github("chipmanj/sgpvAM")
 library(sgpvAM)
 #
 # Simulate AM trial
 # Two-sided deltas
 # defaults to sd = 1
-system.time(am <-  sgpvAM(nreps            = 100,
+system.time(am <-  sgpvAM(nreps            = 1000,
                           maxAlertSteps    = 100,       lookSteps = 10,  kSteps = 10,
-                          waitWidths       = seq(0.2, 0.35, by = 0.025),
+                          waitWidths       = seq(0.2, 0.35, length.out = 5),
                           dataGeneration   = rnorm,   dataGenArgs = list(n=200),
                           effectGeneration = 0,
                           modelFit         = lmCI,
@@ -85,12 +85,12 @@ plot(amShifted, "stopInconclusive",  waitWidth = 0.275, xlim=c(-1,1),   ylim=c(0
 
 # Max N with immediate outcomes
 plot(amShifted, "n",     alertK = 10,     xlim=c(-1,1),   ylim=c(0,500), maxVary = 10, sizeRestrictions = "maxN")
-plot(amShifted, "stopInconclusive",     alertK = 10,     xlim=c(-1,1),   ylim=c(0,1), maxVary = 10, sizeRestrictions = "lag")
+plot(amShifted, "stopInconclusive",     alertK = 10,     xlim=c(-1,1),   ylim=c(0,1), maxVary = 10, sizeRestrictions = "maxN")
 
 
 summary(amShifted, alertK = 10, waitTime = 0.275, treatEffect = 0.2)
-summary(amShifted)
-summary(am)
+# summary(amShifted)
+# summary(am)
 
 ```
 
@@ -105,9 +105,6 @@ We’ll use the sgpvAM package, making use of parallel clustering (which on this
 Suggest to start small with 1000 reps to explore study designs.
 
 ```{r}
-# Simulate AM trial
-# One-sided deltas
-# Outcome has sd = 2
 system.time(am2 <-  sgpvAM(nreps           = 100,
                           maxAlertSteps    = 100,       lookSteps = 1, kSteps=10, waitWidths = seq(0.4,0.7,length.out=5),
                           dataGeneration   = rnorm,   dataGenArgs = list(n=200, sd=2),
@@ -115,6 +112,7 @@ system.time(am2 <-  sgpvAM(nreps           = 100,
                           modelFit         = lmCI,
                           pointNull = 0, deltaL2 = -1, deltaL1=-0.2, deltaG1=0.2, deltaG2=1,
                           monitoringIntervalLevel = 0.05,
+                          lagOutcomeN = 100,
                           cores=detectCores()))
 
 system.time(amShifted2 <- locationShift(am2, shiftedThetas = seq(-2,2,by=0.4)))
@@ -123,7 +121,7 @@ system.time(amShifted2 <- locationShift(am2, shiftedThetas = seq(-2,2,by=0.4)))
 
 # Unrestricted Sample Size
 # Explore wait width (first with alert k specified at 50)
-plot(amShifted2, "n",                 alertK = 0,       xlim=c(-2,2),   ylim=c(0,500))
+plot(amShifted2, "n",                 alertK = 50,      xlim=c(-2,2),   ylim=c(0,500))
 plot(amShifted2, "rejPN",             alertK = 50,      xlim=c(-2,2),   ylim=c(0,1))
 plot(amShifted2, "bias",              alertK = 50,      xlim=c(-2,2),   ylim=c(-0.2,0.2))
 plot(amShifted2, "mse",               alertK = 50,      xlim=c(-2,2),   ylim=c(0,0.3))
@@ -144,27 +142,23 @@ plot(amShifted2, "stopNotTrivial",   waitWidth = 0.55,  xlim=c(-2,2),   ylim=c(0
 
 # Unrestricted Sample Size with lag of remaining outcomes
 plot(amShifted2, "stopInconclusive",  alertK = 50,     xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
-plot(amShifted2, "stopInconclusive",  waitWidth = 0.4, xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
-plot(amShifted2, "stopInconclusive",  waitWidth = 0.6, xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
-
-# Max N with immediate outcomes
-plot(amShifted2, "n",                    alertK = 50, xlim=c(-2,1),   ylim=c(0,500), maxVary = 10, sizeRestrictions = "maxN")
-plot(amShifted2, "stopInconclusive",     alertK = 50, xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
+plot(amShifted2, "stopInconclusive",  waitWidth = 0.55, xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
+plot(amShifted2, "stopInconclusive",  waitWidth = 0.55, xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
 
 
-summary(amShifted2, alertK = 50, waitTime = 0.6, treatEffect = -0.4)
-summary(amShifted2)
-summary(am2)
+summary(amShifted2, alertK = 50, waitTime = 0.55, treatEffect = -0.4)
+# summary(amShifted2)
+# summary(am2)
 
 
 # Explore ECDF of Bias and Sample Size
 ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Bias",alertK = 50,treatEffect = 0,xlim = c(-1,2))
-ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Bias",waitWidth = 0.4,alertK = 50,treatEffect = 0,xlim = c(-1,2))
+ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Bias",waitWidth = 0.55,alertK = 50,treatEffect = 0,xlim = c(-1,2))
 ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Size",alertK = 50,treatEffect = 0,xlim = c(0,400))
 
 # Explore quantiles of sample size for fully specified study design
 # See probability of stopping by certain sample size under fully specified design
-ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Size",waitWidth = 0.4,alertK = 50,treatEffect = 0,xlim = c(0,400))
+ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Size",waitWidth = 0.55,alertK = 50,treatEffect = 0,xlim = c(0,400))
 quantile(ooo, probs=c(0,0.05,0.1,0.2,0.5,0.8,0.9,0.95,1))
 ooo(200)
 
