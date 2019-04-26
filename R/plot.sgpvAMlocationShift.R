@@ -1,58 +1,52 @@
 #' @export
 plot.sgpvAMlocationShift <- function( amShifted,        stat,
-                                      waitWidth = NULL, alertK = NULL, treatEffect = NULL,
-                                      xlim,             ylim,          maxVary     = 10 ,
+                                      waitWidth = NULL, alertK = NULL,
+                                      xlim,             ylim,
                                       sizeRestrictions ){
 
-
-  if(missing(xlim)) { stop("Specify xlim") }
-  if(missing(ylim)) { stop("Specify ylim") }
+  amInputs <- amShifted[[1]]$inputs
 
 
-  # Set parameters to explore
-  if(length(waitWidth)!=1 & length(alertK)!= 1 & length(treatEffect) != 1 &
-     length(c(waitWidth, alertK))      != 2 &
-     length(c(waitWidth, treatEffect)) != 2 &
-     length(c(alertK,    treatEffect)) != 2   ){
-    stop("Exactly one of waitWidth, alertK, and treatEffect must be a fixed value.")
-  }
+  if(missing(xlim)) { xlim <- readline(prompt="xlim: ") }
+  if(missing(ylim)) { ylim <- readline(prompt="ylim: ") }
 
 
-  # If waitWidth not provided, get from inputs
-  # Limit number of waitWidths if specified by maxInputs
-  # Set colors based on number of alertK explored
+  # Get wait width and alert k parameters
   if(is.null(waitWidth)){
-    waitWidth <- amShifted[[1]]$inputs$waitWidths
-    if(!is.na(maxVary)){
-      s         <- ceiling(length(waitWidth)/maxVary)
-      waitWidth <- waitWidth[unique(c(1,seq(s,length(waitWidth), by=s)))]
-    }
-    cols      <- brewer.pal(length(waitWidth), name="Spectral")
-  } else if(length(waitWidth) == 1){
-    mainGiven <- paste0(" | wait width = ", waitWidth)
+    waitWidth <- amInputs$waitWidths
+  }
+  if(length(waitWidth)>10) stop("Please select at most 10 wait times to investigate")
+
+
+  if(is.null(alertK)){
+    alertK    <- seq(0, amInputs$maxAlertSteps, by = amInputs$kSteps)
+  }
+  if(length(alertK)>11) stop("Please select at most 11 required affirmation steps to investigate")
+
+
+  if(length(waitWidth)>1 & length(alertK) > 1){
+    stop("At least one of waitWidth and alertK must be a singular.")
+  } else if(length(waitWidth) == 1 & length(alertK) >  1){
+    mainGiven <- paste0("Wait for expected CI width = ", waitWidth)
+  } else if(length(waitWidth) >  1 & length(alertK) == 1){
+    mainGiven <- paste0("Required affirmation steps = ", alertK)
+  } else {
+    mainGiven <- paste0("Wait for expected CI width = ", waitWidth,
+                        "; Required affirmation steps = ", alertK)
   }
 
-  # If alertK not provided, get from inputs
-  # Limit number of alertK if specified by maxInputs
-  # Set colors based on number of alertK explored
-  if(is.null(alertK)){
-    alertK    <- seq(0, amShifted[[1]]$inputs$maxAlertSteps, by = amShifted[[1]]$inputs$kSteps)
-    if(!is.na(maxVary)){
-      s      <- round(length(alertK)/maxVary)
-      alertK <- alertK[unique(c(1,seq(s,length(alertK), by=s)))]
-    }
-    cols      <- brewer.pal(length(alertK), name="Spectral")
-  } else if(length(alertK) == 1){
-    mainGiven <- paste0(" | alert k = ", alertK)
+  # Set colors
+  nVary <- max(c(length(waitWidth),length(alertK)))
+  if(nVary >= 3) {
+    cols <- brewer.pal(nVary, name="Spectral")
+  } else {
+    cols <- 1:nVary
   }
+
 
   # If alertK not provided, get from names of amShifted
   # Number of treatment effects not limited
-  if(is.null(treatEffect)){
-    treatEffect <- unname(sapply(names(amShifted), FUN = function(x) as.numeric(strsplit(x,split="_")[[1]][2])))
-  } else if(length(treatEffect) == 1){
-    mainGiven <- paste0(" | treatment effect = ", treatEffect)
-  }
+  treatEffect <- unname(sapply(names(amShifted), FUN = function(x) as.numeric(strsplit(x,split="_")[[1]][2])))
 
 
   # plot parameters (if not specified)
@@ -81,26 +75,26 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   } else if (is.element(sizeRestrictions,c("maxN","lag","lagMaxN"))){
     stat    <- paste0(sizeRestrictions,".",stat)
     if(sizeRestrictions=="maxN")    mainSub <- "Maximum sample size specified" else
-      if(sizeRestrictions == "lag") mainSub <- "Lag outcome specified" else
-        if(sizeRestrictions == "lagMaxN") mainSub <- "Maximum observed sample size before lag outcomes"
+      if(sizeRestrictions == "lag") mainSub <- paste0(amInputs$lagOutcomeN," Lag outcomes") else
+        if(sizeRestrictions == "lagMaxN") mainSub <- paste0("Maximum observed sample size before ", amInputs$lagOutcomeN," lag outcomes")
   } else stop("restrictions parameter must be any of NULL, maxN, lag, lagMaxN")
 
 
 
 
   # Blank plot
-  par(mar=c(5,4,4,6)+.1)
+  par(mar=c(5,4,5,6)+.1)
   plot(x=0,y=0,xlim=xlim,ylim=ylim,type="n",
        las=1,xlab="",ylab="",
-       main=paste0(main,mainGiven,"\n",mainSub))
+       main=paste0(main,"\n",mainGiven,"\n",mainSub))
 
 
   # Add line for point null
-  abline(v=amShifted[[1]]$inputs$pointNull,lty=2)
-  abline(v=c(amShifted[[1]]$inputs$deltaL2,
-             amShifted[[1]]$inputs$deltaL1,
-             amShifted[[1]]$inputs$deltaG1,
-             amShifted[[1]]$inputs$deltaG2),lwd=2)
+  abline(v=amInputs$pointNull,lty=2)
+  abline(v=c(amInputs$deltaL2,
+             amInputs$deltaL1,
+             amInputs$deltaG1,
+             amInputs$deltaG2),lwd=2)
 
 
   # Collect average effects across specified parameters
@@ -134,8 +128,8 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
       colIter <- colIter + 1
     }
 
-    legend("topright", inset=c(-.2, .05),legend="Wait Width", bty="n",xpd=TRUE)
-    legend("topright", inset=c(-.2, .15),legend=waitWidth,col=cols, pch=19, bty="n",xpd=TRUE)
+    legend("topright", inset=c(-.225, .05),legend="Wait Time\nCI Width", bty="n",xpd=TRUE)
+    legend("topright", inset=c(-.2, .25),legend=waitWidth,col=cols, pch=19, bty="n",xpd=TRUE)
 
   } else if(length(waitWidth)==1){
     for(k in alertK){
@@ -144,8 +138,8 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
       colIter <- colIter + 1
     }
 
-    legend("topright", inset=c(-.2, .05),legend="Alert K", bty="n",xpd=TRUE)
-    legend("topright", inset=c(-.2, .15),legend=alertK,col=cols, pch=19, bty="n",xpd=TRUE)
+    legend("topright", inset=c(-.225, .05),legend="Required\nAffirmation\nSteps", bty="n",xpd=TRUE)
+    legend("topright", inset=c(-.2, .25),legend=alertK,col=cols, pch=19, bty="n",xpd=TRUE)
 
   }
 

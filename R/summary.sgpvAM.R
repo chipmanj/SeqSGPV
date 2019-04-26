@@ -22,9 +22,11 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
 
   } else if(!is.function(am$inputs$effectGeneration)) {
 
-    te <- am$inputs$effectGeneration
-    o  <- am
+    te  <- am$inputs$effectGeneration
+    o   <- am
   }
+    lag  <- o$inputs$lagOutcomeN
+    maxN <- o$inputs$maxN
 
 
   # Select and reduce to wait time to summarize
@@ -57,6 +59,7 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
   cat(paste0("Given: theta = ", te, ", wait CI width = ", w, ", and k = ",k))
 
   cat("\n\nUnrestricted Sample Size with immediate outcomes:")
+  cat(paste0("\nAverage Observed Sample Size       = ", round(o["n"],rd)))
   cat(paste0("\nP( reject point null )             = ", o["rejPN"]))
   cat(paste0("\nP( conclude not trivial effect )   = ", o["stopNotTrivial"]))
   cat(paste0("\nP( conclude not impactful effect ) = ", o["stopNotImpactful"]))
@@ -66,7 +69,8 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
 
 
   if(length((grep("lag.",names(o))))>0){
-    cat("\n\nUnrestricted Sample Size, stopping and then observing the lagged outcomes:")
+    cat(paste0("\n\nUnrestricted Sample Size, stopping and then observing the ", lag, " lagged outcomes:"))
+    cat(paste0("\nAverage Total Sample Size          = ", round(o["lag.n"],rd)))
     cat(paste0("\nP( reject point null )             = ", o["lag.rejPN"]))
     cat(paste0("\nP( conclude not trivial effect )   = ", o["lag.stopNotTrivial"]))
     cat(paste0("\nP( conclude not impactful effect ) = ", o["lag.stopNotImpactful"]))
@@ -77,7 +81,8 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
 
 
   if(length((grep("maxN.",names(o))))>0){
-    cat("\n\nMaximum Sample Size with immediate outcomes:")
+    cat(paste0("\n\nMaximum Observed Sample Size of: ",maxN))
+    cat(paste0("\nAverage Observed Sample Size       = ", round(o["maxN.n"],rd)))
     cat(paste0("\nP( reject point null )             = ", o["maxN.rejPN"]))
     cat(paste0("\nP( conclude not trivial effect )   = ", o["maxN.stopNotTrivial"]))
     cat(paste0("\nP( conclude not impactful effect ) = ", o["maxN.stopNotImpactful"]))
@@ -88,7 +93,8 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
 
 
   if(length((grep("lagMaxN.",names(o))))>0){
-    cat("\n\nMaximum Sample Size, stopping and then observing the lagged outcomes:")
+    cat(paste0("\n\nMaximum Observed Sample Size of ",maxN,", and then observing the", lag, " lagged outcomes:"))
+    cat(paste0("\nAverage Total Sample Size          = ", round(o["lagMaxN.n"],rd)))
     cat(paste0("\nP( reject point null )             = ", o["lagMaxN.rejPN"]))
     cat(paste0("\nP( conclude not trivial effect )   = ", o["lagMaxN.stopNotTrivial"]))
     cat(paste0("\nP( conclude not impactful effect ) = ", o["lagMaxN.stopNotImpactful"]))
