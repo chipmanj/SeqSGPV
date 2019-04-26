@@ -30,6 +30,8 @@ ecdf.sgpvAM <- function(am,        stat,
 
   }
 
+  amInputs <- o$inputs
+
   if(!is.function(o$inputs$effectGeneration)){
     mainTE <- paste0("theta = ", o$inputs$effectGeneration," ")
   }
@@ -38,23 +40,63 @@ ecdf.sgpvAM <- function(am,        stat,
   # If waitWidth not provided, get from inputs
   # Limit number of waitWidths if specified by maxInputs
   # Set colors based on number of alertK explored
+  # if(is.null(waitWidth)){
+  #
+  #   waitWidth <- o$inputs$waitWidths
+  #
+  #   if(!is.na(maxVary)){
+  #     s         <- ceiling(length(waitWidth)/maxVary)
+  #     waitWidth <- waitWidth[unique(c(1,seq(s,length(waitWidth), by=s)))]
+  #   }
+  #
+  #   cols      <- brewer.pal(length(waitWidth), name="Spectral")
+  #
+  #   mainWW <- NULL
+  #
+  # } else if(length(waitWidth) == 1){
+  #
+  #   mainWW <- paste0("wait width = ", waitWidth," ")
+  #
+  # }
+
+
+  # Get wait width and alert k parameters
   if(is.null(waitWidth)){
+    waitWidth <- amInputs$waitWidths
+  }
+  if(length(waitWidth)>10) stop("Please select at most 10 wait times to investigate")
 
-    waitWidth <- o$inputs$waitWidths
-
-    if(!is.na(maxVary)){
-      s         <- ceiling(length(waitWidth)/maxVary)
-      waitWidth <- waitWidth[unique(c(1,seq(s,length(waitWidth), by=s)))]
-    }
-
-    cols      <- brewer.pal(length(waitWidth), name="Spectral")
-
-    mainWW <- NULL
-
-  } else if(length(waitWidth) == 1){
+  if(length(waitWidth) == 1){
 
     mainWW <- paste0("wait width = ", waitWidth," ")
 
+  } else mainWW <- NULL
+
+
+
+  if(is.null(alertK)){
+    alertK    <- seq(0, amInputs$maxAlertSteps, by = amInputs$kSteps)
+  }
+  if(length(alertK)>11) stop("Please select at most 11 required affirmation steps to investigate")
+
+
+  if(length(alertK) == 1){
+
+    mainK <- paste0("alert k = ", alertK)
+
+  } else mainK <- NULL
+
+
+
+  if(length(waitWidth)>1 & length(alertK) > 1){
+    stop("At least one of waitWidth and alertK must be a singular.")
+  } else if(length(waitWidth) == 1 & length(alertK) >  1){
+    mainGiven <- paste0("Wait for expected CI width = ", waitWidth)
+  } else if(length(waitWidth) >  1 & length(alertK) == 1){
+    mainGiven <- paste0("Required affirmation steps = ", alertK)
+  } else {
+    mainGiven <- paste0("Wait for expected CI width = ", waitWidth,
+                        "; Required affirmation steps = ", alertK)
   }
 
 
@@ -63,26 +105,41 @@ ecdf.sgpvAM <- function(am,        stat,
   # If alertK not provided, get from inputs
   # Limit number of alertK if specified by maxInputs
   # Set colors based on number of alertK explored
-  if(is.null(alertK)){
+  # if(is.null(alertK)){
+  #
+  #   alertK    <- seq(0, o$inputs$maxAlertSteps, by = o$inputs$lookSteps)
+  #
+  #   if(!is.na(maxVary)){
+  #
+  #     s      <- ceiling(length(alertK)/maxVary)
+  #     alertK <- alertK[unique(c(1,seq(s,length(alertK), by=s)))]
+  #
+  #   }
+  #
+  #   cols      <- brewer.pal(length(alertK), name="Spectral")
+  #
+  #   mainK <- NULL
+  #
+  # } else if(length(alertK) == 1){
+  #
+  #   mainK <- paste0("alert k = ", alertK)
+  #
+  # }
 
-    alertK    <- seq(0, o$inputs$maxAlertSteps, by = o$inputs$lookSteps)
 
-    if(!is.na(maxVary)){
 
-      s      <- ceiling(length(alertK)/maxVary)
-      alertK <- alertK[unique(c(1,seq(s,length(alertK), by=s)))]
 
-    }
-
-    cols      <- brewer.pal(length(alertK), name="Spectral")
-
-    mainK <- NULL
-
-  } else if(length(alertK) == 1){
-
-    mainK <- paste0("alert k = ", alertK)
-
+  # Set colors
+  nVary <- max(c(length(waitWidth),length(alertK)))
+  if(nVary >= 3) {
+    cols <- brewer.pal(nVary, name="Spectral")
+  } else {
+    cols <- 1:nVary
   }
+
+
+
+
 
 
   if(doPlot==TRUE){
@@ -118,11 +175,11 @@ ecdf.sgpvAM <- function(am,        stat,
     # If more than one study design to plot, place key on right of plot
     if(length(c(waitWidth,alertK))>1){
       if(length(waitWidth)>1){
-        legend("topright", inset=c(-.2, .05),legend="Wait Width", bty="n",xpd=TRUE)
-        legend("topright", inset=c(-.2, .15),legend=waitWidth,col=cols, pch=19, bty="n",xpd=TRUE)
+        legend("topright", inset=c(-.225, .05),legend="Wait Time\nCI Width", bty="n",xpd=TRUE)
+        legend("topright", inset=c(-.2, .25),legend=waitWidth,col=cols, pch=19, bty="n",xpd=TRUE)
       } else {
-        legend("topright", inset=c(-.2, .05),legend="Alert K", bty="n",xpd=TRUE)
-        legend("topright", inset=c(-.2, .15),legend=alertK,col=cols, pch=19, bty="n",xpd=TRUE)
+        legend("topright", inset=c(-.225, .05),legend="Required\nAffirmation\nSteps", bty="n",xpd=TRUE)
+        legend("topright", inset=c(-.2, .25),legend=alertK,col=cols, pch=19, bty="n",xpd=TRUE)
       }
     }
 
