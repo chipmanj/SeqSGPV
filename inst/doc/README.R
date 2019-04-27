@@ -1,5 +1,8 @@
+## ---- echo=FALSE---------------------------------------------------------
+knitr::opts_chunk$set(fig.width=7, fig.height=5) 
+
 ## ------------------------------------------------------------------------
-devtools::install_github("chipmanj/sgpvAM")
+# devtools::install_github("chipmanj/sgpvAM")
 library(sgpvAM)
 
 system.time(am <-  sgpvAM(nreps            = 1000,

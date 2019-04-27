@@ -7,6 +7,10 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
+```{r, echo=FALSE}
+knitr::opts_chunk$set(fig.width=7, fig.height=5) 
+```
+
 # sgpvAM package
 
 The sgpvAM package allows the user to obtain study design operating characteristics under a variety of settings for adaptive monitoring using the second generation p-value.  
@@ -45,7 +49,7 @@ We’ll use the sgpvAM package, making use of parallel clustering (which on this
 Suggest to start small with 1000 reps to explore study designs.
 
 ```{r}
-devtools::install_github("chipmanj/sgpvAM")
+# devtools::install_github("chipmanj/sgpvAM")
 library(sgpvAM)
 
 system.time(am <-  sgpvAM(nreps            = 1000,
