@@ -18,13 +18,42 @@
 
 
 
-sgpvAMrulesSingle <- function(data,      waitWidth, sd,
-                        monitoringIntervalLevel,
-                        lookSteps, kSteps, maxAlertSteps=100,
-                        maxN,      lagOutcomeN=0){
+sgpvAMrulesSingle <- function(data, waitWidth, sd, waitEmpirical, minWaitN,
+                              monitoringIntervalLevel,
+                              lookSteps, kSteps, maxAlertSteps=100,
+                              maxN,      lagOutcomeN=0){
+
+
+  # If not using assumed sd for determining wait Time
+  if(waitEmpirical==TRUE){
+
+    # pooled standard deviation
+    pooledSd <- function(i){
+      y   <- data[1:i,"y"]
+      trt <- data[1:i,"trt"]
+      n0  <- sum(trt==0)
+      n1  <- sum(trt==1)
+      sd  <- sqrt( ( (n0-1) * var(y[trt==0]) + (n1-1)* var(y[trt==1]) ) / (n0 + n1 - 2)  )
+      sd
+    }
+    pSD <- sapply(1:nrow(data),pooledSd)
+
+    # As estimate is more extreme, allow earlier monitoring.
+    #  The required CI width is relaxed to be less narrow
+    ciWidth <- pmax(abs(data[,"est"] - waitWidth), waitWidth)
+
+    # Dynamic estimated wait time
+    # Wait at least minWaitN
+    possibleWaitTime  <- ceiling((2 * qnorm(1 - monitoringIntervalLevel / 2) * pSD / ciWidth)^2)
+    possibleWaitTime[1:minWaitN] <- minWaitN
+
+    waitTime  <- possibleWaitTime[min( which( possibleWaitTime < 1:nrow(data) ) )]
+  } else {
+    waitTime  <- ceiling((2 * qnorm(1 - monitoringIntervalLevel / 2) * sd / waitWidth)^2)
+}
+
 
   # 1 Establish observations that surpass wait time and occur at lookSteps
-  waitTime  <- ceiling((2 * qnorm(1 - monitoringIntervalLevel / 2) * sd / waitWidth)^2)
   looks     <- waitTime + (0:nrow(data)) * lookSteps
   monitor   <- data[,"n"] %in% looks
 
