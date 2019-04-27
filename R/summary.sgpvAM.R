@@ -24,7 +24,8 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
 
     te  <- am$inputs$effectGeneration
     o   <- am
-  }
+  } else {return(NULL)}
+
     lag  <- o$inputs$lagOutcomeN
     maxN <- o$inputs$maxN
 
