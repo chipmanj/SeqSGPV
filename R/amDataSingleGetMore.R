@@ -11,6 +11,7 @@ amDataSingleGetMore <- function( existingDataList, iInsufficient, getMore,
                                  modelFit ){
 
   dataGenArgs$n     <- getMore[iInsufficient]
+  effectGeneration  <- existingDataList[[iInsufficient]][1,"theta"]
 
   amDataSingleMore  <- amDataSingle( monitoringIntervalLevel = monitoringIntervalLevel,
                                      existingData     = existingDataList[[iInsufficient]],
