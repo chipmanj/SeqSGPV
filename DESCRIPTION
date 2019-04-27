@@ -1,13 +1,14 @@
 Package: sgpvAM
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Second Generation p-value Adaptive Monitoring: Study Design
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
+Author: Jonathan Chipman
+Maintainer: Jonathan Chipman <jonathan.chipman@vanderbilt.edu>
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
 Depends: plyr, sgpv, RcppEigen, RColorBrewer, parallel
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Description: The sgpvAM package allows the user to obtain study design operating characteristics under a variety of settings for adaptive monitoring using the second generation p-value.  
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
