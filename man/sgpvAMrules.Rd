@@ -5,8 +5,9 @@
 \title{amSgpvRules}
 \usage{
 sgpvAMrules(mcmcMonitoring, fork = TRUE, socket = TRUE,
-  cores = detectCores(), waitWidth, sd, lookSteps, kSteps, maxAlertSteps,
-  monitoringIntervalLevel, maxN, lagOutcomeN)
+  cores = detectCores(), waitWidth, sd, waitEmpirical, minWaitN,
+  lookSteps, kSteps, maxAlertSteps, monitoringIntervalLevel, maxN,
+  lagOutcomeN)
 }
 \description{
 Generate mcmc simulations of adaptive monitoring with parallel computing

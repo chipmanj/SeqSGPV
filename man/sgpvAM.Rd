@@ -7,7 +7,8 @@
 sgpvAM(mcmcData = NULL, nreps, waitWidths, dataGeneration = NULL,
   dataGenArgs, effectGeneration = NULL, effectGenArgs, modelFit,
   pointNull, deltaL2, deltaL1, deltaG1, deltaG2, lookSteps = 1,
-  kSteps = 10, maxAlertSteps = 100, maxN = NULL, lagOutcomeN = 0,
+  waitEmpirical = TRUE, minWaitN = 30, kSteps = 10,
+  maxAlertSteps = 100, maxN = NULL, lagOutcomeN = 0,
   monitoringIntervalLevel = 0.05, printProgress = TRUE,
   outData = TRUE, getECDF = TRUE, cores = NULL, fork = TRUE,
   socket = TRUE)
