@@ -27,11 +27,11 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   if(length(waitWidth)>1 & length(alertK) > 1){
     stop("At least one of waitWidth and alertK must be a singular.")
   } else if(length(waitWidth) == 1 & length(alertK) >  1){
-    mainGiven <- paste0("Wait for expected CI width = ", waitWidth)
+    mainGiven <- paste0("Effects within bound periphery wait for CI width = ", waitWidth)
   } else if(length(waitWidth) >  1 & length(alertK) == 1){
     mainGiven <- paste0("Required affirmation steps = ", alertK)
   } else {
-    mainGiven <- paste0("Wait for expected CI width = ", waitWidth,
+    mainGiven <- paste0("Effects within bound periphery wait for CI width = ", waitWidth,
                         "; Required affirmation steps = ", alertK)
   }
 
@@ -83,7 +83,7 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
 
 
   # Blank plot
-  par(mar=c(5,4,5,6)+.1)
+  par(mar=c(5,4,5,8)+.1)
   plot(x=0,y=0,xlim=xlim,ylim=ylim,type="n",
        las=1,xlab="",ylab="",
        main=paste0(main,"\n",mainGiven,"\n",mainSub))
@@ -128,8 +128,8 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
       colIter <- colIter + 1
     }
 
-    legend("topright", inset=c(-.225, .05),legend="Wait Time\nCI Width", bty="n",xpd=TRUE)
-    legend("topright", inset=c(-.2, .25),legend=waitWidth,col=cols, pch=19, bty="n",xpd=TRUE)
+    legend("topright", inset=c(-.35, .05),legend="Effects within\nbound periphery\nwait for CI width", bty="n",xpd=TRUE)
+    legend("topright", inset=c(-.25, .35),legend=waitWidth,col=cols, pch=19, bty="n",xpd=TRUE)
 
   } else if(length(waitWidth)==1){
     for(k in alertK){
@@ -138,8 +138,8 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
       colIter <- colIter + 1
     }
 
-    legend("topright", inset=c(-.225, .05),legend="Required\nAffirmation\nSteps", bty="n",xpd=TRUE)
-    legend("topright", inset=c(-.2, .25),legend=alertK,col=cols, pch=19, bty="n",xpd=TRUE)
+    legend("topright", inset=c(-.35, .05),legend="Required\nAffirmation\nSteps", bty="n",xpd=TRUE)
+    legend("topright", inset=c(-.25, .275),legend=alertK,col=cols, pch=19, bty="n",xpd=TRUE)
 
   }
 
