@@ -5,11 +5,10 @@ knitr::opts_chunk$set(fig.width=7, fig.height=5)
 # devtools::install_github("chipmanj/sgpvAM")
 library(sgpvAM)
 
-system.time(am <-  sgpvAM(nreps            = 100,
+system.time(am <-  sgpvAM(nreps            = 1000,
                           maxAlertSteps    = 100,       
                           lookSteps        = 10,  
-                          waitEmpirical    = TRUE, 
-                          minWaitN         = 30,
+                          waitEmpirical    = FALSE,
                           kSteps           = 10,
                           waitWidths       = seq(0.2, 0.35, length.out = 5),
                           dataGeneration   = rnorm,   dataGenArgs = list(n=200),
@@ -27,6 +26,7 @@ system.time(amShifted <- locationShift(am, shiftedThetas = seq(-0.5, 1, by = 0.0
 # Explore wait width (first with alert k specified at 50)
 plot(amShifted, "n",                 alertK = 20,      xlim=c(-0.5, 1),   ylim=c(0,500))
 plot(amShifted, "rejPN",             alertK = 20,      xlim=c(-0.5, 1),   ylim=c(0,1))
+abline(h=0.05)
 plot(amShifted, "bias",              alertK = 50,      xlim=c(-0.5, 1),   ylim=c(-0.10,0.10))
 plot(amShifted, "mse",               alertK = 20,      xlim=c(-0.5, 1),   ylim=c(0,0.04))
 plot(amShifted, "cover",             alertK = 20,      xlim=c(-0.5, 1),   ylim=c(0.90,1))
@@ -45,7 +45,7 @@ plot(amShifted, "stopNotTrivial",    waitWidth = 0.35, alertK = c(0,20,50,100), 
 # Unrestricted Sample Size with lag of remaining outcomes
 plot(amShifted, "n",                 alertK = 20,     xlim=c(-0.5,1),   ylim=c(0,500), sizeRestrictions = "lag")
 plot(amShifted, "stopInconclusive",  alertK = 20,     xlim=c(-0.5,1),   ylim=c(0,1),   sizeRestrictions = "lag")
-plot(amShifted, "stopInconclusive",  waitWidth = 0.35, alertK = c(0, 20, 50, 100), xlim=c(-0.5,1), ylim=c(0,1),   sizeRestrictions = "lag")
+plot(amShifted, "stopInconclusive",  waitWidth = 0.35, alertK = c(0, 20, 50, 80), xlim=c(-0.5,1), ylim=c(0,0.5),   sizeRestrictions = "lag")
 
 # Max N with immediate outcomes
 plot(amShifted, "n",                 alertK = 20,     xlim=c(-0.5,1),   ylim=c(0,250), sizeRestrictions = "maxN")
@@ -58,9 +58,12 @@ summary(amShifted, alertK = 50, waitTime = 0.35, treatEffect = 0)
 
 
 ## ------------------------------------------------------------------------
-system.time(am2 <-  sgpvAM(nreps           = 1000,
-                           maxAlertSteps   = 100,       
-                           lookSteps = 1, kSteps=10, waitWidths = seq(0.4,0.7,length.out=5),
+system.time(am2 <-  sgpvAM(nreps            = 1000,
+                           maxAlertSteps    = 100,       
+                           lookSteps        = 1, 
+                           waitEmpirical    = FALSE,
+                           kSteps           = 10, 
+                           waitWidths       = seq(0.4,0.7,length.out=5),
                            dataGeneration   = rnorm,   dataGenArgs = list(n=200, sd=2),
                            effectGeneration = 0,
                            modelFit         = lmCI,
@@ -77,6 +80,7 @@ system.time(amShifted2 <- locationShift(am2, shiftedThetas = seq(-2,2,by=0.1)))
 # Explore wait width (first with alert k specified at 50)
 plot(amShifted2, "n",                 alertK = 50,      xlim=c(-2,2),   ylim=c(0,500))
 plot(amShifted2, "rejPN",             alertK = 50,      xlim=c(-2,2),   ylim=c(0,1))
+abline(h=0.05)
 plot(amShifted2, "bias",              alertK = 50,      xlim=c(-2,2),   ylim=c(-0.1,0.1))
 plot(amShifted2, "mse",               alertK = 50,      xlim=c(-2,2),   ylim=c(0,0.15))
 plot(amShifted2, "cover",             alertK = 50,      xlim=c(-2,2),   ylim=c(0.85,1))
@@ -94,7 +98,7 @@ plot(amShifted2, "stopNotTrivial",   waitWidth = 0.7,  alertK = c(0, 20, 50, 100
 
 # Unrestricted Sample Size with lag of remaining outcomes
 plot(amShifted2, "stopInconclusive",  alertK = 50,     xlim=c(-2,2),   ylim=c(0,0.4),  sizeRestrictions = "lag")
-plot(amShifted2, "stopInconclusive",  waitWidth = 0.7, alertK = c(0, 20, 50, 100), xlim=c(-2,2),   ylim=c(0,.4),  sizeRestrictions = "lag")
+plot(amShifted2, "stopInconclusive",  waitWidth = 0.7, alertK = c(0, 20, 50, 90), xlim=c(-2,2),   ylim=c(0,.4),  sizeRestrictions = "lag")
 
 
 summary(amShifted2, alertK = 50, waitTime = 0.7, treatEffect = 0)

@@ -23,9 +23,13 @@ The sgpvAM package allows the user to obtain study design operating characterist
 
 **Wait time until monitoring:** Current recommendations for wait time are based upon the minimum sample size to achieve an expected minimum 95% confidence interval width of the average outcome under an assumed outcome's standard deviation.  This has optimal properties for reducing the Type I Error.  This assumes a working knowledge of the outcome's variability.  While optimal for reducing the Type I Error, there are two draw backs: 1) the true standard deviation may not be known and 2) extreme effects are followed for a minimum sample size which may be much longer than needed to stop the trial early.
 
-The following rule is still under developmental yet makes use of the theoretical properties explore when the true standard deviation is known.  It also addresses the two limitations.  
+The following rule is still under developmental yet makes use of the theoretical properties explored when the true standard deviation is known.  It also addresses the two limitations.  
 
-First, we define a periphrial region of effects around the boundary Regions of Clinically Trivial and Clinically Highly Actionable Effects.  Within this region, we do not relax the minimum wait time.  For a one-sided study where a positive outcome is beneficial, this region is [point null, deltaG1 + deltaG2]; a one-sided study where a negative effect is beneficial, the region is [deltaL2 + deltaL1, point null]; a two-sided study, the region is [deltaL2 + deltaL1, deltaG1 + deltaG2].  
+First, we define a peripheral region of effects around the boundary Regions of Clinically Trivial and Clinically Highly Actionable Effects.  In a two-sided study, this can be visualized as the non-highly actionable effects plus a small set of highly actionable effects.  More formally, the two-sided region is [deltaL2 + deltaL1, deltaG1 + deltaG2].  In a one-sided study where a positive effect is beneficial, the peripheral region includes the moderately actionable effects plus a small set of trivial and a small set of highly actionable effects.  Specificially, this region is [point null, deltaG1 + deltaG2].  Similarly, when a negative effect is beneficial, the peripheral region is [deltaL2 + deltaL1, point null].
+
+Within the estimated effect is within the peripheral region, the expected wait time is the n to achieve a desired confidence interval width (as specified among the sgpvAM inputs).  When the estimated effect is outside the peripheral region, a wider confidence interval width is permitted -- thus allowing studies with more extreme effects to begin monitoring and conclude stopping earlier.
+
+When the i$^th$ patient enrolls, the estimated treatment effect and confidence interval are calculated.  Conditioned on the estimated standard deviation of the outcome
 
 When the estimated effect is within this peripheral region, the estimated wait time after observing the i$^{th}$ patient is the n for when the confidence interval width, conditioned on estimated variability, is the specified waitWidth input parameter.  The first possible time to start monitoring is when the estimated wait time is less than the number of observations.  Given the distrecte brownian motion in estimating both the effect and variability, we require an affirmation to start monitoring.  Currently, this is to wait until 10 patients later the data still suggest to begin monitoring.  The affirmation step to begin monitoring reduces the chances of some mcmc replicates beginning to monitor too early and ending having made an error.
 
@@ -73,7 +77,7 @@ system.time(am <-  sgpvAM(nreps            = 2000,
                           waitEmpirical    = TRUE,
                           minWaitN         = 30,
                           kSteps           = 10,
-                          waitWidths       = seq(0.2, 0.35, length.out = 5),
+                          waitWidths       = seq(0.2, 0.35, length.out=5),
                           dataGeneration   = rnorm,   dataGenArgs = list(n=200),
                           effectGeneration = 0,
                           modelFit         = lmCI,
