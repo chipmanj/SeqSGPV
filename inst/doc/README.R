@@ -5,10 +5,11 @@ knitr::opts_chunk$set(fig.width=7, fig.height=5)
 # devtools::install_github("chipmanj/sgpvAM")
 library(sgpvAM)
 
-system.time(am <-  sgpvAM(nreps            = 1000,
+system.time(am <-  sgpvAM(nreps            = 2000,
                           maxAlertSteps    = 100,       
                           lookSteps        = 10,  
-                          waitEmpirical    = FALSE,
+                          waitEmpirical    = TRUE,
+                          minWaitN         = 30,
                           kSteps           = 10,
                           waitWidths       = seq(0.2, 0.35, length.out = 5),
                           dataGeneration   = rnorm,   dataGenArgs = list(n=200),
@@ -20,7 +21,9 @@ system.time(am <-  sgpvAM(nreps            = 1000,
                           maxN = 200, lagOutcomeN = 50, 
                           cores = detectCores()))
 
-system.time(amShifted <- locationShift(am, shiftedThetas = seq(-0.5, 1, by = 0.025)))
+system.time(amShifted <- locationShift(am, shiftedThetas = seq(-0.5, 1, by = 0.1)))
+
+
 
 # Unrestricted Sample Size
 # Explore wait width (first with alert k specified at 50)
@@ -28,23 +31,23 @@ plot(amShifted, "n",                 alertK = 20,      xlim=c(-0.5, 1),   ylim=c
 plot(amShifted, "rejPN",             alertK = 20,      xlim=c(-0.5, 1),   ylim=c(0,1))
 abline(h=0.05)
 plot(amShifted, "bias",              alertK = 50,      xlim=c(-0.5, 1),   ylim=c(-0.10,0.10))
-plot(amShifted, "mse",               alertK = 20,      xlim=c(-0.5, 1),   ylim=c(0,0.04))
-plot(amShifted, "cover",             alertK = 20,      xlim=c(-0.5, 1),   ylim=c(0.90,1))
+plot(amShifted, "mse",               alertK = 20,      xlim=c(-0.5, 1),   ylim=c(0,0.1))
+plot(amShifted, "cover",             alertK = 50,      xlim=c(-0.5, 1),   ylim=c(0.85,1))
 plot(amShifted, "stopNotImpactful",  alertK = 20,      xlim=c(-0.5, 1),   ylim=c(0,1))
 plot(amShifted, "stopNotTrivial",    alertK = 20,      xlim=c(-0.5, 1),   ylim=c(0,1))
 
 # Explore number of steps in affirmation step
 plot(amShifted, "n",                 waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0,500))
-plot(amShifted, "bias",              waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(-0.05,0.05))
-plot(amShifted, "mse",               waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0,0.04))
-plot(amShifted, "cover",             waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0.90,1))
+plot(amShifted, "bias",              waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(-0.10,0.10))
+plot(amShifted, "mse",               waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0,0.10))
+plot(amShifted, "cover",             waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0.85,1))
 plot(amShifted, "stopNotImpactful",  waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0,1))
 plot(amShifted, "stopNotTrivial",    waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0,1))
 
 
 # Unrestricted Sample Size with lag of remaining outcomes
 plot(amShifted, "n",                 alertK = 20,     xlim=c(-0.5,1),   ylim=c(0,500), sizeRestrictions = "lag")
-plot(amShifted, "stopInconclusive",  alertK = 20,     xlim=c(-0.5,1),   ylim=c(0,1),   sizeRestrictions = "lag")
+plot(amShifted, "stopInconclusive",  alertK = 20,     xlim=c(-0.5,1),   ylim=c(0,0.5),   sizeRestrictions = "lag")
 plot(amShifted, "stopInconclusive",  waitWidth = 0.35, alertK = c(0, 20, 50, 80), xlim=c(-0.5,1), ylim=c(0,0.5),   sizeRestrictions = "lag")
 
 # Max N with immediate outcomes
@@ -58,10 +61,11 @@ summary(amShifted, alertK = 50, waitTime = 0.35, treatEffect = 0)
 
 
 ## ------------------------------------------------------------------------
-system.time(am2 <-  sgpvAM(nreps            = 1000,
+system.time(am2 <-  sgpvAM(nreps            = 2000,
                            maxAlertSteps    = 100,       
                            lookSteps        = 1, 
-                           waitEmpirical    = FALSE,
+                           waitEmpirical    = TRUE,
+                           minWaitN         = 30,
                            kSteps           = 10, 
                            waitWidths       = seq(0.4,0.7,length.out=5),
                            dataGeneration   = rnorm,   dataGenArgs = list(n=200, sd=2),
@@ -81,15 +85,15 @@ system.time(amShifted2 <- locationShift(am2, shiftedThetas = seq(-2,2,by=0.1)))
 plot(amShifted2, "n",                 alertK = 50,      xlim=c(-2,2),   ylim=c(0,500))
 plot(amShifted2, "rejPN",             alertK = 50,      xlim=c(-2,2),   ylim=c(0,1))
 abline(h=0.05)
-plot(amShifted2, "bias",              alertK = 50,      xlim=c(-2,2),   ylim=c(-0.1,0.1))
-plot(amShifted2, "mse",               alertK = 50,      xlim=c(-2,2),   ylim=c(0,0.15))
+plot(amShifted2, "bias",              alertK = 50,      xlim=c(-2,2),   ylim=c(-0.15,0.15))
+plot(amShifted2, "mse",               alertK = 50,      xlim=c(-2,2),   ylim=c(0,0.25))
 plot(amShifted2, "cover",             alertK = 50,      xlim=c(-2,2),   ylim=c(0.85,1))
 plot(amShifted2, "stopNotImpactful",  alertK = 50,      xlim=c(-2,2),   ylim=c(0,1))
 plot(amShifted2, "stopNotTrivial",    alertK = 50,      xlim=c(-2,2),   ylim=c(0,1))
 
 # Explore number of steps in affirmation s
 plot(amShifted2, "n",                waitWidth = 0.7,  alertK = c(0, 20, 50, 100), xlim=c(-2,2),   ylim=c(0,500))
-plot(amShifted2, "bias",             waitWidth = 0.7,  alertK = c(0, 20, 50, 100), xlim=c(-2,2),   ylim=c(-0.1,0.1))
+plot(amShifted2, "bias",             waitWidth = 0.7,  alertK = c(0, 20, 50, 100), xlim=c(-2,2),   ylim=c(-0.15,0.15))
 plot(amShifted2, "mse",              waitWidth = 0.7,  alertK = c(0, 20, 50, 100), xlim=c(-2,2),   ylim=c(0,0.20))
 plot(amShifted2, "cover",            waitWidth = 0.7,  alertK = c(0, 20, 50, 100), xlim=c(-2,2),   ylim=c(0.9,1))
 plot(amShifted2, "stopNotImpactful", waitWidth = 0.7,  alertK = c(0, 20, 50, 100), xlim=c(-2,2),   ylim=c(0,1))  
@@ -109,7 +113,7 @@ summary(amShifted2, alertK = 50, waitTime = 0.7, treatEffect = 0)
 # Explore ECDF of Bias and Sample Size
 ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Bias",alertK = 50,treatEffect = 0,xlim = c(-1,2))
 ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Bias",waitWidth = 0.55,alertK = 50,treatEffect = 0,xlim = c(-1,2))
-ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Size",alertK = 50,treatEffect = 0,xlim = c(0,400))
+ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Size",alertK = 50,treatEffect = 0,xlim = c(0,800))
 
 # Explore quantiles of sample size for fully specified study design
 # See probability of stopping by certain sample size under fully specified design
