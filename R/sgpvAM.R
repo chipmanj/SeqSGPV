@@ -296,11 +296,11 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
     # Min wait time depends on distance of estimate from the periphery of clinical boundaries
     if(is.na(deltaL1)){
-      periphLo <- pointNull
-      periphUp <- deltaG1 + deltaG2
+      periphLo <- pointNull -     deltaG1
+      periphUp <- deltaG2   + 2 * deltaG1
     } else if(is.na(deltaG1)){
-      periphLo <- deltaL1 + deltaL2
-      periphUp <- pointNull
+      periphLo <- deltaL2   + 2 * deltaL1
+      periphUp <- pointNull -     deltaL1
     } else {
       periphLo <- deltaL1 + deltaL2
       periphUp <- deltaG1 + deltaG2

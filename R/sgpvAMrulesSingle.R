@@ -12,7 +12,7 @@ sgpvAMrulesSingle <- function(data,
   if(waitEmpirical==TRUE){
 
     # Standard deviation on beta coefficient for trt effect = | CI Width | * sqrt ( n ) / ( 2 * 1.96 )
-    sdBeta <- abs(data[,"lo"] - data[,"up"]) * sqrt(1:nrow(data)) / (2 * qnorm(1 - monitoringIntervalLevel / 2))
+    # sdBeta <- abs(data[,"lo"] - data[,"up"]) * sqrt(1:nrow(data)) / (2 * qnorm(1 - monitoringIntervalLevel / 2))
 
 
     # Relax wait time (ME width) if estimated effect outside peripheral of clinical region boundaries
@@ -27,7 +27,9 @@ sgpvAMrulesSingle <- function(data,
 
 
     # Start monitoring once Margin of Error is less than wait width
-    waitTime <- min((1:nrow(data))[abs(data[,"lo"] - data[,"up"]) / 2 < meWaitWidth])
+    # Require 30 step affirmation to begin monitoring
+    possibleStarts <- (1:nrow(data))[abs(data[,"lo"] - data[,"up"]) / 2 < meWaitWidth]
+    waitTime <- min(possibleStarts[possibleStarts %in% c(possibleStarts + 30)])
 
   } else {
 
