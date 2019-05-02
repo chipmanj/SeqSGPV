@@ -1,55 +1,48 @@
 #' @export
-
-# sgpvAMrulesSingle.R
-# J Chipman
-#
-# From fully sequential monitoring data, applies a burn in and monitors
-#  every desired set of steps thereafter.  Raises an alert if sgpv for
-#  non-trivial effects or futility equals one.  Returns the affirmation
-#  end of study results for affirming an alert starting from 0 to
-#  maxAlertSteps by how frequently data are monitored.
-#
-# Data: matrix from sgpvAMdata.  Or a similar matrix with columns:
-#       theta, n, y, lo, hi, sgpvTrivial, sgpvImpactful,
-# waitWidth:               The width of the confidence interval under an assumed variance
-# monitoringIntervalLevel: The traditional alpha
-# lookSteps:               How frequently will data be monitored after burn in
-# maxAlertSteps:           The maximum number of looks before affirming an alert.  Default is 100.
-
-
-
-sgpvAMrulesSingle <- function(data, waitWidth, sd, waitEmpirical, minWaitN,
+sgpvAMrulesSingle <- function(data,
+                              waitWidth,
+                              sdY,
+                              waitEmpirical, minWaitN, periphLo, periphUp,
                               monitoringIntervalLevel,
                               lookSteps, kSteps, maxAlertSteps=100,
                               maxN,      lagOutcomeN=0){
 
 
-  # If not using assumed sd for determining wait Time
+  # If not using assumed sdY for determining wait Time
   if(waitEmpirical==TRUE){
 
-    # pooled standard deviation
-    pooledSd <- function(i){
-      y   <- data[1:i,"y"]
-      trt <- data[1:i,"trt"]
-      n0  <- sum(trt==0)
-      n1  <- sum(trt==1)
-      sd  <- sqrt( ( (n0-1) * var(y[trt==0]) + (n1-1)* var(y[trt==1]) ) / (n0 + n1 - 2)  )
-      sd
-    }
-    pSD <- sapply(1:nrow(data),pooledSd)
+    # Standard deviation on beta coefficient for trt effect = | CI Width | * sqrt ( n ) / ( 2 * 1.96 )
+    sdBeta <- abs(data[,"lo"] - data[,"up"]) * sqrt(1:nrow(data)) / (2 * qnorm(1 - monitoringIntervalLevel / 2))
 
-    # As estimate is more extreme, allow earlier monitoring.
-    #  The required CI width is relaxed to be less narrow
-    ciWidth <- pmax(abs(data[,"est"] - waitWidth), waitWidth)
 
-    # Dynamic estimated wait time
-    # Wait at least minWaitN
-    possibleWaitTime  <- ceiling((2 * qnorm(1 - monitoringIntervalLevel / 2) * pSD / ciWidth)^2)
-    possibleWaitTime[1:minWaitN] <- minWaitN
+    # Relax wait time (ME width) if estimated effect outside peripheral of clinical region boundaries
+    addWidth          <- rep(0,nrow(data))
+    relaxLo           <- which(data[,"est"]      < periphLo)
+    relaxUp           <- which(data[,"est"]      > periphUp)
+    addWidth[relaxLo] <- abs(data[relaxLo,"est"] - periphLo)
+    addWidth[relaxUp] <-     data[relaxUp,"est"] - periphUp
 
-    waitTime  <- possibleWaitTime[min( which( possibleWaitTime < 1:nrow(data) ) )]
+    # Divide by 2
+    meWaitWidth       <- waitWidth + addWidth / 2
+
+
+    # Start monitoring once Margin of Error is less than wait width
+    waitTime <- min((1:nrow(data))[abs(data[,"lo"] - data[,"up"]) / 2 < meWaitWidth])
+
   } else {
-    waitTime  <- ceiling((2 * qnorm(1 - monitoringIntervalLevel / 2) * sd / waitWidth)^2)
+
+    # Relax wait time (ME Width) if estimated effect outside peripheral of clinical region boundaries
+    theta       <- data[1,"theta"]
+    addWidth    <- 0 +
+                   as.numeric(theta < periphLo) * abs(theta - periphLo) +
+                   as.numeric(theta > periphUp) *    (theta - periphUp)
+
+    meWaitWidth <- waitWidth + addWidth
+
+    # Note: Coefficient ME = 2 * 1.96 * S_Y * ( 1 / S_trt ) * ( 1 / sqrt(n) )
+    # With 1:1 allocation, S_trt = 0.5
+    waitTime    <- ceiling( ( 2 * qnorm(1 - monitoringIntervalLevel / 2) * sdY / meWaitWidth)^2 )
+
 }
 
 

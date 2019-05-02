@@ -7,9 +7,11 @@
 #'
 sgpvAMrules <- function(mcmcMonitoring, fork=TRUE, socket = TRUE, cores = detectCores(),
                         waitWidth,
-                        sd,
+                        sdY,
                         waitEmpirical,
                         minWaitN,
+                        periphLo,
+                        periphUp,
                         lookSteps,
                         kSteps,
                         maxAlertSteps,
@@ -20,9 +22,11 @@ sgpvAMrules <- function(mcmcMonitoring, fork=TRUE, socket = TRUE, cores = detect
     # Only works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.
     mcmcEOS <- parallel::mclapply(mcmcMonitoring, sgpvAMrulesSingle,
                                   waitWidth                = waitWidth,
-                                  sd                       = sd,
+                                  sdY                      = sdY,
                                   waitEmpirical            = waitEmpirical,
                                   minWaitN                 = minWaitN,
+                                  periphLo                 = periphLo,
+                                  periphUp                 = periphUp,
                                   lookSteps                = lookSteps,
                                   kSteps                   = kSteps,
                                   maxAlertSteps            = maxAlertSteps,
@@ -35,9 +39,11 @@ sgpvAMrules <- function(mcmcMonitoring, fork=TRUE, socket = TRUE, cores = detect
     on.exit(parallel::stopCluster(cl), add = TRUE)
     mcmcEOS <- parallel::parLapply(cl, mcmcMonitoring, sgpvAMrulesSingle,
                                    waitWidth                = waitWidth,
-                                   sd                       = sd,
+                                   sdY                      = sdY,
                                    waitEmpirical            = waitEmpirical,
                                    minWaitN                 = minWaitN,
+                                   periphLo                 = periphLo,
+                                   periphUp                 = periphUp,
                                    lookSteps                = lookSteps,
                                    kSteps                   = kSteps,
                                    maxAlertSteps            = maxAlertSteps,
@@ -47,9 +53,11 @@ sgpvAMrules <- function(mcmcMonitoring, fork=TRUE, socket = TRUE, cores = detect
 
     mcmcEOS <- lapply(mcmcMonitoring, sgpvAMrulesSingle,
                       waitWidth                = waitWidth,
-                      sd                       = sd,
+                      sdY                      = sdY,
                       waitEmpirical            = waitEmpirical,
                       minWaitN                 = minWaitN,
+                      periphLo                 = periphLo,
+                      periphUp                 = periphUp,
                       lookSteps                = lookSteps,
                       kSteps                   = kSteps,
                       maxAlertSteps            = maxAlertSteps,
@@ -60,19 +68,3 @@ sgpvAMrules <- function(mcmcMonitoring, fork=TRUE, socket = TRUE, cores = detect
   # Return End of Study
   return(simplify2array(mcmcEOS))
 }
-
-# system.time(test3 <- sgpvAMrules(mcmcMonitoring=mcmcMonitoring,
-#                      waitWidth                = ww,
-#                      lookSteps                = lookSteps,
-#                      kSteps                   = kSteps,
-#                      maxAlertSteps            = maxAlertSteps,
-#                      monitoringIntervalLevel  = monitoringIntervalLevel,
-#                      maxN = maxN, lagOutcomeN = lagOutcomeN))
-#
-# system.time(mcmcEOS <- simplify2array(lapply(mcmcMonitoring, sgpvAMrulesSingle,
-#                                  waitWidth               = ww,
-#                                  lookSteps               = lookSteps,
-#                                  kSteps                  = kSteps,
-#                                  maxAlertSteps           = maxAlertSteps,
-#                                  monitoringIntervalLevel = monitoringIntervalLevel,
-#                                  maxN = maxN, lagOutcomeN = lagOutcomeN)))
