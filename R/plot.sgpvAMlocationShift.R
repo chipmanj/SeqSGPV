@@ -24,14 +24,19 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   if(length(alertK)>11) stop("Please select at most 11 required affirmation steps to investigate")
 
   # Effects within bound periphery wait for CI width
+  if(amInputs$waitEmpirical==TRUE){
+    mainME <- "Wait until margin of error < "
+  } else {
+    mainME <- "Wait for expected CI width = "
+  }
   if(length(waitWidth)>1 & length(alertK) > 1){
     stop("At least one of waitWidth and alertK must be a singular.")
   } else if(length(waitWidth) == 1 & length(alertK) >  1){
-    mainGiven <- paste0("Wait for expected CI width = ", waitWidth)
+    mainGiven <- paste0(mainME, waitWidth)
   } else if(length(waitWidth) >  1 & length(alertK) == 1){
     mainGiven <- paste0("Required affirmation steps = ", alertK)
   } else {
-    mainGiven <- paste0("Wait for expected CI width = ", waitWidth,
+    mainGiven <- paste0(mainME, waitWidth,
                         "; Required affirmation steps = ", alertK)
   }
 
@@ -128,7 +133,7 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
       colIter <- colIter + 1
     }
 
-    legend("topright", inset=c(-.225, .05),legend="Wait Time\nCI Width", bty="n",xpd=TRUE)
+    legend("topright", inset=c(-.225, .05),legend="Wait Time\nME Width", bty="n",xpd=TRUE)
     legend("topright", inset=c(-.2, .25),legend=waitWidth,col=cols, pch=19, bty="n",xpd=TRUE)
 
   } else if(length(waitWidth)==1){
