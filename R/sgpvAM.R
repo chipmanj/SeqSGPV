@@ -295,24 +295,16 @@ sgpvAM <- function(mcmcData=NULL, nreps,
     # 4 adaptively monitor simulated data across multiple burn ins
 
     # Min wait time depends on distance of estimate from the periphery of clinical boundaries
-    if(is.na(deltaL1)){
-      periphLo <- pointNull -     deltaG1
-      periphUp <- deltaG2   + 2 * deltaG1
-    } else if(is.na(deltaG1)){
-      periphLo <- deltaL2   + 2 * deltaL1
-      periphUp <- pointNull -     deltaL1
-    } else {
-      periphLo <- deltaL1 + deltaL2
-      periphUp <- deltaG1 + deltaG2
-    }
+    midPointLess    <- mean(c(deltaL1, deltaL2))
+    midPointGreater <- mean(c(deltaG1, deltaG2))
 
     mcmcEOS <- sgpvAMrules(mcmcMonitoring           = mcmcMonitoring,
                            waitWidth                = ww,
                            sdY                      = dataGenArgs$sd,
                            waitEmpirical            = waitEmpirical,
                            minWaitN                 = minWaitN,
-                           periphLo                 = periphLo,
-                           periphUp                 = periphUp,
+                           midPointLess             = midPointLess,
+                           midPointGreater          = midPointGreater,
                            lookSteps                = lookSteps,
                            kSteps                   = kSteps,
                            maxAlertSteps            = maxAlertSteps,

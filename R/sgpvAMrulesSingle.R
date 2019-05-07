@@ -2,7 +2,7 @@
 sgpvAMrulesSingle <- function(data,
                               waitWidth,
                               sdY,
-                              waitEmpirical, minWaitN, periphLo, periphUp,
+                              waitEmpirical, minWaitN, midPointLess, midPointGreater,
                               monitoringIntervalLevel,
                               lookSteps, kSteps, maxAlertSteps=100,
                               maxN,      lagOutcomeN=0){
@@ -16,19 +16,26 @@ sgpvAMrulesSingle <- function(data,
 
 
     # Relax wait time (ME width) if estimated effect outside peripheral of clinical region boundaries
-    addWidth          <- rep(0,nrow(data))
-    relaxLo           <- which(data[,"est"]      < periphLo)
-    relaxUp           <- which(data[,"est"]      > periphUp)
-    addWidth[relaxLo] <- abs(data[relaxLo,"est"] - periphLo)
-    addWidth[relaxUp] <-     data[relaxUp,"est"] - periphUp
+    # addWidth          <- rep(0,nrow(data))
+    # relaxLo           <- which(data[,"est"]      < periphLo)
+    # relaxUp           <- which(data[,"est"]      > periphUp)
+    # addWidth[relaxLo] <- abs(data[relaxLo,"est"] - periphLo)
+    # addWidth[relaxUp] <-     data[relaxUp,"est"] - periphUp
 
-    # Divide by 2
-    meWaitWidth       <- waitWidth + addWidth / 2
+    # Add to ME distance from estimate to closest midPoint
+    # Divide by 2 because margin of error is doubled for CI width
+    addWidth <- pmin( abs( data[,"est"] - midPointLess ),
+                      abs( data[,"est"] - midPointGreater ),
+                     na.rm = TRUE) / 6
+
+    meWaitWidth <- waitWidth + addWidth
 
 
     # Start monitoring once Margin of Error is less than wait width
-    # Require 30 step affirmation to begin monitoring
+    # Require minimum wait time
+    # Require start affirmation of [0] steps
     possibleStarts <- (1:nrow(data))[abs(data[,"lo"] - data[,"up"]) / 2 < meWaitWidth]
+    possibleStarts <- possibleStarts[possibleStarts > minWaitN & !is.na(possibleStarts)]
     waitTime <- min(possibleStarts[possibleStarts %in% c(possibleStarts + 30)])
 
   } else {

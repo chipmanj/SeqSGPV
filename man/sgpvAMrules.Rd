@@ -6,7 +6,7 @@
 \usage{
 sgpvAMrules(mcmcMonitoring, fork = TRUE, socket = TRUE,
   cores = detectCores(), waitWidth, sdY, waitEmpirical, minWaitN,
-  periphLo, periphUp, lookSteps, kSteps, maxAlertSteps,
+  midPointLess, midPointGreater, lookSteps, kSteps, maxAlertSteps,
   monitoringIntervalLevel, maxN, lagOutcomeN)
 }
 \description{
