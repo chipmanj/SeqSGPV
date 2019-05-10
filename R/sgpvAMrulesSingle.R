@@ -41,12 +41,13 @@ sgpvAMrulesSingle <- function(data,
   } else {
 
     # Relax wait time (ME Width) if estimated effect outside peripheral of clinical region boundaries
-    theta       <- data[1,"theta"]
-    addWidth    <- 0 +
-                   as.numeric(theta < periphLo) * abs(theta - periphLo) +
-                   as.numeric(theta > periphUp) *    (theta - periphUp)
-
-    meWaitWidth <- waitWidth + addWidth
+    # theta       <- data[1,"theta"]
+    # addWidth    <- 0 +
+    #                as.numeric(theta < periphLo) * abs(theta - periphLo) +
+    #                as.numeric(theta > periphUp) *    (theta - periphUp)
+    #
+    # meWaitWidth <- waitWidth + addWidth
+    meWaitWidth <- waitWidth + 0
 
     # Note: Coefficient ME = 2 * 1.96 * S_Y * ( 1 / S_trt ) * ( 1 / sqrt(n) )
     # With 1:1 allocation, S_trt = 0.5

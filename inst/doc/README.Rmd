@@ -21,18 +21,7 @@ The sgpvAM package allows the user to obtain study design operating characterist
 
 **Tuning study parameters:** To maximize performance of operating characteristics under a given sample size, the sgpvAM function allows the user to specifiy multiple wait time settings, frequency of looks, and number of steps before affirming a stopping rule.  (The wait time is the time until the expected Confidence Interval Width achieves a certain length or less).
 
-**Wait time until monitoring:** Current recommendations for wait time are based upon the minimum sample size to achieve an expected minimum 95% confidence interval width of the average outcome under an assumed outcome's standard deviation.  This has optimal properties for reducing the Type I Error.  This assumes a working knowledge of the outcome's variability.  While optimal for reducing the Type I Error, there are two draw backs: 1) the true standard deviation may not be known and 2) extreme effects are followed for a minimum sample size which may be much longer than needed to stop the trial early.
-
-The following rule is still under developmental yet makes use of the theoretical properties explore when the true standard deviation is known.  It also addresses the two limitations.  
-
-First, we define a periphrial region of effects around the boundary Regions of Clinically Trivial and Clinically Highly Actionable Effects.  Within this region, we do not relax the minimum wait time.  For a one-sided study where a positive outcome is beneficial, this region is [point null, deltaG1 + deltaG2]; a one-sided study where a negative effect is beneficial, the region is [deltaL2 + deltaL1, point null]; a two-sided study, the region is [deltaL2 + deltaL1, deltaG1 + deltaG2].  
-
-When the estimated effect is within this peripheral region, the estimated wait time after observing the i$^{th}$ patient is the n for when the confidence interval width, conditioned on estimated variability, is the specified waitWidth input parameter.  The first possible time to start monitoring is when the estimated wait time is less than the number of observations.  Given the distrecte brownian motion in estimating both the effect and variability, we require an affirmation to start monitoring.  Currently, this is to wait until 10 patients later the data still suggest to begin monitoring.  The affirmation step to begin monitoring reduces the chances of some mcmc replicates beginning to monitor too early and ending having made an error.
-
-When the estimated effect is outside this peripheral region, the estimated wait time after observing the i$^{th}$, the required waitWidth is relaxed.  The wait width allows to be wider by half the distance between the estimated effect and the boundary of the periphreal region.  This allows strongly positive or negative studies to end earlier with a wider confidence interval.
-
-Because of greater variability in when MCMC replicates begin monitoring, additional replicates may be needed to get a stable estimate of operating characteristics.
-
+**Wait time until monitoring:** Current recommendations for wait time are based upon the minimum sample size to achieve an expected minimum Margin of Error (half width of an interval) of the treatment effect.  In extensive simulations of one- and two-sided studies, the Type I Error is optimally reduced by waiting until the Margin of Error has a width equal to the distance between the point null and the midpoint between the nearest boundaries defining the Trivial and Highly Actionable Region.
 
 **Operating characteristics under normal outcomes:** After generating the operating characterstics under a fixed normal outcome, the user may use the locationShift function to obtain operating characterstics under a range of fixed treatment effects.  The function uses the saved mcmc replicates and adds to them if needed for additional monitoring.
 
@@ -56,12 +45,9 @@ devtools::install_github("chipmanj/sgpvAM")
 
 # Example 1: A one-sided hypothesis with standard normal data
 
-Suppose a study has a standard normal continuous outcome with a one-sided hypothesis where Trivial Effects are defined as (-∞, 0.2] and Highly Actionable Effects are defined as [0.5, ∞).  Practically, we are limited to collecting at most 250 observations, yet outcomes are not observed immediately.  There is a lag time such that at the end of enrollment the study will have observed 200 observations (with 50 yet to be observed).  The study has potential to receive additional funding, so we are also interested to see the operating characteristics when unrestricted in sample size.  We are still determining the best wait time and number of affirmation steps, so we will investigate wait times between 0.2 and 0.35.  Since patients are enrolled in batches of ten patients at a time and outcomes are also observed roughly every ten patients, we will monitor the study at every tenth patient.  
+Suppose a study has a standard normal continuous outcome with a one-sided hypothesis where At Most Trivial Effects are defined as ($-\infty$, 0.2] and Highly Actionable Effects are defined as [0.5, $\infty$).  Practically, we are limited to collecting at most 250 observations, yet outcomes are not observed immediately.  There is a lag time such that at the end of enrollment the study will have observed 200 observations (with 50 yet to be observed).  The study has potential to receive additional funding, so we are also interested to see the operating characteristics with an unrestricted in sample size.  We are still determining the best Margin of Error (half width of Confidence Interval) wait time and number of affirmation steps, so we will investigate wait times for the exptected Margin of Error to be between 0.2 and 0.35.  Enrollment and outcomes roughly occur in batches of 10 patients at a time, hence we will monitor the study at every tenth patient.  
 
-We’ll use the sgpvAM package, making use of parallel clustering (which on this machine is 8 cores) and start with only 1000 replicates to explore operating characteristics for different Confidence Interval Width wait times and different number of steps before affirming a rule to stop.  Using the sgpvAM the following call is made.
-
-
-Suggest to start small with 2000 reps to explore study designs.
+We’ll use the sgpvAM package, making use of parallel clustering (which on this machine is 8 cores) and start with only 2000 replicates to explore operating characteristics for different Margin of Error wait times and different number of steps before affirming a rule to stop.  Using the sgpvAM the following call is made.
 
 ```{r}
 # devtools::install_github("chipmanj/sgpvAM")
@@ -128,12 +114,9 @@ summary(amShifted, alertK = 50, waitTime = 0.35, treatEffect = 0)
 
 # Example 2: A two-sided hypothesis with normal data
 
-Suppose a study has a normal continuous outcome with standard deviation equal to two.  This study finds it beneficial to study both hypotheses of benefit and harm.  Clinically Trivial Effects are defined as [-0.4, 0.4] and clinically Highly Actionable effects are defined as (-∞, -1] and [1, ∞).  Enrolling and observing outcomes is inexpensive and immediate, to the point that the sample size may be unrestricted and the study may be monitored fully sequentially.  We are still determining the best wait time and number of affirmation steps, so we will investigate wait times of Confidence Interval Widths between 0.4 and 0.7.
+Suppose a study has a normal continuous outcome with standard deviation equal to two.  This study finds it beneficial to study both hypotheses of benefit and harm.  Clinically Trivial Effects are defined as [-0.4, 0.4] and clinically Highly Actionable effects are defined as ($-\infty$, -1] and [1, $\infty$).  Enrolling and observing outcomes is inexpensive but not immediate.  100 patients will still be followed-up by the end of enrollment.  We want to estimate the probability of finishing the study after observing 250 observations when the treatment effect is truly null.  We are still determining the best wait time and number of affirmation steps, so we will investigate wait times of Margin of Errors between 0.4 and 0.7.
 
-We’ll use the sgpvAM package, making use of parallel clustering (which on this machine is 8 cores) and start with only 1000 replicates to explore operating characteristics for different Confidence Interval Width wait times and different number of steps before affirming a rule to stop.  Using the sgpvAM the following call is made.
-
-
-Suggest to start small with 1000 reps to explore study designs.
+We’ll use the sgpvAM package, making use of parallel clustering (which on this machine is 8 cores) and start with only 2000 replicates to explore operating characteristics for different Margin of Error wait times and different number of steps before affirming a rule to stop.  Using the sgpvAM the following call is made.
 
 ```{r}
 system.time(am2 <-  sgpvAM(nreps            = 2000,

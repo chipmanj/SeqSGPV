@@ -21,25 +21,21 @@ The sgpvAM package allows the user to obtain study design operating characterist
 
 **Tuning study parameters:** To maximize performance of operating characteristics under a given sample size, the sgpvAM function allows the user to specifiy multiple wait time settings, frequency of looks, and number of steps before affirming a stopping rule.  (The wait time is the time until the expected Confidence Interval Width achieves a certain length or less).
 
-**Wait time until monitoring:** Current recommendations for wait time are based upon the minimum sample size to achieve an expected minimum 95% margin of error width of the treatment effect under an assumed outcome's standard deviation.  This has optimal properties for reducing the Type I Error.  This assumes a working knowledge of the outcome's variability.  While optimal for reducing the Type I Error, there are two draw backs: 1) the true standard deviation may not be known and 2) extreme effects are followed for a minimum sample size which may be much longer than needed to stop the trial early.
+**Wait time until monitoring:** Current recommendations for wait time are based upon the minimum sample size to achieve an expected minimum Margin of Error (half width of an interval) of the treatment effect.  In extensive simulations of one- and two-sided studies, the Type I Error is optimally reduced by waiting until the Margin of Error has a width equal to the distance between the point null and the midpoint between the nearest boundaries defining the Trivial and Highly Actionable Region.  While optimal for reducing the Type I Error, there are two draw backs: 1) the true standard deviation may not be known and 2) extreme effects are followed for a minimum sample size which may be much longer than needed to stop the trial early.
 
-The following rule is still under developmental yet makes use of the optimal properties explored when the true standard deviation is known.  It also relaxing the requirement of knowing the true standard deviation, and it allows studies with fringe effects to terminate more quickly.
+The following rule is still under developmental.  The wait time is a continuous function across the range of treatment effects.  It adds to the wait Time input flexibility for the study to stop earlier by having a larger margin of error.
 
-First, we define a peripheral region of effects around the boundary Regions of Clinically Trivial and Clinically Highly Actionable Effects.  In a two-sided study, this can be visualized as the non-highly actionable effects plus a small set of highly actionable effects.  More formally, the two-sided region is [deltaL2 + deltaL1, deltaG1 + deltaG2].  In a one-sided study where a positive effect is beneficial, the peripheral region includes the moderately actionable effects plus a small set of trivial and a small set of highly actionable effects.  Specificially, this region is [point null, deltaG1 + deltaG2].  Similarly, when a negative effect is beneficial, the peripheral region is [deltaL2 + deltaL1, point null].
+* waitTime is input into function of initial wait time for minimal margin of error.
 
+* addTime <- abs(est - midpoint) / 6
 
-```{r periph, echo=FALSE, fig.pos = "H",fig.cap="Left - One-sided hypothesis with the Region of At Most Trivial Effects and Region of Highly Actionable Clinical Effects.  Right - Two-sided hypotheis with Regions of Trivial Effects and Highly Actionable Clinical Effects.  The red boxes encapsulate periphreal effects surrounding the boundaries of the regions the regions.  "}
-knitr::include_graphics("test.jpg")
-```
+* waitMargin of error <- waitTime + addTime
 
-Within the estimated effect is within the peripheral region, the unbiased expected wait time is the n to achieve a desired margin of error width (as specified among the sgpvAM inputs).  When the estimated effect is outside the peripheral region, a wider confidence interval width is permitted -- thus allowing studies with more extreme effects to begin monitoring and conclude stopping earlier.
+* require at least 30 patients
 
-If estimate is within peripheral, ME wait time = input into sgpvAM function.
+* adaptively monitor for when the margin of error is less than the required margin of error.  Require an affirmation step for starting to monitor.
 
-If estimate is outside peripheral, ME wait time = input into sgpvAM function + distance to closest peripheral boundary.
-
-Starting time to monitoring is itself an adaptive process and will bias to starting too early.  Hence, we raise an alert whenever the estimated Margin of Error is less than the wait time Margin of Error width, and wait until the alert is affirmed 30 patients later.
-
+Because the estimated effect and variability are still converging to their true value, both are less than expected one half of the time.  As a consequence, the study may begin monitoring early and increase the risk of making a false discovery.  For this reason, we require the affirmation step to begin monitoring.
 
 
 
@@ -65,18 +61,17 @@ devtools::install_github("chipmanj/sgpvAM")
 
 # Example 1: A one-sided hypothesis with standard normal data
 
-Suppose a study has a standard normal continuous outcome with a one-sided hypothesis where Trivial Effects are defined as (-∞, 0.2] and Highly Actionable Effects are defined as [0.5, ∞).  Practically, we are limited to collecting at most 250 observations, yet outcomes are not observed immediately.  There is a lag time such that at the end of enrollment the study will have observed 200 observations (with 50 yet to be observed).  The study has potential to receive additional funding, so we are also interested to see the operating characteristics when unrestricted in sample size.  We are still determining the best wait time and number of affirmation steps, so we will investigate wait times between 0.2 and 0.35.  Since patients are enrolled in batches of ten patients at a time and outcomes are also observed roughly every ten patients, we will monitor the study at every tenth patient.  
+Suppose a study has a standard normal continuous outcome with a one-sided hypothesis where At Most Trivial Effects are defined as ($-\infty$, 0.2] and Highly Actionable Effects are defined as [0.5, $\infty$).  Practically, we are limited to collecting at most 250 observations, yet outcomes are not observed immediately.  There is a lag time such that at the end of enrollment the study will have observed 200 observations (with 50 yet to be observed).  The study has potential to receive additional funding, so we are also interested to see the operating characteristics with an unrestricted in sample size.  We are still determining the best Margin of Error (half width of Confidence Interval) wait time and number of affirmation steps, so we will investigate wait times for the exptected Margin of Error to be between 0.2 and 0.35.  Enrollment and outcomes roughly occur in batches of 10 patients at a time, hence we will monitor the study at every tenth patient.  
 
-We’ll use the sgpvAM package, making use of parallel clustering (which on this machine is 8 cores) and start with only 1000 replicates to explore operating characteristics for different Confidence Interval Width wait times and different number of steps before affirming a rule to stop.  Using the sgpvAM the following call is made.
+We’ll use the sgpvAM package, making use of parallel clustering (which on this machine is 8 cores) and start with only 2000 replicates to explore operating characteristics for different Margin of Error wait times and different number of steps before affirming a rule to stop.  Using the sgpvAM the following call is made.
 
 
-Suggest to start small with 2000 reps to explore study designs.
 
 ```{r}
 # devtools::install_github("chipmanj/sgpvAM")
 library(sgpvAM)
 
-system.time(am <-  sgpvAM(nreps            = 1000,
+system.time(am <-  sgpvAM(nreps            = 2000,
                           maxAlertSteps    = 100,       
                           lookSteps        = 10,  
                           waitEmpirical    = TRUE,
@@ -93,7 +88,7 @@ system.time(am <-  sgpvAM(nreps            = 1000,
                           maxN = 200, lagOutcomeN = 50, 
                           cores = detectCores()))
 
-system.time(amShifted <- locationShift(am, shiftedThetas = seq(-0.5, 1, by = 0.0125)))
+system.time(amShifted <- locationShift(am, shiftedThetas = seq(-0.5, 1, by = 0.05)))
 
 
 
@@ -104,30 +99,30 @@ plot(amShifted, "rejPN",             alertK = 20,      xlim=c(-0.5, 1),   ylim=c
 abline(h=0.05)
 plot(amShifted, "bias",              alertK = 50,      xlim=c(-0.5, 1),   ylim=c(-0.05,0.05))
 plot(amShifted, "mse",               alertK = 20,      xlim=c(-0.5, 1),   ylim=c(0,0.2))
-plot(amShifted, "cover",             alertK = 50,      xlim=c(-0.5, 1),   ylim=c(0.85,1))
+plot(amShifted, "cover",             alertK = 20,      xlim=c(-0.5, 1),   ylim=c(0.85,1))
 plot(amShifted, "stopNotImpactful",  alertK = 20,      xlim=c(-0.5, 1),   ylim=c(0,1))
 plot(amShifted, "stopNotTrivial",    alertK = 20,      xlim=c(-0.5, 1),   ylim=c(0,1))
 
 # Explore number of steps in affirmation step
-plot(amShifted, "n",                 waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0,500))
-plot(amShifted, "bias",              waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(-0.10,0.10))
-plot(amShifted, "mse",               waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0,0.10))
-plot(amShifted, "cover",             waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0.85,1))
-plot(amShifted, "stopNotImpactful",  waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0,1))
-plot(amShifted, "stopNotTrivial",    waitWidth = 0.35, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0,1))
+plot(amShifted, "n",                 waitWidth = 0.275, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0,500))
+plot(amShifted, "bias",              waitWidth = 0.275, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(-0.10,0.10))
+plot(amShifted, "mse",               waitWidth = 0.275, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0,0.10))
+plot(amShifted, "cover",             waitWidth = 0.275, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0.85,1))
+plot(amShifted, "stopNotImpactful",  waitWidth = 0.275, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0,1))
+plot(amShifted, "stopNotTrivial",    waitWidth = 0.275, alertK = c(0,20,50,100), xlim=c(-0.5, 1), ylim=c(0,1))
 
 
 # Unrestricted Sample Size with lag of remaining outcomes
 plot(amShifted, "n",                 alertK = 20,     xlim=c(-0.5,1),   ylim=c(0,500), sizeRestrictions = "lag")
 plot(amShifted, "stopInconclusive",  alertK = 20,     xlim=c(-0.5,1),   ylim=c(0,0.5),   sizeRestrictions = "lag")
-plot(amShifted, "stopInconclusive",  waitWidth = 0.35, alertK = c(0, 20, 50, 80), xlim=c(-0.5,1), ylim=c(0,0.5),   sizeRestrictions = "lag")
+plot(amShifted, "stopInconclusive",  waitWidth = 0.275, alertK = c(0, 20, 50, 80), xlim=c(-0.5,1), ylim=c(0,0.5),   sizeRestrictions = "lag")
 
 # Max N with immediate outcomes
 plot(amShifted, "n",                 alertK = 20,     xlim=c(-0.5,1),   ylim=c(0,250), sizeRestrictions = "maxN")
 plot(amShifted, "stopInconclusive",  alertK = 20,     xlim=c(-0.5,1),   ylim=c(0,1),   sizeRestrictions = "maxN")
 
 
-summary(amShifted, alertK = 50, waitTime = 0.35, treatEffect = 0)
+summary(amShifted, alertK = 50, waitTime = 0.275, treatEffect = 0)
 # summary(amShifted)
 # summary(am)
 
@@ -138,15 +133,13 @@ summary(amShifted, alertK = 50, waitTime = 0.35, treatEffect = 0)
 
 # Example 2: A two-sided hypothesis with normal data
 
-Suppose a study has a normal continuous outcome with standard deviation equal to two.  This study finds it beneficial to study both hypotheses of benefit and harm.  Clinically Trivial Effects are defined as [-0.4, 0.4] and clinically Highly Actionable effects are defined as (-∞, -1] and [1, ∞).  Enrolling and observing outcomes is inexpensive and immediate, to the point that the sample size may be unrestricted and the study may be monitored fully sequentially.  We are still determining the best wait time and number of affirmation steps, so we will investigate wait times of Confidence Interval Widths between 0.4 and 0.7.
+Suppose a study has a normal continuous outcome with standard deviation equal to two.  This study finds it beneficial to study both hypotheses of benefit and harm.  Clinically Trivial Effects are defined as [-0.4, 0.4] and clinically Highly Actionable effects are defined as ($-\infty$, -1] and [1, $\infty$).  Enrolling and observing outcomes is inexpensive but not immediate.  100 patients will still be followed-up by the end of enrollment.  We want to estimate the probability of finishing the study after observing 250 observations when the treatment effect is truly null.  We are still determining the best wait time and number of affirmation steps, so we will investigate wait times of Margin of Errors between 0.4 and 0.7.
 
-We’ll use the sgpvAM package, making use of parallel clustering (which on this machine is 8 cores) and start with only 1000 replicates to explore operating characteristics for different Confidence Interval Width wait times and different number of steps before affirming a rule to stop.  Using the sgpvAM the following call is made.
+We’ll use the sgpvAM package, making use of parallel clustering (which on this machine is 8 cores) and start with only 2000 replicates to explore operating characteristics for different Margin of Error wait times and different number of steps before affirming a rule to stop.  Using the sgpvAM the following call is made.
 
-
-Suggest to start small with 1000 reps to explore study designs.
 
 ```{r, eval=FALSE}
-system.time(am2 <-  sgpvAM(nreps            = 1000,
+system.time(am2 <-  sgpvAM(nreps            = 2000,
                            maxAlertSteps    = 100,       
                            lookSteps        = 1, 
                            waitEmpirical    = TRUE,
@@ -161,7 +154,7 @@ system.time(am2 <-  sgpvAM(nreps            = 1000,
                            lagOutcomeN = 100,
                            cores=detectCores()))
 
-system.time(amShifted2 <- locationShift(am2, shiftedThetas = seq(-2,2,by=0.5)))
+system.time(amShifted2 <- locationShift(am2, shiftedThetas = seq(-2,2,by=0.25)))
 
 
 
@@ -171,7 +164,7 @@ plot(amShifted2, "n",                 alertK = 50,      xlim=c(-2,2),   ylim=c(0
 plot(amShifted2, "rejPN",             alertK = 50,      xlim=c(-2,2),   ylim=c(0,1))
 abline(h=0.05)
 plot(amShifted2, "bias",              alertK = 50,      xlim=c(-2,2),   ylim=c(-0.15,0.15))
-plot(amShifted2, "mse",               alertK = 50,      xlim=c(-2,2),   ylim=c(0,0.25))
+plot(amShifted2, "mse",               alertK = 50,      xlim=c(-2,2),   ylim=c(0,0.15))
 plot(amShifted2, "cover",             alertK = 50,      xlim=c(-2,2),   ylim=c(0.85,1))
 plot(amShifted2, "stopNotImpactful",  alertK = 50,      xlim=c(-2,2),   ylim=c(0,1))
 plot(amShifted2, "stopNotTrivial",    alertK = 50,      xlim=c(-2,2),   ylim=c(0,1))
@@ -187,10 +180,11 @@ plot(amShifted2, "stopNotTrivial",   waitWidth = 0.7,  alertK = c(0, 20, 50, 100
 
 # Unrestricted Sample Size with lag of remaining outcomes
 plot(amShifted2, "stopInconclusive",  alertK = 50,     xlim=c(-2,2),   ylim=c(0,0.4),  sizeRestrictions = "lag")
+plot(amShifted2, "stopInconclusive",  waitWidth = 0.55, alertK = c(0, 20, 50, 90), xlim=c(-2,2),   ylim=c(0,.4),  sizeRestrictions = "lag")
 plot(amShifted2, "stopInconclusive",  waitWidth = 0.7, alertK = c(0, 20, 50, 90), xlim=c(-2,2),   ylim=c(0,.4),  sizeRestrictions = "lag")
 
 
-summary(amShifted2, alertK = 50, waitTime = 0.7, treatEffect = 0)
+summary(amShifted2, alertK = 50, waitTime = 0.55, treatEffect = 0)
 # summary(amShifted2)
 # summary(am2)
 
