@@ -3,7 +3,7 @@ Type: Package
 Title: Second Generation p-value Adaptive Monitoring: Study Design
 Version: 0.1.0
 Author: Jonathan Chipman
-Maintainer: Jonathan Chipman <jonathan.chipman@vanderbilt.edu>
+Maintainer: Jonathan Chipman <jonathan.chipman@hci.utah.edu>
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 Depends: plyr, sgpv, RcppEigen, RColorBrewer, parallel
