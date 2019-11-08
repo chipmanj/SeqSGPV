@@ -210,9 +210,9 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
   # 0 Checks
   # If normal data and no standard deviation provided, set sd to 1
-  if(class(modelFit)=="normal"){
-    if(is.null(dataGenArgs$sd)) dataGenArgs$sd <- 1
-  }
+  # if(class(modelFit)=="normal"){
+  #   if(is.null(dataGenArgs$sd)) dataGenArgs$sd <- 1
+  # }
 
   if(is.null(cores)) cores <- detectCores()
 
