@@ -8,12 +8,11 @@
 
 
 
-mcmcMonitoringEnoughCheck <- function(o, maxAlertSteps, lagOutcomeN, minWW, sd){
+mcmcMonitoringEnoughCheck <- function(o, waitN, maxAlertSteps, lagOutcomeN){
 
   obs <- nrow(o)
 
-  # Check that sufficient observed n for burn in CI width + the lag time on outcome for unobserved outcomes
-  waitN <- ceiling((2 * 1.96 * sd / minWW)^2)
+  # Check that sufficient observed n
   minN  <- waitN + maxAlertSteps + lagOutcomeN
   if(obs - minN <= 0) {
          waitMoreN <- minN - obs + maxAlertSteps
@@ -23,11 +22,11 @@ mcmcMonitoringEnoughCheck <- function(o, maxAlertSteps, lagOutcomeN, minWW, sd){
   #  - Require at least as many observations as maxAlertSteps
   stabilityN <- maxAlertSteps + lagOutcomeN
   if(obs > stabilityN ){
-    stabilityTrivial   <- sum(o[(obs-stabilityN + 1):obs,"sgpvTrivial"]==0)
-    stabilityImpactful <- sum(o[(obs-stabilityN + 1):obs,"sgpvImpactful"]==0)
+    stabilityROPE <- sum(o[(obs-stabilityN + 1):obs,"sgpvROPE"]==0)
+    stabilityROME <- sum(o[(obs-stabilityN + 1):obs,"sgpvROME"]==0)
 
     # Get a sense of how many additional observations needed and multiple by arbitraty factor of 4
-    getMore0 <- min(stabilityN - stabilityTrivial, stabilityN - stabilityImpactful) * 4
+    getMore0 <- min(stabilityN - stabilityROPE, stabilityN - stabilityROME) * 4
 
   } else {
     getMore0 <- stabilityN * 4
