@@ -24,7 +24,7 @@ amDataGetMore <- function(insufficients, existingDataList, fork=TRUE, socket = T
                                                  existingDataList = existingDataList, ...)
   } else {
 
-    mcmcMonitoringGetMore <- lapply(getMoreWhich, amDataSingleGetMore,
+    mcmcMonitoringGetMore <- lapply(insufficients, amDataSingleGetMore,
                                     existingDataList = mcmcMonitoring, getMore = getMore,
                                     monitoringIntervalLevel = monitoringIntervalLevel,
                                     dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
