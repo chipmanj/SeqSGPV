@@ -39,18 +39,18 @@ addStats <- function(o, pointNull, deltaL2, deltaL1, deltaG1, deltaG2){
   if(!anyNA(c(deltaL2, deltaL1, deltaG1, deltaG2))){
 
     # Two sided
-    sgpvTrivial   <-     sgpv::sgpvalue(est.lo = o[,"lo"], est.hi = o[,"up"], null.lo = deltaL1, null.hi = deltaG1)$p.delta
-    sgpvImpactful <- 1 - sgpv::sgpvalue(est.lo = o[,"lo"], est.hi = o[,"up"], null.lo = deltaL2, null.hi = deltaG2)$p.delta
+    sgpvROPE  <-     sgpv::sgpvalue(est.lo = o[,"lo"], est.hi = o[,"up"], null.lo = deltaL1, null.hi = deltaG1)$p.delta
+    sgpvROME  <- 1 - sgpv::sgpvalue(est.lo = o[,"lo"], est.hi = o[,"up"], null.lo = deltaL2, null.hi = deltaG2)$p.delta
   } else if(!anyNA(c(deltaL2, deltaL1))){
 
     # One sided: efficacy when less than null
-    sgpvTrivial   <-     sgpv::sgpvalue(est.lo = o[,"lo"], est.hi = o[,"up"], null.lo =  deltaL1, null.hi =   10^10)$p.delta
-    sgpvImpactful <-     sgpv::sgpvalue(est.lo = o[,"lo"], est.hi = o[,"up"], null.lo =   -10^10, null.hi = deltaL2)$p.delta
+    sgpvROPE  <-     sgpv::sgpvalue(est.lo = o[,"lo"], est.hi = o[,"up"], null.lo =  deltaL1, null.hi =   10^10)$p.delta
+    sgpvROME  <-     sgpv::sgpvalue(est.lo = o[,"lo"], est.hi = o[,"up"], null.lo =   -10^10, null.hi = deltaL2)$p.delta
   } else if(!anyNA(c(deltaG1, deltaG2))){
 
     # One sided: efficacy when greater than null
-    sgpvTrivial   <-     sgpv::sgpvalue(est.lo = o[,"lo"], est.hi = o[,"up"], null.lo =  -10^10, null.hi = deltaG1)$p.delta
-    sgpvImpactful <-     sgpv::sgpvalue(est.lo = o[,"lo"], est.hi = o[,"up"], null.lo = deltaG2, null.hi =   10^10)$p.delta
+    sgpvROPE  <-     sgpv::sgpvalue(est.lo = o[,"lo"], est.hi = o[,"up"], null.lo =  -10^10, null.hi = deltaG1)$p.delta
+    sgpvROME  <-     sgpv::sgpvalue(est.lo = o[,"lo"], est.hi = o[,"up"], null.lo = deltaG2, null.hi =   10^10)$p.delta
   } else{
 
     stop("A one sided study requires both deltas to be strictly greater or lower than point null")
@@ -58,7 +58,7 @@ addStats <- function(o, pointNull, deltaL2, deltaL1, deltaG1, deltaG2){
 
 
   # Return appended statistics
-  cbind(o, bias, rejPN, cover, sgpvTrivial, sgpvImpactful)
+  cbind(o, bias, rejPN, cover, sgpvROPE, sgpvROME)
 
 }
 
