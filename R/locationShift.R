@@ -47,11 +47,19 @@ locationShift <- function(o, shiftedThetas, printProgress=TRUE){
 
     # New shifted study design
     oo                         <- o
-    oo$inputs$outData          <- FALSE
     oo$inputs$mcmcData         <- lapply(X = mcmcMonitoring, shiftTheta, shift = shift)
     oo$inputs$effectGeneration <- effectOriginal + shift
 
     mcmcEndOfStudyShifted[[paste0("theta_",oo$inputs$effectGeneration)]] <- do.call(sgpvAM, args=oo$inputs)
+
+    # If additional data was required for monitoring, keep for future use
+    mcmcMonitoringNew <- mcmcEndOfStudyShifted[[paste0("theta_",oo$inputs$effectGeneration)]]$mcmcMonitoring
+    mcmcShiftBack     <- lapply(X = mcmcMonitoringNew, shiftTheta, shift = -shift)
+    mcmcMonitoring    <- mcmcShiftBack
+
+    # Don't keep generated data in output
+    mcmcEndOfStudyShifted[[paste0("theta_",oo$inputs$effectGeneration)]]$mcmcMonitoring  <- NULL
+    mcmcEndOfStudyShifted[[paste0("theta_",oo$inputs$effectGeneration)]]$inputs$mcmcData <- NULL
 
   }
 
