@@ -1,6 +1,6 @@
 #' @export
 plot.sgpvAMlocationShift <- function( amShifted,        stat,
-                                      waitWidth = NULL, alertK = NULL,
+                                      waitTime = NULL,  alertK = NULL,
                                       xlim,             ylim,
                                       sizeRestrictions ){
 
@@ -12,10 +12,10 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
 
 
   # Get wait width and alert k parameters
-  if(is.null(waitWidth)){
-    waitWidth <- amInputs$waitWidths
+  if(is.null(waitTime)){
+    waitTime <- amInputs$waitTimes
   }
-  if(length(waitWidth)>10) stop("Please select at most 10 wait times to investigate")
+  if(length(waitTime)>10) stop("Please select at most 10 wait times to investigate")
 
 
   if(is.null(alertK)){
@@ -24,24 +24,25 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   if(length(alertK)>11) stop("Please select at most 11 required affirmation steps to investigate")
 
   # Effects within bound periphery wait for CI width
-  if(amInputs$waitEmpirical==TRUE){
-    mainME <- "Wait until margin of error < "
-  } else {
-    mainME <- "Wait for expected CI width = "
-  }
-  if(length(waitWidth)>1 & length(alertK) > 1){
-    stop("At least one of waitWidth and alertK must be a singular.")
-  } else if(length(waitWidth) == 1 & length(alertK) >  1){
-    mainGiven <- paste0(mainME, waitWidth)
-  } else if(length(waitWidth) >  1 & length(alertK) == 1){
+  mainWaitTime <- "Wait until n = "
+  # if(amInputs$waitEmpirical==TRUE){
+  #   mainME <- "Wait until margin of error < "
+  # } else {
+  #   mainME <- "Wait for expected CI width = "
+  # }
+  if(length(waitTime)>1 & length(alertK) > 1){
+    stop("Must fix at least waitTime or alertK to one value.")
+  } else if(length(waitTime) == 1 & length(alertK) >  1){
+    mainGiven <- paste0(mainWaitTime, waitTime)
+  } else if(length(waitTime) >  1 & length(alertK) == 1){
     mainGiven <- paste0("Required affirmation steps = ", alertK)
   } else {
-    mainGiven <- paste0(mainME, waitWidth,
+    mainGiven <- paste0(mainWaitTime, waitTime,
                         "; Required affirmation steps = ", alertK)
   }
 
   # Set colors
-  nVary <- max(c(length(waitWidth),length(alertK)))
+  nVary <- max(c(length(waitTime),length(alertK)))
   if(nVary >= 3) {
     cols <- brewer.pal(nVary, name="Spectral")
   } else {
@@ -58,7 +59,7 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   if(stat=="rejPN"){
     main <- "P( reject point null )"
   } else if (stat=="cover"){
-    main <- "CI Coverage"
+    main <- "Interval Coverage"
   } else if (stat=="n"){
     main <- "Average Sample Size"
   } else if (stat=="mse"){
@@ -68,9 +69,9 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   } else if(stat=="stopInconclusive"){
     main <- "P( inconclusive )"
   } else if(stat=="stopNotTrivial"){
-    main <- "P( not trivial effect )"
+    main <- "P( not ROPE )"
   } else if(stat=="stopNotImpactful"){
-    main <- "P( not impactful effect )"
+    main <- "P( not ROME )"
   }
 
 
@@ -103,13 +104,13 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
 
 
   # Collect average effects across specified parameters
-  toPlot           <- matrix(NA,nrow=length(treatEffect)*length(waitWidth)*length(alertK),ncol=4)
+  toPlot           <- matrix(NA,nrow=length(treatEffect)*length(waitTime)*length(alertK),ncol=4)
   colnames(toPlot) <- c("te","w","k","y")
   iter   <- 1
 
   for(te in treatEffect){
 
-    for(w in waitWidth){
+    for(w in waitTime){
       o     <- amShifted[[paste0("theta_",te)]][["mcmcEndOfStudy"]][[paste0("width_",w)]][["mcmcEndOfStudyAve"]]
 
       for (k in alertK){
@@ -127,16 +128,16 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   # Plot stats across varying parameter
   colIter <- 1
   if(length(alertK)==1){
-    for(w in waitWidth){
+    for(w in waitTime){
       lines( x=toPlot[toPlot[,"w"]==w,"te"], toPlot[toPlot[,"w"]==w,"y"], col=cols[colIter])
       points(x=toPlot[toPlot[,"w"]==w,"te"], toPlot[toPlot[,"w"]==w,"y"], col=cols[colIter])
       colIter <- colIter + 1
     }
 
     legend("topright", inset=c(-.225, .05),legend="Wait Time\nME Width", bty="n",xpd=TRUE)
-    legend("topright", inset=c(-.2, .25),legend=waitWidth,col=cols, pch=19, bty="n",xpd=TRUE)
+    legend("topright", inset=c(-.2, .25),legend=waitTime,col=cols, pch=19, bty="n",xpd=TRUE)
 
-  } else if(length(waitWidth)==1){
+  } else if(length(waitTime)==1){
     for(k in alertK){
       lines( x=toPlot[toPlot[,"k"]==k,"te"], toPlot[toPlot[,"k"]==k,"y"], col=cols[colIter])
       points(x=toPlot[toPlot[,"k"]==k,"te"], toPlot[toPlot[,"k"]==k,"y"], col=cols[colIter])
