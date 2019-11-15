@@ -190,17 +190,15 @@
 #' @export
 
 sgpvAM <- function(mcmcData=NULL, nreps,
-                   waitWidths,
+                   waitTimes,
                    dataGeneration=NULL,   dataGenArgs,
                    effectGeneration=NULL, effectGenArgs,
                    modelFit,
                    pointNull, deltaL2, deltaL1, deltaG1, deltaG2,
                    lookSteps=1,
-                   waitEmpirical = TRUE,
-                   minWaitN = 30,
                    kSteps=10,
                    maxAlertSteps=100,
-                   maxN=NULL, lagOutcomeN=0,
+                   getUnrestricted = TRUE, maxN=NULL, lagOutcomeN=0,
                    monitoringIntervalLevel = 0.05, printProgress=TRUE, outData = TRUE,
                    getECDF=TRUE,
                    cores            = NULL,
@@ -213,6 +211,11 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   # if(class(modelFit)=="normal"){
   #   if(is.null(dataGenArgs$sd)) dataGenArgs$sd <- 1
   # }
+
+  if(getUnrestricted==FALSE & is.null(maxN)){
+    stop("Must specify at least getUnrestricted=TRUE or maxN not null")
+  }
+
 
   if(is.null(cores)) cores <- detectCores()
 
@@ -238,45 +241,46 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
   # 3 Make sure all generated simulations will continue until completion
   #   - Look for stability of sgpv for last set of maxAlert patients
-  getMore      <- unlist(lapply(mcmcMonitoring, sgpvAM::mcmcMonitoringEnoughCheck,
-                                maxAlertSteps = maxAlertSteps,
-                                lagOutcomeN   = lagOutcomeN,
-                                minWW         = min(waitWidths),
-                                sd            = dataGenArgs$sd))
-  getMoreWhich <- which(getMore > 0)
-  getMoreWhich
+  if(getUnrestricted==TRUE){
+    getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck,
+                                  waitN         = max(waitTimes),
+                                  maxAlertSteps = maxAlertSteps,
+                                  lagOutcomeN   = lagOutcomeN))
+    getMoreWhich      <- which(getMore > 0)
+    getMoreWhich
 
-  if( !is.null(mcmcData) & sum(getMore) > 0 & is.null(dataGeneration) & is.null(effectGeneration)){
+    if( !is.null(mcmcData)      & sum(getMore) > 0          &
+        is.null(dataGeneration) & is.null(effectGeneration) ){
 
-    stop("Provided mcmcData needs more observations to ensure study completes with unrestricted n\n
-         Generate on own or provide data generation inputs.")
+      stop("Provided mcmcData needs more observations to ensure study completes with unrestricted n\n
+           Generate on own or provide data generation inputs.")
 
-  } else {
+    } else {
 
-    while(sum(getMore) > 0){
+      while(sum(getMore) > 0){
 
-      if(printProgress==TRUE) print(paste("Adding up to", max(getMore), "observations for unrestricted sample size monitoring."))
+        if(printProgress==TRUE) print(paste("Adding up to", max(getMore), "observations for unrestricted sample size monitoring."))
 
-      mcmcMonitoring <- amDataGetMore(insufficients    = getMoreWhich,
-                                      existingDataList = mcmcMonitoring, getMore = getMore,
-                                      monitoringIntervalLevel = monitoringIntervalLevel,
-                                      dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
-                                      effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
-                                      pointNull = pointNull,
-                                      deltaL2 = deltaL2, deltaL1 = deltaL1, deltaG1 = deltaG1, deltaG2 = deltaG2,
-                                      modelFit         = modelFit,
-                                      cores            = cores,
-                                      fork             = fork,
-                                      socket           = socket)
+        mcmcMonitoring <- amDataGetMore(insufficients    = getMoreWhich,
+                                        existingDataList = mcmcMonitoring, getMore = getMore,
+                                        monitoringIntervalLevel = monitoringIntervalLevel,
+                                        dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
+                                        effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
+                                        pointNull = pointNull,
+                                        deltaL2 = deltaL2, deltaL1 = deltaL1, deltaG1 = deltaG1, deltaG2 = deltaG2,
+                                        modelFit         = modelFit,
+                                        cores            = cores,
+                                        fork             = fork,
+                                        socket           = socket)
 
-      # Continue checking until all datasets have sufficient n
-      getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck,
-                                    maxAlertSteps = maxAlertSteps,
-                                    lagOutcomeN   = lagOutcomeN,
-                                    minWW         = min(waitWidths),
-                                    sd            = dataGenArgs$sd))
-      getMoreWhich <- which(getMore > 0)
+        # Continue checking until all datasets have sufficient n
+        getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck,
+                                      waitN         = max(waitTimes),
+                                      maxAlertSteps = maxAlertSteps,
+                                      lagOutcomeN   = lagOutcomeN))
+        getMoreWhich <- which(getMore > 0)
 
+      }
     }
   }
 
@@ -288,28 +292,18 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   mcmcEndOfStudyAve <- list()
   mcmcEndOfStudyVar <- list()
   mcmcEndOfStudy    <- list()
-  for (w in 1:length(waitWidths)){
+  for (w in 1:length(waitTimes)){
 
-    ww <- waitWidths[w]
+    waitTime <- waitTimes[w]
 
     # 4 adaptively monitor simulated data across multiple burn ins
-
-    # Min wait time depends on distance of estimate from the periphery of clinical boundaries
-    midPointLess    <- mean(c(deltaL1, deltaL2))
-    midPointGreater <- mean(c(deltaG1, deltaG2))
-
     mcmcEOS <- sgpvAMrules(mcmcMonitoring           = mcmcMonitoring,
-                           waitWidth                = ww,
-                           sdY                      = dataGenArgs$sd,
-                           waitEmpirical            = waitEmpirical,
-                           minWaitN                 = minWaitN,
-                           midPointLess             = midPointLess,
-                           midPointGreater          = midPointGreater,
+                           waitTime                 = waitTime,
                            lookSteps                = lookSteps,
                            kSteps                   = kSteps,
                            maxAlertSteps            = maxAlertSteps,
                            monitoringIntervalLevel  = monitoringIntervalLevel,
-                           maxN = maxN, lagOutcomeN = lagOutcomeN)
+                           getUnrestricted = getUnrestricted, maxN = maxN, lagOutcomeN = lagOutcomeN)
 
 
     # 5 aggregate simulated data
@@ -318,21 +312,72 @@ sgpvAM <- function(mcmcData=NULL, nreps,
     ooAve <- plyr::aaply(mcmcEOS, .margins = c(1,2), .fun = mean)
     ooVar <- plyr::aaply(mcmcEOS, .margins = c(1,2), .fun = var )
 
-    mcmcEndOfStudyAve                <- cbind(ooAve, mse = ooVar[,"bias"] + ooAve[,"bias"]^2)
+    mcmcEndOfStudyAve   <- ooAve
+    # mcmcEndOfStudyAve <- cbind(ooAve, mse = ooVar[,"bias"] + ooAve[,"bias"]^2)
+
     if(getECDF==TRUE){
-      mcmcEndOfStudyEcdfSize           <- apply(mcmcEOS[,"n",], 1, ecdf)
-      mcmcEndOfStudyEcdfBias           <- apply(mcmcEOS[,"bias",], 1, ecdf)
-      names(mcmcEndOfStudyEcdfSize)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
-      names(mcmcEndOfStudyEcdfBias)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
-    } else {
-      mcmcEndOfStudyEcdfSize <- NULL
-      mcmcEndOfStudyEcdfBias <- NULL
+
+      # Unrestricted sample size (immediate outcomes)
+      if(getUnrestricted==TRUE){
+        mcmcEndOfStudyEcdfSize           <- apply(mcmcEOS[,"n",], 1, ecdf)
+        mcmcEndOfStudyEcdfBias           <- apply(mcmcEOS[,"bias",], 1, ecdf)
+        names(mcmcEndOfStudyEcdfSize)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
+        names(mcmcEndOfStudyEcdfBias)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
+
+        # Unrestricted sample size (stopping and then observing lagged outcomes)
+        if(getUnrestricted==TRUE & lagOutcomeN > 0){
+          mcmcEndOfStudyEcdfSizeLag           <- apply(mcmcEOS[,"lag.n",], 1, ecdf)
+          mcmcEndOfStudyEcdfBiasLag           <- apply(mcmcEOS[,"lag.bias",], 1, ecdf)
+          names(mcmcEndOfStudyEcdfSizeLag)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
+          names(mcmcEndOfStudyEcdfBiasLag)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
+        } else {
+          mcmcEndOfStudyEcdfSizeLag <- mcmcEndOfStudyEcdfBiasLag <- NULL
+        }
+
+      } else {
+        mcmcEndOfStudyEcdfSize <- mcmcEndOfStudyEcdfBias <- NULL
+        mcmcEndOfStudyEcdfSizeLag <- mcmcEndOfStudyEcdfBiasLag <- NULL
+      }
+
+
+      # Maximum sample size of maxN (immediate outcomes)
+      if(!is.null(maxN)){
+        mcmcEndOfStudyEcdfSizeMaxN          <- apply(mcmcEOS[,"maxN.n",], 1, ecdf)
+        mcmcEndOfStudyEcdfBiasMaxN          <- apply(mcmcEOS[,"maxN.bias",], 1, ecdf)
+        names(mcmcEndOfStudyEcdfSizeMaxN)   <- paste0("alertK_",mcmcEOS[,"alertK",1])
+        names(mcmcEndOfStudyEcdfBiasMaxN)   <- paste0("alertK_",mcmcEOS[,"alertK",1])
+
+        # Maximum sample size of maxN (stopping and then observing lagged outcomes)
+        if(!is.null(maxN) & lagOutcomeN > 0){
+          mcmcEndOfStudyEcdfSizeLagMaxN          <- apply(mcmcEOS[,"lagMaxN.n",], 1, ecdf)
+          mcmcEndOfStudyEcdfBiasLagMaxN          <- apply(mcmcEOS[,"lagMaxN.bias",], 1, ecdf)
+          names(mcmcEndOfStudyEcdfSizeLagMaxN)   <- paste0("alertK_",mcmcEOS[,"alertK",1])
+          names(mcmcEndOfStudyEcdfBiasLagMaxN)   <- paste0("alertK_",mcmcEOS[,"alertK",1])
+        } else {
+          mcmcEndOfStudyEcdfSizeLagMaxN <- mcmcEndOfStudyEcdfBiasLagMaxN <- NULL
+        }
+
+      } else {
+        mcmcEndOfStudyEcdfSizeMaxN <- mcmcEndOfStudyEcdfBiasMaxN <- NULL
+        mcmcEndOfStudyEcdfSizeLagMaxN <- mcmcEndOfStudyEcdfBiasLagMaxN <- NULL
+      }
+
     }
 
-    mcmcEndOfStudy[[paste0("width_",ww)]] <-
+    mcmcEndOfStudy[[paste0("width_",waitTime)]] <-
       list(mcmcEndOfStudyAve      = mcmcEndOfStudyAve,
+
            mcmcEndOfStudyEcdfSize = mcmcEndOfStudyEcdfSize,
-           mcmcEndOfStudyEcdfBias = mcmcEndOfStudyEcdfBias)
+           mcmcEndOfStudyEcdfBias = mcmcEndOfStudyEcdfBias,
+
+           mcmcEndOfStudyEcdfSizeLag = mcmcEndOfStudyEcdfSizeLag,
+           mcmcEndOfStudyEcdfBiasLag = mcmcEndOfStudyEcdfBiasLag,
+
+           mcmcEndOfStudyEcdSizeMaxN  = mcmcEndOfStudyEcdfSizeMaxN,
+           mcmcEndOfStudyEcdfBiasMaxN = mcmcEndOfStudyEcdfBiasMaxN,
+
+           mcmcEndOfStudyEcdSizeLagMaxN  = mcmcEndOfStudyEcdfSizeLagMaxN,
+           mcmcEndOfStudyEcdfBiasLagMaxN = mcmcEndOfStudyEcdfBiasLagMaxN)
 
   }
 
@@ -342,28 +387,11 @@ sgpvAM <- function(mcmcData=NULL, nreps,
     mcmcData       <- NULL
   }
 
+
+
   out <- list(mcmcMonitoring = mcmcMonitoring,
               mcmcEndOfStudy = mcmcEndOfStudy,
-              inputs = list(mcmcData         = mcmcData,           nreps = nreps,
-                            maxAlertSteps    = maxAlertSteps,  lookSteps = lookSteps,
-                            waitEmpirical    = waitEmpirical,
-                            minWaitN         = minWaitN,
-                            kSteps           = kSteps,
-                            waitWidths       = waitWidths,
-                            dataGeneration   = dataGeneration,     dataGenArgs = dataGenArgs,
-                            effectGeneration = effectGeneration,
-                            modelFit         = modelFit,
-                            pointNull        = pointNull,
-                            deltaL2          = deltaL2, deltaL1 = deltaL1,
-                            deltaG1          = deltaG1, deltaG2 = deltaG2,
-                            maxN             = maxN,
-                            lagOutcomeN      = lagOutcomeN,
-                            monitoringIntervalLevel = monitoringIntervalLevel,
-                            outData          = outData,
-                            getECDF          = getECDF,
-                            cores            = cores,
-                            fork             = fork,
-                            socket           = socket))
+              inputs = lapply(match.call.defaults()[-1], eval))
 
 
   # Set class
