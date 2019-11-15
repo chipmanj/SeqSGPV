@@ -1,59 +1,9 @@
 #' @export
 sgpvAMrulesSingle <- function(data,
-                              waitWidth,
-                              sdY,
-                              waitEmpirical, minWaitN, midPointLess, midPointGreater,
+                              waitTime,
                               monitoringIntervalLevel,
-                              lookSteps, kSteps, maxAlertSteps=100,
-                              maxN,      lagOutcomeN=0){
-
-
-  # If not using assumed sdY for determining wait Time
-  if(waitEmpirical==TRUE){
-
-    # Standard deviation on beta coefficient for trt effect = | CI Width | * sqrt ( n ) / ( 2 * 1.96 )
-    # sdBeta <- abs(data[,"lo"] - data[,"up"]) * sqrt(1:nrow(data)) / (2 * qnorm(1 - monitoringIntervalLevel / 2))
-
-
-    # Relax wait time (ME width) if estimated effect outside peripheral of clinical region boundaries
-    # addWidth          <- rep(0,nrow(data))
-    # relaxLo           <- which(data[,"est"]      < periphLo)
-    # relaxUp           <- which(data[,"est"]      > periphUp)
-    # addWidth[relaxLo] <- abs(data[relaxLo,"est"] - periphLo)
-    # addWidth[relaxUp] <-     data[relaxUp,"est"] - periphUp
-
-    # Add to ME distance from estimate to closest midPoint
-    # Divide by 2 because margin of error is doubled for CI width
-    addWidth <- pmin( abs( data[,"est"] - midPointLess ),
-                      abs( data[,"est"] - midPointGreater ),
-                     na.rm = TRUE) / 6
-
-    meWaitWidth <- waitWidth + addWidth
-
-
-    # Start monitoring once Margin of Error is less than wait width
-    # Require minimum wait time
-    # Require start affirmation of [0] steps
-    possibleStarts <- (1:nrow(data))[abs(data[,"lo"] - data[,"up"]) / 2 < meWaitWidth]
-    possibleStarts <- possibleStarts[possibleStarts > minWaitN & !is.na(possibleStarts)]
-    waitTime <- min(possibleStarts[possibleStarts %in% c(possibleStarts + 30)])
-
-  } else {
-
-    # Relax wait time (ME Width) if estimated effect outside peripheral of clinical region boundaries
-    # theta       <- data[1,"theta"]
-    # addWidth    <- 0 +
-    #                as.numeric(theta < periphLo) * abs(theta - periphLo) +
-    #                as.numeric(theta > periphUp) *    (theta - periphUp)
-    #
-    # meWaitWidth <- waitWidth + addWidth
-    meWaitWidth <- waitWidth + 0
-
-    # Note: Coefficient ME = 2 * 1.96 * S_Y * ( 1 / S_trt ) * ( 1 / sqrt(n) )
-    # With 1:1 allocation, S_trt = 0.5
-    waitTime    <- ceiling( ( 2 * qnorm(1 - monitoringIntervalLevel / 2) * sdY / meWaitWidth)^2 )
-
-}
+                              lookSteps,      kSteps,  maxAlertSteps=100,
+                              getUnrestricted, maxN,    lagOutcomeN=0){
 
 
   # 1 Establish observations that surpass wait time and occur at lookSteps
@@ -63,11 +13,11 @@ sgpvAMrulesSingle <- function(data,
 
 
   # 2 Raise Alert
-  alertNotTrivial   <- which(data[,"sgpvTrivial"]   == 0 & monitor==TRUE)
-  alertNotImpactful <- which(data[,"sgpvImpactful"] == 0 & monitor==TRUE)
+  alertNotROPE  <- which(data[,"sgpvROPE"]   == 0 & monitor==TRUE)
+  alertNotROME  <- which(data[,"sgpvROME"] == 0 & monitor==TRUE)
 
-  alertNotTrivialAny   <- length(alertNotTrivial)   > 0
-  alertNotImpactfulAny <- length(alertNotImpactful) > 0
+  alertNotROPEAny  <- length(alertNotROPE)   > 0
+  alertNotROMEAny  <- length(alertNotROME) > 0
 
 
 
@@ -76,49 +26,64 @@ sgpvAMrulesSingle <- function(data,
   affirmEndOfStudy <- function(alertK){
 
 
-    # Stop times for being Not Trivial and being Not Impactful
-    stopNotTrivial   <- alertNotTrivial[  alertNotTrivial   %in% (alertNotTrivial   + alertK)]
-    stopNotImpactful <- alertNotImpactful[alertNotImpactful %in% (alertNotImpactful + alertK)]
+    # Stop times for being Not ROPE and being Not ROME
+    stopNotROPE  <- alertNotROPE[alertNotROPE %in% (alertNotROPE + alertK)]
+    stopNotROME  <- alertNotROME[alertNotROME %in% (alertNotROME + alertK)]
+    stop         <- min(stopNotROPE, stopNotROME, na.rm = TRUE)
 
-    # Unconstrained N stop
-    stop                     <- min(stopNotTrivial, stopNotImpactful, na.rm = TRUE)
-    eos                      <- data[data[,"n"]==stop,]
-    eos["stopNotTrivial"]    <- as.numeric(eos["sgpvTrivial"]==0)
-    eos["stopNotImpactful"]  <- as.numeric(eos["sgpvImpactful"]==0)
-    eos["stopInconclusive"]  <- as.numeric(eos["stopNotTrivial"]==0 & eos["stopNotImpactful"]==0)
+    if(getUnrestricted==TRUE){
 
-    # Unconstrained with lag on outcome
-    eosLag                     <- data[data[,"n"]==stop + lagOutcomeN,]
-    eosLag["stopNotTrivial"]   <- as.numeric(eosLag["sgpvTrivial"]==0)
-    eosLag["stopNotImpactful"] <- as.numeric(eosLag["sgpvImpactful"]==0)
-    eosLag["stopInconclusive"] <- as.numeric(eosLag["stopNotTrivial"]==0 &
-                                             eosLag["stopNotImpactful"]==0)
+      # Unrestricted sample size (immediate outcomes)
+      eos                      <- data[data[,"n"]==stop,]
+      eos["stopNotROPE"]       <- as.numeric(eos["sgpvROPE"]==0)
+      eos["stopNotROME"]       <- as.numeric(eos["sgpvROME"]==0)
+      eos["stopInconclusive"]  <- as.numeric(eos["stopNotROPE"]==0 & eos["stopNotROME"]==0)
+
+      if(lagOutcomeN > 0){
+        # Unrestricted sample size (stopping and then observing lagged outcomes)
+        eosLag                     <- data[data[,"n"]==stop + lagOutcomeN,]
+        eosLag["stopNotROPE"]      <- as.numeric(eosLag["sgpvROPE"]==0)
+        eosLag["stopNotROME"]      <- as.numeric(eosLag["sgpvROME"]==0)
+        eosLag["stopInconclusive"] <- as.numeric(eosLag["stopNotROPE"]==0 &
+                                                 eosLag["stopNotROME"]==0)
+      } else {
+        eosLag <- NULL
+      }
+
+    } else eos <- eosLag <- NULL
 
     # MaxN stop
     if(!is.null(maxN)){
+      # Maximum sample size of maxN (immediate outcomes)
       eosMaxN                     <- data[data[,"n"]==min(stop,maxN),]
-      eosMaxN["stopNotTrivial"]   <- as.numeric(eosMaxN["sgpvTrivial"]==0)
-      eosMaxN["stopNotImpactful"] <- as.numeric(eosMaxN["sgpvImpactful"]==0)
-      eosMaxN["stopInconclusive"] <- as.numeric(eosMaxN["stopNotTrivial"]==0 &
-                                                eosMaxN["stopNotImpactful"]==0)
+      eosMaxN["stopNotROPE"]      <- as.numeric(eosMaxN["sgpvROPE"]==0)
+      eosMaxN["stopNotROME"]      <- as.numeric(eosMaxN["sgpvROME"]==0)
+      eosMaxN["stopInconclusive"] <- as.numeric(eosMaxN["stopNotROPE"]==0 &
+                                                eosMaxN["stopNotROME"]==0)
 
-      eosLagMaxN                     <- data[data[,"n"]==min(stop,maxN)+lagOutcomeN,]
-      eosLagMaxN["stopNotTrivial"]   <- as.numeric(eosLagMaxN["sgpvTrivial"]==0)
-      eosLagMaxN["stopNotImpactful"] <- as.numeric(eosLagMaxN["sgpvImpactful"]==0)
-      eosLagMaxN["stopInconclusive"] <- as.numeric(eosLagMaxN["stopNotTrivial"]==0 &
-                                                   eosLagMaxN["stopNotImpactful"]==0)
+      if(lagOutcomeN > 0){
+        # Maximum sample size of maxN (stopping and then observing lagged outcomes)
+        eosLagMaxN                     <- data[data[,"n"]==min(stop+lagOutcomeN,maxN),]
+        eosLagMaxN["stopNotROPE"]      <- as.numeric(eosLagMaxN["sgpvROPE"]==0)
+        eosLagMaxN["stopNotROME"]      <- as.numeric(eosLagMaxN["sgpvROME"]==0)
+        eosLagMaxN["stopInconclusive"] <- as.numeric(eosLagMaxN["stopNotROPE"]==0 &
+                                                     eosLagMaxN["stopNotROME"]==0)
+      } else {
+        eosLagMaxN <- NULL
+      }
 
     } else eosMaxN <- eosLagMaxN <- NULL
 
 
     # Keep theta and operating characteristics (drop y, trt, and sgpvs)
-    keepStats <- c("n","est","bias","rejPN","cover", "stopNotTrivial","stopNotImpactful","stopInconclusive")
+    keepStats <- c("n","est","bias","rejPN","cover", "stopNotROPE","stopNotROME","stopInconclusive")
 
 
     if(!is.na(stop)){
-      oc <- c(eos[c("theta", keepStats)],
-              lag     = eosLag[keepStats],
-              maxN    = eosMaxN[keepStats],
+      oc <- c(theta=data[1,"theta"],
+              eos[keepStats],
+              lag     = eosLag[    keepStats],
+              maxN    = eosMaxN[   keepStats],
               lagMaxN = eosLagMaxN[keepStats])
 
       return(c(oc,alertK=alertK))
