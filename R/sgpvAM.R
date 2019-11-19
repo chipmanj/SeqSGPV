@@ -292,6 +292,8 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   mcmcEndOfStudyAve <- list()
   mcmcEndOfStudyVar <- list()
   mcmcEndOfStudy    <- list()
+  mcmcECDFs         <- list()
+
   for (w in 1:length(waitTimes)){
 
     waitTime <- waitTimes[w]
@@ -319,65 +321,44 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
       # Unrestricted sample size (immediate outcomes)
       if(getUnrestricted==TRUE){
-        mcmcEndOfStudyEcdfSize           <- apply(mcmcEOS[,"n",], 1, ecdf)
-        mcmcEndOfStudyEcdfBias           <- apply(mcmcEOS[,"bias",], 1, ecdf)
-        names(mcmcEndOfStudyEcdfSize)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
-        names(mcmcEndOfStudyEcdfBias)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
+        mcmcECDFs$mcmcEndOfStudyEcdfSize           <- apply(mcmcEOS[,"n",], 1, ecdf)
+        mcmcECDFs$mcmcEndOfStudyEcdfBias           <- apply(mcmcEOS[,"bias",], 1, ecdf)
+        names(mcmcECDFs$mcmcEndOfStudyEcdfSize)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
+        names(mcmcECDFs$mcmcEndOfStudyEcdfBias)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
 
         # Unrestricted sample size (stopping and then observing lagged outcomes)
         if(getUnrestricted==TRUE & lagOutcomeN > 0){
-          mcmcEndOfStudyEcdfSizeLag           <- apply(mcmcEOS[,"lag.n",], 1, ecdf)
-          mcmcEndOfStudyEcdfBiasLag           <- apply(mcmcEOS[,"lag.bias",], 1, ecdf)
-          names(mcmcEndOfStudyEcdfSizeLag)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
-          names(mcmcEndOfStudyEcdfBiasLag)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
-        } else {
-          mcmcEndOfStudyEcdfSizeLag <- mcmcEndOfStudyEcdfBiasLag <- NULL
+          mcmcECDFs$mcmcEndOfStudyEcdfSizeLag           <- apply(mcmcEOS[,"lag.n",], 1, ecdf)
+          mcmcECDFs$mcmcEndOfStudyEcdfBiasLag           <- apply(mcmcEOS[,"lag.bias",], 1, ecdf)
+          names(mcmcECDFs$mcmcEndOfStudyEcdfSizeLag)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
+          names(mcmcECDFs$mcmcEndOfStudyEcdfBiasLag)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
         }
 
-      } else {
-        mcmcEndOfStudyEcdfSize <- mcmcEndOfStudyEcdfBias <- NULL
-        mcmcEndOfStudyEcdfSizeLag <- mcmcEndOfStudyEcdfBiasLag <- NULL
       }
-
 
       # Maximum sample size of maxN (immediate outcomes)
       if(!is.null(maxN)){
-        mcmcEndOfStudyEcdfSizeMaxN          <- apply(mcmcEOS[,"maxN.n",], 1, ecdf)
-        mcmcEndOfStudyEcdfBiasMaxN          <- apply(mcmcEOS[,"maxN.bias",], 1, ecdf)
-        names(mcmcEndOfStudyEcdfSizeMaxN)   <- paste0("alertK_",mcmcEOS[,"alertK",1])
-        names(mcmcEndOfStudyEcdfBiasMaxN)   <- paste0("alertK_",mcmcEOS[,"alertK",1])
+        mcmcECDFs$mcmcEndOfStudyEcdfSizeMaxN          <- apply(mcmcEOS[,"maxN.n",], 1, ecdf)
+        mcmcECDFs$mcmcEndOfStudyEcdfBiasMaxN          <- apply(mcmcEOS[,"maxN.bias",], 1, ecdf)
+        names(mcmcECDFs$mcmcEndOfStudyEcdfSizeMaxN)   <- paste0("alertK_",mcmcEOS[,"alertK",1])
+        names(mcmcECDFs$mcmcEndOfStudyEcdfBiasMaxN)   <- paste0("alertK_",mcmcEOS[,"alertK",1])
 
         # Maximum sample size of maxN (stopping and then observing lagged outcomes)
         if(!is.null(maxN) & lagOutcomeN > 0){
-          mcmcEndOfStudyEcdfSizeLagMaxN          <- apply(mcmcEOS[,"lagMaxN.n",], 1, ecdf)
-          mcmcEndOfStudyEcdfBiasLagMaxN          <- apply(mcmcEOS[,"lagMaxN.bias",], 1, ecdf)
-          names(mcmcEndOfStudyEcdfSizeLagMaxN)   <- paste0("alertK_",mcmcEOS[,"alertK",1])
-          names(mcmcEndOfStudyEcdfBiasLagMaxN)   <- paste0("alertK_",mcmcEOS[,"alertK",1])
-        } else {
-          mcmcEndOfStudyEcdfSizeLagMaxN <- mcmcEndOfStudyEcdfBiasLagMaxN <- NULL
+          mcmcECDFs$mcmcEndOfStudyEcdfSizeLagMaxN          <- apply(mcmcEOS[,"lagMaxN.n",], 1, ecdf)
+          mcmcECDFs$mcmcEndOfStudyEcdfBiasLagMaxN          <- apply(mcmcEOS[,"lagMaxN.bias",], 1, ecdf)
+          names(mcmcECDFs$mcmcEndOfStudyEcdfSizeLagMaxN)   <- paste0("alertK_",mcmcEOS[,"alertK",1])
+          names(mcmcECDFs$mcmcEndOfStudyEcdfBiasLagMaxN)   <- paste0("alertK_",mcmcEOS[,"alertK",1])
         }
 
-      } else {
-        mcmcEndOfStudyEcdfSizeMaxN <- mcmcEndOfStudyEcdfBiasMaxN <- NULL
-        mcmcEndOfStudyEcdfSizeLagMaxN <- mcmcEndOfStudyEcdfBiasLagMaxN <- NULL
       }
 
     }
 
+
     mcmcEndOfStudy[[paste0("width_",waitTime)]] <-
       list(mcmcEndOfStudyAve      = mcmcEndOfStudyAve,
-
-           mcmcEndOfStudyEcdfSize = mcmcEndOfStudyEcdfSize,
-           mcmcEndOfStudyEcdfBias = mcmcEndOfStudyEcdfBias,
-
-           mcmcEndOfStudyEcdfSizeLag = mcmcEndOfStudyEcdfSizeLag,
-           mcmcEndOfStudyEcdfBiasLag = mcmcEndOfStudyEcdfBiasLag,
-
-           mcmcEndOfStudyEcdSizeMaxN  = mcmcEndOfStudyEcdfSizeMaxN,
-           mcmcEndOfStudyEcdfBiasMaxN = mcmcEndOfStudyEcdfBiasMaxN,
-
-           mcmcEndOfStudyEcdSizeLagMaxN  = mcmcEndOfStudyEcdfSizeLagMaxN,
-           mcmcEndOfStudyEcdfBiasLagMaxN = mcmcEndOfStudyEcdfBiasLagMaxN)
+           mcmcECDFs              = mcmcECDFs)
 
   }
 
