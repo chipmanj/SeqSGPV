@@ -55,7 +55,7 @@ locationShift <- function(o, shiftedThetas, printProgress=TRUE){
     # If additional data was required for monitoring, keep for future use
     mcmcMonitoringNew <- mcmcEndOfStudyShifted[[paste0("theta_",oo$inputs$effectGeneration)]]$mcmcMonitoring
     mcmcShiftBack     <- lapply(X = mcmcMonitoringNew, shiftTheta, shift = -shift)
-    mcmcMonitoring    <- mcmcShiftBack
+    mcmcMonitoring    <- lapply(X = mcmcShiftBack, keepColumns)
 
     # Don't keep generated data in output
     mcmcEndOfStudyShifted[[paste0("theta_",oo$inputs$effectGeneration)]]$mcmcMonitoring  <- NULL
