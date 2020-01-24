@@ -321,15 +321,15 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
       # Unrestricted sample size (immediate outcomes)
       if(getUnrestricted==TRUE){
-        mcmcECDFs$mcmcEndOfStudyEcdfSize           <- apply(mcmcEOS[,"n",], 1, ecdf)
-        mcmcECDFs$mcmcEndOfStudyEcdfBias           <- apply(mcmcEOS[,"bias",], 1, ecdf)
+        mcmcECDFs$mcmcEndOfStudyEcdfSize           <- apply(mcmcEOS[,"n",], 1, ecdfDataReduction)
+        mcmcECDFs$mcmcEndOfStudyEcdfBias           <- apply(mcmcEOS[,"bias",], 1, ecdfDataReduction)
         names(mcmcECDFs$mcmcEndOfStudyEcdfSize)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
         names(mcmcECDFs$mcmcEndOfStudyEcdfBias)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
 
         # Unrestricted sample size (stopping and then observing lagged outcomes)
         if(getUnrestricted==TRUE & lagOutcomeN > 0){
-          mcmcECDFs$mcmcEndOfStudyEcdfSizeLag           <- apply(mcmcEOS[,"lag.n",], 1, ecdf)
-          mcmcECDFs$mcmcEndOfStudyEcdfBiasLag           <- apply(mcmcEOS[,"lag.bias",], 1, ecdf)
+          mcmcECDFs$mcmcEndOfStudyEcdfSizeLag           <- apply(mcmcEOS[,"lag.n",], 1, ecdfDataReduction)
+          mcmcECDFs$mcmcEndOfStudyEcdfBiasLag           <- apply(mcmcEOS[,"lag.bias",], 1, ecdfDataReduction)
           names(mcmcECDFs$mcmcEndOfStudyEcdfSizeLag)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
           names(mcmcECDFs$mcmcEndOfStudyEcdfBiasLag)    <- paste0("alertK_",mcmcEOS[,"alertK",1])
         }
@@ -338,8 +338,8 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
       # Maximum sample size of maxN (immediate outcomes)
       if(!is.null(maxN)){
-        mcmcECDFs$mcmcEndOfStudyEcdfSizeMaxN          <- apply(mcmcEOS[,"maxN.n",], 1, ecdf)
-        mcmcECDFs$mcmcEndOfStudyEcdfBiasMaxN          <- apply(mcmcEOS[,"maxN.bias",], 1, ecdf)
+        mcmcECDFs$mcmcEndOfStudyEcdfSizeMaxN          <- apply(mcmcEOS[,"maxN.n",], 1, ecdfDataReduction)
+        mcmcECDFs$mcmcEndOfStudyEcdfBiasMaxN          <- apply(mcmcEOS[,"maxN.bias",], 1, ecdfDataReduction)
         names(mcmcECDFs$mcmcEndOfStudyEcdfSizeMaxN)   <- paste0("alertK_",mcmcEOS[,"alertK",1])
         names(mcmcECDFs$mcmcEndOfStudyEcdfBiasMaxN)   <- paste0("alertK_",mcmcEOS[,"alertK",1])
 
