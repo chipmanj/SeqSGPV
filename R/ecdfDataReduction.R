@@ -8,7 +8,7 @@
 ##'
 ##' @return ecdf after reducing (if applicable) the number of observations
 
-##' @rdname ecdfNobs
+##' @rdname ecdfDataReduction
 ##' @export
 ecdfDataReduction <- function(x,n=200){
   # Data reduction not necessary if number of x observations < n
