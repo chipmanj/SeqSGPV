@@ -4,21 +4,18 @@
 \alias{sgpvAM}
 \title{Adaptive Monitoring with Second Generation p-Value}
 \usage{
-sgpvAM(mcmcData = NULL, nreps, waitWidths, dataGeneration = NULL,
+sgpvAM(mcmcData = NULL, nreps, waitTimes, dataGeneration = NULL,
   dataGenArgs, effectGeneration = NULL, effectGenArgs, modelFit,
   pointNull, deltaL2, deltaL1, deltaG1, deltaG2, lookSteps = 1,
-  waitEmpirical = TRUE, minWaitN = 30, kSteps = 10,
-  maxAlertSteps = 100, maxN = NULL, lagOutcomeN = 0,
-  monitoringIntervalLevel = 0.05, printProgress = TRUE,
-  outData = TRUE, getECDF = TRUE, cores = NULL, fork = TRUE,
-  socket = TRUE)
+  kSteps = 10, maxAlertSteps = 100, getUnrestricted = TRUE,
+  maxN = NULL, lagOutcomeN = 0, monitoringIntervalLevel = 0.05,
+  printProgress = TRUE, outData = TRUE, getECDF = TRUE,
+  cores = NULL, fork = TRUE, socket = TRUE)
 }
 \arguments{
 \item{mcmcData}{Previously generated data.  Default (NULL) uses mcmc generation inputs to generate new or additional data.}
 
 \item{nreps}{Number of mcmc replicates to generate}
-
-\item{waitWidths}{Wait time, in terms of Confidence Interval width, before monitoring data.  Assuming the data generation standard deviation, waits until appropriate n to achieve confidence interval width.}
 
 \item{dataGeneration}{Function (such as rnorm) to generate outcomes.}
 
@@ -63,6 +60,8 @@ sgpvAM(mcmcData = NULL, nreps, waitWidths, dataGeneration = NULL,
 \item{fork}{Fork clustering, works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.  Defaults to TRUE.}
 
 \item{socket}{Socket clustering.  Defaults to TRUE yet only applies if FORK = FALSE.}
+
+\item{waitWidths}{Wait time, in terms of Confidence Interval width, before monitoring data.  Assuming the data generation standard deviation, waits until appropriate n to achieve confidence interval width.}
 }
 \description{
 The Second Generation p-Value (SGPV) incorporates pre-specified clinical context
