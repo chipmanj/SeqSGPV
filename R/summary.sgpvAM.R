@@ -66,10 +66,10 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
   if(is.element("n",names(o))){
     cat("\n\nUnrestricted sample size (immediate outcomes):")
     cat(paste0("\nAverage sample size           = ", round(o["n"],rd)))
-    cat(paste0("\nP( reject point null )        = ", o["rejPN"]))
-    cat(paste0("\nP( conclude not ROPE effect ) = ", o["stopNotROPE"]))
-    cat(paste0("\nP( conclude not ROME effect ) = ", o["stopNotROME"]))
-    cat(paste0("\nP( conclude inconclusive )    = ", o["stopInconclusive"]))
+    cat(paste0("\nP( reject point null )        = ", round(o["rejPN"])))
+    cat(paste0("\nP( conclude not ROPE effect ) = ", round(o["stopNotROPE"])))
+    cat(paste0("\nP( conclude not ROME effect ) = ", round(o["stopNotROME"])))
+    cat(paste0("\nP( conclude inconclusive )    = ", round(o["stopInconclusive"])))
     cat(paste0("\nCoverage                      = ", round(o["cover"],rd)))
     cat(paste0("\nBias                          = ", round(o["bias"],rd)))
   }
@@ -78,10 +78,10 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
   if(is.element("lag.n",names(o))){
     cat(paste0("\n\nUnrestricted sample size (stopping and then observing ", lag, " lagged outcomes):"))
     cat(paste0("\nAverage Sample Size           = ", round(o["lag.n"],rd)))
-    cat(paste0("\nP( reject point null )        = ", o["lag.rejPN"]))
-    cat(paste0("\nP( conclude not ROPE effect ) = ", o["lag.stopNotROPE"]))
-    cat(paste0("\nP( conclude not ROME effect ) = ", o["lag.stopNotROME"]))
-    cat(paste0("\nP( conclude inconclusive )    = ", o["lag.stopInconclusive"]))
+    cat(paste0("\nP( reject point null )        = ", round(o["lag.rejPN"])))
+    cat(paste0("\nP( conclude not ROPE effect ) = ", round(o["lag.stopNotROPE"])))
+    cat(paste0("\nP( conclude not ROME effect ) = ", round(o["lag.stopNotROME"])))
+    cat(paste0("\nP( conclude inconclusive )    = ", round(o["lag.stopInconclusive"])))
     cat(paste0("\nCoverage                      = ", round(o["lag.cover"],rd)))
     cat(paste0("\nBias                          = ", round(o["lag.bias"],rd)))
   }
