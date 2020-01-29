@@ -13,10 +13,10 @@ sgpvAMrulesSingle <- function(data,
 
 
   # 2 Raise Alert
-  alertNotROPE  <- which(data[,"sgpvROPE"]   == 0 & monitor==TRUE)
+  alertNotROPE  <- which(data[,"sgpvROPE"] == 0 & monitor==TRUE)
   alertNotROME  <- which(data[,"sgpvROME"] == 0 & monitor==TRUE)
 
-  alertNotROPEAny  <- length(alertNotROPE)   > 0
+  alertNotROPEAny  <- length(alertNotROPE) > 0
   alertNotROMEAny  <- length(alertNotROME) > 0
 
 
