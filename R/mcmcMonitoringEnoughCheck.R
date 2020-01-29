@@ -19,17 +19,19 @@ mcmcMonitoringEnoughCheck <- function(o, waitN, maxAlertSteps, lagOutcomeN){
   } else waitMoreN <- 0
 
   # Check for stability of sgpv
-  #  - Require at least as many observations as maxAlertSteps
-  stabilityN <- maxAlertSteps + lagOutcomeN
-  if(obs > stabilityN ){
-    stabilityROPE <- sum(o[(obs-stabilityN + 1):obs,"sgpvROPE"]==0)
-    stabilityROME <- sum(o[(obs-stabilityN + 1):obs,"sgpvROME"]==0)
+  #  - Additional observations needed to be consistent with stopping rule
+  addedStabilityN <- maxAlertSteps + lagOutcomeN
+  if(obs > addedStabilityN ){
+
+    # How many of the last set of observations would indicate to stop
+    stabilityROPE <- sum(o[(obs-addedStabilityN):obs,"sgpvROPE"]==0)
+    stabilityROME <- sum(o[(obs-addedStabilityN):obs,"sgpvROME"]==0)
 
     # Get a sense of how many additional observations needed and multiple by arbitraty factor of 4
-    getMore0 <- min(stabilityN - stabilityROPE, stabilityN - stabilityROME) * 4
+    getMore0 <- min(addedStabilityN - stabilityROPE, 1 + addedStabilityN - stabilityROME) * 4
 
   } else {
-    getMore0 <- stabilityN * 4
+    getMore0 <- addedStabilityN * 4
   }
 
 
