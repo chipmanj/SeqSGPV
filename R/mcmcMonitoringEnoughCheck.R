@@ -29,7 +29,7 @@ mcmcMonitoringEnoughCheck <- function(o, waitN, maxAlertSteps, lagOutcomeN){
     stabilityROME <- sum(o[(obs-addedStabilityN):obs,"sgpvROME"]==0)
 
     # Get a sense of how many additional observations needed and multiple by arbitraty factor of 4
-    getMore0 <- min(addedStabilityN - stabilityROPE, 1 + addedStabilityN - stabilityROME) * 4
+    getMore0 <- min(addedStabilityN - stabilityROPE, addedStabilityN - stabilityROME) * 4
 
   } else {
     getMore0 <- addedStabilityN * 4
