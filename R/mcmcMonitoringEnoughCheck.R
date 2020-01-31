@@ -20,7 +20,8 @@ mcmcMonitoringEnoughCheck <- function(o, waitN, maxAlertSteps, lagOutcomeN){
 
   # Check for stability of sgpv
   #  - Additional observations needed to be consistent with stopping rule
-  addedStabilityN <- maxAlertSteps + lagOutcomeN
+  #  - +1 for element wise indexing: an observation with 0 alerts will stop at observing one stopping rule
+  addedStabilityN <- maxAlertSteps + lagOutcomeN + 1
   if(obs > addedStabilityN ){
 
     # How many of the last set of observations would indicate to stop
