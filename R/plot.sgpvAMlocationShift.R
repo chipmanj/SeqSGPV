@@ -2,6 +2,7 @@
 plot.sgpvAMlocationShift <- function( amShifted,        stat,
                                       waitTime = NULL,  alertK = NULL,
                                       xlim,             ylim,
+                                      pts = FALSE,
                                       sizeRestrictions ){
 
   amInputs <- amShifted[[1]]$inputs
@@ -130,7 +131,7 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   if(length(alertK)==1){
     for(w in waitTime){
       lines( x=toPlot[toPlot[,"w"]==w,"te"], toPlot[toPlot[,"w"]==w,"y"], col=cols[colIter])
-      points(x=toPlot[toPlot[,"w"]==w,"te"], toPlot[toPlot[,"w"]==w,"y"], col=cols[colIter])
+      if(pts) points(x=toPlot[toPlot[,"w"]==w,"te"], toPlot[toPlot[,"w"]==w,"y"], col=cols[colIter])
       colIter <- colIter + 1
     }
 
