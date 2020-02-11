@@ -69,9 +69,9 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
     main <- "Bias"
   } else if(stat=="stopInconclusive"){
     main <- "P( inconclusive )"
-  } else if(stat=="stopNotTrivial"){
+  } else if(stat=="stopNotROPE"){
     main <- "P( not ROPE )"
-  } else if(stat=="stopNotImpactful"){
+  } else if(stat=="stopNotROME"){
     main <- "P( not ROME )"
   }
 
