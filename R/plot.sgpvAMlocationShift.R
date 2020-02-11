@@ -136,7 +136,7 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
     }
 
     legend(x = max(xlim) + abs(diff(xlim)) * .35,
-           y = max(ylim) * abs(diff(xlim)) * 0.9,
+           y = max(ylim),
            legend=waitTime,
            xjust = 1,
            col=cols, pch=19, bty="n",xpd=TRUE, title = "Wait Time")
@@ -149,7 +149,7 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
     }
 
     legend(x = max(xlim) + abs(diff(xlim)) * .35,
-           y = max(ylim) * abs(diff(xlim)) * 0.9,
+           y = max(ylim),
            legend=alertK,
            xjust = 1,
            col=cols, pch=19, bty="n",xpd=TRUE,title="Required\nAffirmation\nSteps")
