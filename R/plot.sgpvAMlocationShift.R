@@ -2,8 +2,11 @@
 plot.sgpvAMlocationShift <- function( amShifted,        stat,
                                       waitTime = NULL,  alertK = NULL,
                                       xlim,             ylim,
+                                      xlab = "", ylab = "",
                                       pts = FALSE,
-                                      sizeRestrictions ){
+                                      addLegend = TRUE, addMain = TRUE,
+                                      addRegions = TRUE, addRegionLines = TRUE,
+                                      sizeRestrictions , setMargins, ...){
 
   amInputs <- amShifted[[1]]$inputs
 
@@ -24,6 +27,23 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   }
   if(length(alertK)>11) stop("Please select at most 11 required affirmation steps to investigate")
 
+
+
+  # Set colors
+  nVary <- max(c(length(waitTime),length(alertK)))
+  if(nVary >= 3) {
+    cols <- brewer.pal(nVary, name="Spectral")
+  } else {
+    cols <- 1:nVary
+  }
+
+
+  # If alertK not provided, get from names of amShifted
+  # Number of treatment effects not limited
+  treatEffect <- unname(sapply(names(amShifted), FUN = function(x) as.numeric(strsplit(x,split="_")[[1]][2])))
+
+
+  # plot parameters
   # Effects within bound periphery wait for CI width
   mainWaitTime <- "Wait until n = "
   # if(amInputs$waitEmpirical==TRUE){
@@ -42,21 +62,6 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
                         "; Required affirmation steps = ", alertK)
   }
 
-  # Set colors
-  nVary <- max(c(length(waitTime),length(alertK)))
-  if(nVary >= 3) {
-    cols <- brewer.pal(nVary, name="Spectral")
-  } else {
-    cols <- 1:nVary
-  }
-
-
-  # If alertK not provided, get from names of amShifted
-  # Number of treatment effects not limited
-  treatEffect <- unname(sapply(names(amShifted), FUN = function(x) as.numeric(strsplit(x,split="_")[[1]][2])))
-
-
-  # plot parameters (if not specified)
   if(stat=="rejPN"){
     main <- "P( reject point null )"
   } else if (stat=="cover"){
@@ -87,22 +92,71 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   } else stop("restrictions parameter must be any of NULL, maxN, lag, lagMaxN")
 
 
+  if(addMain) {
+    figMain <- paste0(main,"\n",mainGiven,"\n",mainSub)
+  } else {
+    figMain <- NULL
+  }
 
+
+  if(!missing(setMargins)){
+    par(mar=setMargins)
+  } else {
+    margins <- par("mar")
+    if (addLegend){
+     margins[4] <- margins[4] + 4
+    } else if (addMain){
+      margins[3] <- margins[3] + 1
+    }
+    par(mar=margins)
+  }
 
   # Blank plot
-  par(mar=c(5,4,5,6)+.1)
   plot(x=0,y=0,xlim=xlim,ylim=ylim,type="n",
-       las=1,xlab="",ylab="",
-       main=paste0(main,"\n",mainGiven,"\n",mainSub))
+       las=1, xlab=xlab, ylab=ylab,
+       main=figMain, ... )
+
+  if(addRegions){
+
+    # Colors for figures
+    cbPalette <- c("#d0d7e8","#f7f5f3", "#e8dbd0")
+    cbAlpha   <- paste0(cbPalette,sep = "40")
+    colsZone  <- cbPalette
+
+    ptCols <- c("#ff0000","#0080ff","#bc03ff")
+    ptSymb <- c(19,17,15)
+
+    # Shade clinically meaningful zones
+    xLimBuff1 <- min(xlim) - abs(diff(xlim))
+    xLimBuff2 <- max(xlim) + abs(diff(xlim))
+    yLimBuff1 <- min(ylim) - abs(diff(ylim))
+    yLimBuff2 <- max(ylim) + abs(diff(ylim))
+    polygon(x=c(xLimBuff1, xLimBuff1, amInputs$deltaL2, amInputs$deltaL2), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=cbAlpha[3], xpd=FALSE)
+    polygon(x=c(xLimBuff2, xLimBuff2, amInputs$deltaG2, amInputs$deltaG2), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=cbAlpha[3], xpd=FALSE)
+
+    polygon(x=c(amInputs$deltaL2,amInputs$deltaL2,amInputs$deltaL1,amInputs$deltaL1), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=cbAlpha[2], xpd=FALSE)
+    polygon(x=c(amInputs$deltaG1,amInputs$deltaG1,amInputs$deltaG2,amInputs$deltaG2), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=cbAlpha[2], xpd=FALSE)
+    # abline( v=c(amInputs$deltaL2,amInputs$deltaG2), col="black",lwd=2)
+
+    # Shade grey zone
+    polygon(x=c(amInputs$deltaL1,amInputs$deltaL1, amInputs$deltaG1, amInputs$deltaG1), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=colsZone[1], border = "grey")
+    # abline( v=c(amInputs$deltaL1,amInputs$deltaG1), col="black",lwd=2)
+
+    # Point Null
+    # abline(v=amInputs$pointNull,lty=2,lwd=2)
 
 
-  # Add line for point null
-  abline(v=amInputs$pointNull,lty=2)
-  abline(v=c(amInputs$deltaL2,
-             amInputs$deltaL1,
-             amInputs$deltaG1,
-             amInputs$deltaG2),lwd=2)
+  }
 
+
+  if(addRegionLines){
+    # Add line for point null
+    abline(v=amInputs$pointNull,lty=2)
+    abline(v=c(amInputs$deltaL2,
+               amInputs$deltaL1,
+               amInputs$deltaG1,
+               amInputs$deltaG2),lwd=2)
+  }
 
   # Collect average effects across specified parameters
   toPlot           <- matrix(NA,nrow=length(treatEffect)*length(waitTime)*length(alertK),ncol=4)
@@ -130,8 +184,8 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   colIter <- 1
   if(length(alertK)==1){
     for(w in waitTime){
-      lines( x=toPlot[toPlot[,"w"]==w,"te"], toPlot[toPlot[,"w"]==w,"y"], col=cols[colIter])
-      if(pts) points(x=toPlot[toPlot[,"w"]==w,"te"], toPlot[toPlot[,"w"]==w,"y"], col=cols[colIter])
+      lines( x=toPlot[toPlot[,"w"]==w,"te"], toPlot[toPlot[,"w"]==w,"y"], col=cols[colIter], ... )
+      if(pts) points(x=toPlot[toPlot[,"w"]==w,"te"], toPlot[toPlot[,"w"]==w,"y"], col=cols[colIter], ... )
       colIter <- colIter + 1
     }
 
@@ -143,8 +197,8 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
 
   } else if(length(waitTime)==1){
     for(k in alertK){
-      lines( x=toPlot[toPlot[,"k"]==k,"te"], toPlot[toPlot[,"k"]==k,"y"], col=cols[colIter])
-      if(pts) points(x=toPlot[toPlot[,"k"]==k,"te"], toPlot[toPlot[,"k"]==k,"y"], col=cols[colIter])
+      lines( x=toPlot[toPlot[,"k"]==k,"te"], toPlot[toPlot[,"k"]==k,"y"], col=cols[colIter], ... )
+      if(pts) points(x=toPlot[toPlot[,"k"]==k,"te"], toPlot[toPlot[,"k"]==k,"y"], col=cols[colIter], ... )
       colIter <- colIter + 1
     }
 
