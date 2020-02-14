@@ -189,11 +189,13 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
       colIter <- colIter + 1
     }
 
-    legend(x = max(xlim) + abs(diff(xlim)) * .35,
+    if(addLegend){
+      legend(x = max(xlim) + abs(diff(xlim)) * .35,
            y = max(ylim),
            legend=waitTime,
            xjust = 1,
            col=cols, pch=19, bty="n",xpd=TRUE, title = "Wait Time")
+    }
 
   } else if(length(waitTime)==1){
     for(k in alertK){
@@ -202,11 +204,13 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
       colIter <- colIter + 1
     }
 
-    legend(x = max(xlim) + abs(diff(xlim)) * .35,
+    if(addLegend){
+      legend(x = max(xlim) + abs(diff(xlim)) * .35,
            y = max(ylim),
            legend=alertK,
            xjust = 1,
            col=cols, pch=19, bty="n",xpd=TRUE,title="Required\nAffirmation\nSteps")
+    }
 
   }
 
