@@ -11,7 +11,7 @@ amData <- function(nreps, os, fork=TRUE, socket = TRUE, cores = detectCores(), .
   } else if(socket==TRUE){
     # Works on Mac and Windows; only slightly slower
     cl             <- parallel::makeCluster(cores)
-    clusterExport(cl, library(RcppEigen), library(parallel))
+    clusterCall(cl, function() library(sgpvAM))
     on.exit(parallel::stopCluster(cl), add = TRUE)
     mcmcMonitoring <- parallel::parLapply(cl, 1:nreps, amDataSingle, ...)
   } else {
