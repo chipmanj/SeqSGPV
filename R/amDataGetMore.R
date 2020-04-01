@@ -19,6 +19,7 @@ amDataGetMore <- function(insufficients, existingDataList, os, fork=TRUE, socket
   } else if(socket==TRUE){
     # Works on Mac and Windows; only slightly slower
     cl             <- parallel::makeCluster(cores)
+    clusterCall(cl, function() library(sgpvAM))
     on.exit(parallel::stopCluster(cl), add = TRUE)
     mcmcMonitoringGetMore <- parallel::parLapply(cl, insufficients, amDataSingleGetMore,
                                                  existingDataList = existingDataList, ...)

@@ -28,6 +28,7 @@ sgpvAMrules <- function(mcmcMonitoring, os, fork=TRUE, socket = TRUE, cores = de
   } else if(socket==TRUE){
     # Works on Mac and Windows; only slightly slower
     cl             <- parallel::makeCluster(cores)
+    clusterCall(cl, function() library(sgpvAM))
     on.exit(parallel::stopCluster(cl), add = TRUE)
     mcmcEOS <- parallel::parLapply(cl, mcmcMonitoring, sgpvAMrulesSingle,
                                    waitTime                 = waitTime,
