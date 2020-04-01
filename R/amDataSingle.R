@@ -5,6 +5,7 @@
 #' @export
 amDataSingle <- function(dataGeneration,   dataGenArgs,
                          effectGeneration, effectGenArgs,
+                         randomize=FALSE,
                          modelFit,         modelFitArgs,
                          monitoringIntervalLevel,
                          existingData=NULL){
@@ -26,20 +27,20 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
 
 
 
-  # 3 Randomly treat half with effect
+  # 3 Set treatment variable
+  # If randomize == FALSE, then all patients will have effect shifted by theta
+  # Else randomly treat half with effect who will have effect shifted by theta
   # Use block 2 randomization for sims but not in practice
   # Ensure enough treatments if generating an odd number of observations
-  # Indicate the point null
-  trt <- c(replicate(n=ceiling(length(y)/2), sample(c(0,1))))[1:length(y)]
 
+  trt <- rep(1,length(y))
+  if(randomize) trt[seq(2,length(y),2)] <- 0
 
   if(dataType=="normal"){
     y[trt==1] <- y[trt==1] + theta
-    pointNull <- 0
   } else if(dataType=="binomial"){
     oddsNull  <- dataGenArgs[["prob"]] / (1 - dataGenArgs[["prob"]])
     y[trt==1] <- rbinom(n = length(trt)/2,size = 1,prob = theta * oddsNull / (1 + theta * oddsNull))
-    pointNull <- 1
   }
 
 
@@ -50,15 +51,22 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
   }
 
 
+  # 3.75 Create X matrix
+  if(randomize==FALSE){
+    X <- as.matrix(trt,ncol=1)
+  } else {
+    X <- as.matrix(cbind(1,trt),ncol=2)
+  }
+
   # 4 Obtain (or add to) estimate and 1-alpha/2 monitoring confidence intervals
   #   Wait until at least two observations in each group
   if(! is.null(existingData) ) {
     eci <- rbind(existingData[,c("est","lo","up")],
                  t(sapply( (length(y)-dataGenArgs[["n"]] + 1):length(y),
-                           modelFit, y=y, trt=trt, miLevel = monitoringIntervalLevel )))
+                           modelFit, y=y, X=X, miLevel = monitoringIntervalLevel )))
   } else {
     eci <- rbind(matrix(rep(c(NA,-10^10,10^10),4),byrow = TRUE,nrow=4),
-                 t(sapply(5:length(y), modelFit, y=y, trt=trt, miLevel = monitoringIntervalLevel )))
+                 t(sapply(5:length(y), modelFit, y=y, X=X, miLevel = monitoringIntervalLevel )))
     colnames(eci) <- c("est", "lo", "up")
   }
 
