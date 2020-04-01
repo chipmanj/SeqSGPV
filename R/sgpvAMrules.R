@@ -14,7 +14,7 @@ sgpvAMrules <- function(mcmcMonitoring, os, fork=TRUE, socket = TRUE, cores = de
                         getUnrestricted, maxN, lagOutcomeN){
 
 
-  if(fork==TRUE){
+  if(fork==TRUE & os!="Windows"){
     # Only works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.
     mcmcEOS <- parallel::mclapply(mcmcMonitoring, sgpvAMrulesSingle,
                                   waitTime                 = waitTime,
