@@ -5,7 +5,7 @@
 #' @export
 #'
 #'
-sgpvAMrules <- function(mcmcMonitoring, fork=TRUE, socket = TRUE, cores = detectCores(),
+sgpvAMrules <- function(mcmcMonitoring, os, fork=TRUE, socket = TRUE, cores = detectCores(),
                         waitTime,
                         lookSteps,
                         kSteps,

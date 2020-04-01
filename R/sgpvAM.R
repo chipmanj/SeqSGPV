@@ -217,7 +217,11 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   }
 
 
+  # set cores for parallel computing
   if(is.null(cores)) cores <- detectCores()
+
+  # if POSIX systems (Mac, Linux, Unix, BSD) use mcapply.  For windows use parLapply
+  os <- Sys.info()["sysname"]
 
   # 1 collect list of simulated data
   if(is.null(mcmcData)){
@@ -227,6 +231,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
                                   effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
                                   modelFit         = modelFit,
                                   cores            = cores,
+                                  os               = os,
                                   fork             = fork,
                                   socket           = socket)
 
@@ -270,6 +275,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
                                         deltaL2 = deltaL2, deltaL1 = deltaL1, deltaG1 = deltaG1, deltaG2 = deltaG2,
                                         modelFit         = modelFit,
                                         cores            = cores,
+                                        os               = os,
                                         fork             = fork,
                                         socket           = socket)
 
@@ -300,6 +306,9 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
     # 4 adaptively monitor simulated data across multiple burn ins
     mcmcEOS <- sgpvAMrules(mcmcMonitoring           = mcmcMonitoring,
+                           os                       = os,
+                           fork                     = fork,
+                           socket                   = socket,
                            waitTime                 = waitTime,
                            lookSteps                = lookSteps,
                            kSteps                   = kSteps,

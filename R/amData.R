@@ -3,9 +3,9 @@
 #' Generate mcmc simulations of adaptive monitoring with parallel computing
 #'
 #' @export
-amData <- function(nreps, fork=TRUE, socket = TRUE, cores = detectCores(), ...){
+amData <- function(nreps, os, fork=TRUE, socket = TRUE, cores = detectCores(), ...){
 
-  if(fork==TRUE){
+  if(fork==TRUE & os!="Windows"){
     # Only works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.
     mcmcMonitoring <- parallel::mclapply(1:nreps, amDataSingle, ... , mc.cores = cores)
   } else if(socket==TRUE){

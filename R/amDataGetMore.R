@@ -9,9 +9,9 @@
 #' @param ... Inputs to amDataSingleGetMore
 #'
 #' @export
-amDataGetMore <- function(insufficients, existingDataList, fork=TRUE, socket = TRUE, cores = detectCores(), ...){
+amDataGetMore <- function(insufficients, existingDataList, os, fork=TRUE, socket = TRUE, cores = detectCores(), ...){
 
-  if(fork==TRUE){
+  if(fork==TRUE & os!="Windows"){
     # Only works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.
     mcmcMonitoringGetMore <- parallel::mclapply(insufficients,     amDataSingleGetMore,
                                                 existingDataList = existingDataList,
