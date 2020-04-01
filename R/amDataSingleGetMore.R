@@ -17,6 +17,7 @@ amDataSingleGetMore <- function( existingDataList, iInsufficient, getMore,
                                      existingData     = existingDataList[[iInsufficient]],
                                      dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
                                      effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
+                                     randomize        = randomize,
                                      modelFit         = modelFit)
 
   amDataSingleMore  <- addStats(o = amDataSingleMore,
