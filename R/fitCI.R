@@ -14,9 +14,10 @@
 ##' @export
 lmCI <- function(y, X, look, miLevel){
   # ols CIs
-  f <- RcppEigen::fastLmPure(X = as.matrix(X[1:look,]), y = y[1:look])
-  eci <- c(f$coefficients[2],
-           f$coefficients[2] + c(-1,1) * qt(1-miLevel/2, df = f$df.residual) * f$se[2])
+  f       <- RcppEigen::fastLmPure(X = as.matrix(X[1:look,]), y = y[1:look])
+  betaCol <- ncol(X)
+  eci     <- c(f$coefficients[betaCol],
+               f$coefficients[betaCol] + c(-1,1) * qt(1-miLevel/2, df = f$df.residual) * f$se[betaCol])
   return(eci)
 }
 class(lmCI) <- "normal"
@@ -24,11 +25,12 @@ class(lmCI) <- "normal"
 
 ##' @rdname fitCI
 ##' @export
-lrCI <- function(y, trt, look, miLevel){
+lrCI <- function(y, X, look, miLevel){
   # logistic regression CIs
-  f <- fastglm::fastglmPure(x = as.matrix(X[1:look,]), y=y[1:look],family = binomial())
-  eci <- exp(c(f$coefficients[2],
-               f$coefficients[2] + c(-1,1) * qnorm(1-miLevel/2) * f$se[2]))
+  f       <- fastglm::fastglmPure(x = as.matrix(X[1:look,]), y=y[1:look],family = binomial())
+  betaCol <- ncol(X)
+  eci     <- exp(c(f$coefficients[betaCol],
+                   f$coefficients[betaCol] + c(-1,1) * qnorm(1-miLevel/2) * f$se[betaCol]))
   # Infinite upper CI bound may occur with binomial data and insufficient
   #  data to estimate an effect and error.  Set infinite bounds to 10^10
   eci[is.infinite(eci)] <- 10^10
