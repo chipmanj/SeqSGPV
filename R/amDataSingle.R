@@ -51,11 +51,11 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
   }
 
 
-  # 3.75 Create X matrix
+  # 3.75 Create design matrix
   if(randomize==FALSE){
-    X <- as.matrix(trt,ncol=1)
+    XD <- as.matrix(trt,ncol=1)
   } else {
-    X <- as.matrix(cbind(1,trt),ncol=2)
+    XD <- as.matrix(cbind(1,trt),ncol=2)
   }
 
   # 4 Obtain (or add to) estimate and 1-alpha/2 monitoring confidence intervals
@@ -63,10 +63,10 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
   if(! is.null(existingData) ) {
     eci <- rbind(existingData[,c("est","lo","up")],
                  t(sapply( (length(y)-dataGenArgs[["n"]] + 1):length(y),
-                           modelFit, y=y, X=X, miLevel = monitoringIntervalLevel )))
+                           modelFit, y=y, XD=XD, miLevel = monitoringIntervalLevel )))
   } else {
     eci <- rbind(matrix(rep(c(NA,-10^10,10^10),4),byrow = TRUE,nrow=4),
-                 t(sapply(5:length(y), modelFit, y=y, X=X, miLevel = monitoringIntervalLevel )))
+                 t(sapply(5:length(y), modelFit, y=y, XD=XD, miLevel = monitoringIntervalLevel )))
     colnames(eci) <- c("est", "lo", "up")
   }
 
