@@ -15,7 +15,7 @@
 lmCI <- function(y, XD, look, miLevel){
   # ols CIs
   f       <- RcppEigen::fastLmPure(X = as.matrix(XD[1:look,]), y = y[1:look])
-  betaCol <- ncol(X)
+  betaCol <- ncol(XD)
   eci     <- c(f$coefficients[betaCol],
                f$coefficients[betaCol] + c(-1,1) * qt(1-miLevel/2, df = f$df.residual) * f$se[betaCol])
   return(eci)
@@ -28,7 +28,7 @@ class(lmCI) <- "normal"
 lrCI <- function(y, XD, look, miLevel){
   # logistic regression CIs
   f       <- fastglm::fastglmPure(x = as.matrix(XD[1:look,]), y=y[1:look],family = binomial())
-  betaCol <- ncol(X)
+  betaCol <- ncol(XD)
   eci     <- exp(c(f$coefficients[betaCol],
                    f$coefficients[betaCol] + c(-1,1) * qnorm(1-miLevel/2) * f$se[betaCol]))
   # Infinite upper CI bound may occur with binomial data and insufficient
