@@ -6,7 +6,7 @@ Author: Jonathan Chipman
 Maintainer: Jonathan Chipman <jonathan.chipman@hci.utah.edu>
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
-Depends: plyr, sgpv, RcppEigen, RColorBrewer, parallel
+Depends: plyr, sgpv, RcppEigen, fastglm, RColorBrewer, parallel
 Description: The sgpvAM package allows the user to obtain study design operating characteristics under a variety of settings for adaptive monitoring using the second generation p-value.  
 License: MIT + file LICENSE
 Encoding: UTF-8
