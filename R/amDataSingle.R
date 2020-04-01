@@ -30,7 +30,7 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
   # Use block 2 randomization for sims but not in practice
   # Ensure enough treatments if generating an odd number of observations
   # Indicate the point null
-  trt <- c(replicate(n=ceiling(length(y)/2), sample(c(0,1))))[1:dataGenArgs$n]
+  trt <- c(replicate(n=ceiling(length(y)/2), sample(c(0,1))))[1:length(y)]
 
 
   if(dataType=="normal"){
@@ -50,7 +50,7 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
   }
 
 
-  # 4 Obtain (or add to) 1-alpha/2 monitoring confidence intervals
+  # 4 Obtain (or add to) estimate and 1-alpha/2 monitoring confidence intervals
   #   Wait until at least two observations in each group
   if(! is.null(existingData) ) {
     eci <- rbind(existingData[,c("est","lo","up")],
