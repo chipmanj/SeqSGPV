@@ -88,8 +88,8 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
     stat    <- paste0(sizeRestrictions,".",stat)
     if(sizeRestrictions=="maxN")    mainSub <- "Maximum sample size specified" else
       if(sizeRestrictions == "lag") mainSub <- paste0(amInputs$lagOutcomeN," Lag outcomes") else
-        if(sizeRestrictions == "lagMaxN") mainSub <- paste0("Maximum observed sample size before ", amInputs$lagOutcomeN," lag outcomes")
-  } else stop("restrictions parameter must be any of NULL, maxN, lag, lagMaxN")
+        if(sizeRestrictions == "lagMaxN") mainSub <- paste0("Maximum sample size after ", amInputs$lagOutcomeN," lag outcomes")
+  } else stop("If provided, sizeRestrictions parameter must be one of: maxN, lag, lagMaxN")
 
 
   if(addMain) {
