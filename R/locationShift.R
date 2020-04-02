@@ -65,8 +65,7 @@ locationShift <- function(o, shiftedThetas, printProgress=TRUE){
 
 
   # Set class
-  class(mcmcEndOfStudyShifted) <- append(class(mcmcEndOfStudyShifted),
-                                         c("sgpvAM","sgpvAMlocationShift"))
+  class(mcmcEndOfStudyShifted) <- append(c("sgpvAMlocationShift","sgpvAM"),class(mcmcEndOfStudyShifted))
 
 
   return(mcmcEndOfStudyShifted)

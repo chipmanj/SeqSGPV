@@ -396,7 +396,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
 
   # Set class
-  class(out) <- append(class(out),"sgpvAM")
+  class(out) <- append("sgpvAM",class(out))
 
   return(out)
 
