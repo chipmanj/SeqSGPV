@@ -131,19 +131,26 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
     xLimBuff2 <- max(xlim) + abs(diff(xlim))
     yLimBuff1 <- min(ylim) - abs(diff(ylim))
     yLimBuff2 <- max(ylim) + abs(diff(ylim))
-    polygon(x=c(xLimBuff1, xLimBuff1, amInputs$deltaL2, amInputs$deltaL2), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=cbAlpha[3], xpd=FALSE)
-    polygon(x=c(xLimBuff2, xLimBuff2, amInputs$deltaG2, amInputs$deltaG2), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=cbAlpha[3], xpd=FALSE)
 
-    polygon(x=c(amInputs$deltaL2,amInputs$deltaL2,amInputs$deltaL1,amInputs$deltaL1), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=cbAlpha[2], xpd=FALSE)
-    polygon(x=c(amInputs$deltaG1,amInputs$deltaG1,amInputs$deltaG2,amInputs$deltaG2), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=cbAlpha[2], xpd=FALSE)
-    # abline( v=c(amInputs$deltaL2,amInputs$deltaG2), col="black",lwd=2)
+    dL2 <- amInputs$deltaL2
+    dL1 <- amInputs$deltaL1
+    dG1 <- amInputs$deltaG1
+    dG2 <- amInputs$deltaG2
 
-    # Shade grey zone
-    polygon(x=c(amInputs$deltaL1,amInputs$deltaL1, amInputs$deltaG1, amInputs$deltaG1), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=colsZone[1], border = "grey")
-    # abline( v=c(amInputs$deltaL1,amInputs$deltaG1), col="black",lwd=2)
+    # ROME
+    polygon(x=c(xLimBuff1, xLimBuff1, dL2, dL2), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=cbAlpha[3], xpd=FALSE, border=NA)
+    polygon(x=c(xLimBuff2, xLimBuff2, dG2, dG2), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=cbAlpha[3], xpd=FALSE, border=NA)
 
-    # Point Null
-    # abline(v=amInputs$pointNull,lty=2,lwd=2)
+    # Grey Zone
+    polygon(x=c(dL2,dL2,dL1,dL1), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=cbAlpha[2], xpd=FALSE, border=NA)
+    polygon(x=c(dG1,dG1,dG2,dG2), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=cbAlpha[2], xpd=FALSE, border=NA)
+
+    # ROPE / ROWPE
+    # ROWPE: For figure plotting purposes only, set dL2 (or DG2) from NA to a point beyond plot region
+    if(is.na(dL2) & is.na(dL1)) dL2 <- xLimBuff1
+    if(is.na(dG2) & is.na(dG1)) dG2 <- xLimBuff2
+
+    polygon(x=c(dL1,dL1, dG1, dG1), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=colsZone[1], border=NA)
 
 
   }
