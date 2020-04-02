@@ -217,6 +217,12 @@ sgpvAM <- function(mcmcData=NULL, nreps,
     stop("Must specify at least getUnrestricted=TRUE or maxN not null")
   }
 
+  if(kSteps<lookSteps){
+    warning("kSteps must be >= lookSteps.  Setting kSteps to be >= lookSteps")
+    kSteps <- kSteps[kSteps >= lookSteps]
+    if(length(kSteps)==0) kSteps <- lookSteps
+  }
+
 
   # set cores for parallel computing
   if(is.null(cores)) cores <- detectCores()
@@ -251,6 +257,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   if(getUnrestricted==TRUE){
     getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck,
                                   waitN         = max(waitTimes),
+                                  lookSteps     = lookSteps,
                                   maxAlertSteps = maxAlertSteps,
                                   lagOutcomeN   = lagOutcomeN))
     getMoreWhich      <- which(getMore > 0)
@@ -285,6 +292,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
         # Continue checking until all datasets have sufficient n
         getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck,
                                       waitN         = max(waitTimes),
+                                      lookSteps     = lookSteps,
                                       maxAlertSteps = maxAlertSteps,
                                       lagOutcomeN   = lagOutcomeN))
         getMoreWhich <- which(getMore > 0)
