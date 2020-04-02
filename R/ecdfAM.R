@@ -1,39 +1,12 @@
 #'@export
 ecdfAM <- function(am, stat, sizeRestrictions,
                         waitTime = NULL, alertK = NULL, treatEffect = NULL,
-                        xlim,             ylim,          maxVary     = 10 ,
-                        doPlot = TRUE){
-
-
-  # if(missing(xlim)) { stop("Specify xlim") }
-  # if(length(treatEffect)!=1){
-  #   stop("Must specify a treatment effect")
-  # }
-
-  if((length(alertK)>1 & length(waitTime)>1) | length(c(alertK,waitTime))==0){
-    stop("At least one of alertK and waitWidth must be 1")
-  }
-
-  # For naming convention with ECDF elements
-  if(!is.element(stat,c("n","bias"))){
-    stop("Stat must be one of 'n' or 'bias'")
-  }
-  if(stat=="n")    stat <- "Size"
-  if(stat=="bias") bias <- "Bias"
+                        xlim,             ylim,         doPlot      = TRUE){
 
 
 
-  # Any restrictions
-  if (!missing(sizeRestrictions) & is.element(sizeRestrictions,c("maxN","lag","lagMaxN"))){
 
-    # For naming convention with ECDF elements
-    if(sizeRestrictions=="lagMaxN") sizeRestrictions <- "LagMaxN"
-
-    stat    <- paste0(stat,sizeRestrictions)
-  } else stop("If provided, sizeRestrictions parameter must be one of: maxN, lag, lagMaxN")
-
-
-  # Select treatment effect to summarize and reduce am object
+  # 1. Select treatment effect to summarize and reduce am object if needed
   if(is.element(el = "sgpvAMlocationShift",class(am))){
 
     if(length(treatEffect)!=1){
@@ -52,37 +25,31 @@ ecdfAM <- function(am, stat, sizeRestrictions,
 
   }
 
+
+  # 2. Inputs from main object
   amInputs <- o$inputs
 
-  if(!is.function(o$inputs$effectGeneration)){
-    mainTE <- paste0("theta = ", o$inputs$effectGeneration," ")
+
+  # 3. Translate stat to naming convention used with ECDF elements
+  if(!is.element(stat,c("n","bias"))){
+    stop("Stat must be one of 'n' or 'bias'")
+  }
+  if(stat=="n")    stat <- "Size"
+  if(stat=="bias") stat <- "Bias"
+
+  # Any maximum sample size restrictions and/or lag times
+  if (!missing(sizeRestrictions)){
+    if(is.element(sizeRestrictions,c("maxN","lag","lagMaxN"))){
+      stat    <- paste0(stat,toupper(substr(sizeRestrictions,1,1)),substring(sizeRestrictions,2))
+    } else stop("If provided, sizeRestrictions parameter must be one of: maxN, lag, lagMaxN")
   }
 
 
-  # If waitWidth not provided, get from inputs
-  # Limit number of waitWidths if specified by maxInputs
-  # Set colors based on number of alertK explored
-  # if(is.null(waitWidth)){
-  #
-  #   waitWidth <- o$inputs$waitWidths
-  #
-  #   if(!is.na(maxVary)){
-  #     s         <- ceiling(length(waitWidth)/maxVary)
-  #     waitWidth <- waitWidth[unique(c(1,seq(s,length(waitWidth), by=s)))]
-  #   }
-  #
-  #   cols      <- brewer.pal(length(waitWidth), name="Spectral")
-  #
-  #   mainWW <- NULL
-  #
-  # } else if(length(waitWidth) == 1){
-  #
-  #   mainWW <- paste0("wait width = ", waitWidth," ")
-  #
-  # }
 
+  # 4.1 Get the wait times and alert ks used in figure
+  #     Also get the figure titles associated with wiat time and alert k
 
-  # Get wait width and alert k parameters
+  # Get wait width and title for wait width
   if(is.null(waitTime)){
     waitTime <- amInputs$waitTime
   }
@@ -90,17 +57,16 @@ ecdfAM <- function(am, stat, sizeRestrictions,
 
   if(length(waitTime) == 1){
 
-    mainWait <- paste0("wait time = ", waitTime," ")
+    mainWait <- paste0("wait time = ", waitTime)
 
   } else mainWait <- NULL
 
 
-
+  # Get alert K and title for alert K
   if(is.null(alertK)){
     alertK    <- seq(0, amInputs$maxAlertSteps, by = amInputs$kSteps)
   }
   if(length(alertK)>11) stop("Please select at most 11 required affirmation steps to investigate")
-
 
   if(length(alertK) == 1){
 
@@ -110,46 +76,23 @@ ecdfAM <- function(am, stat, sizeRestrictions,
 
 
 
-  # if(length(waitTime) == 1 & length(alertK) >  1){
-  #   mainGiven <- paste0("Wait time = ", waitTime)
-  # } else if(length(waitTime) >  1 & length(alertK) == 1){
-  #   mainGiven <- paste0("Required affirmation steps = ", alertK)
-  # } else {
-  #   mainGiven <- paste0("Wait time = ", waitTime,
-  #                       "; Required affirmation steps = ", alertK)
-  # }
+  # 4.2 Title for treatment effect
+  if(!is.function(amInputs$effectGeneration)){
+    mainTE <- paste0("theta = ", amInputs$effectGeneration)
+  }
+
+  # 4.3 Title if there is a lag time
+  if(grepl("LAG",toupper(stat))){
+    mainLag      <- paste0("lag time = ", amInputs$lagOutcomeN)
+  } else mainLag <- NULL
+
+  # 4.3 Title if there is a lag time
+  if(grepl("MAX",toupper(stat))){
+    mainMax      <- paste0("max n = ", amInputs$maxN)
+  } else mainMax <- NULL
 
 
-
-
-  # If alertK not provided, get from inputs
-  # Limit number of alertK if specified by maxInputs
-  # Set colors based on number of alertK explored
-  # if(is.null(alertK)){
-  #
-  #   alertK    <- seq(0, o$inputs$maxAlertSteps, by = o$inputs$lookSteps)
-  #
-  #   if(!is.na(maxVary)){
-  #
-  #     s      <- ceiling(length(alertK)/maxVary)
-  #     alertK <- alertK[unique(c(1,seq(s,length(alertK), by=s)))]
-  #
-  #   }
-  #
-  #   cols      <- brewer.pal(length(alertK), name="Spectral")
-  #
-  #   mainK <- NULL
-  #
-  # } else if(length(alertK) == 1){
-  #
-  #   mainK <- paste0("alert k = ", alertK)
-  #
-  # }
-
-
-
-
-  # Set colors
+  # 5. Colors for figure
   nVary <- max(c(length(waitTime),length(alertK)))
   if(nVary >= 3) {
     cols <- brewer.pal(nVary, name="Spectral")
@@ -158,19 +101,20 @@ ecdfAM <- function(am, stat, sizeRestrictions,
   }
 
 
-
-
-
-
+  # 6. Plot
   if(doPlot==TRUE){
 
     # One of the ECDF functions to be used for creating the plot template
     tempECDF <- o[["mcmcEndOfStudy"]][[paste0("width_",waitTime[1])]][["mcmcECDFs"]][[paste0("mcmcEndOfStudyEcdf",stat)]][[1]]
 
-    if(missing(xlim)) {
 
-      xlim <- c(0,ceiling(quantile(tempECDF,1)*1.2))
-
+    # Xlim and xlab
+    if(grepl("Size",stat)){
+      if(missing(xlim)) xlim <- c(0,ceiling(quantile(tempECDF,1)*1.2))
+      xlab <- "sample size"
+    } else if (grepl("Bias",stat)){
+      if(missing(xlim)) xlim <- c(floor(quantile(tempECDF,0)*1.2),ceiling(quantile(tempECDF,1)*1.2))
+      xlab <- "estimate - theta"
     }
 
 
@@ -181,21 +125,31 @@ ecdfAM <- function(am, stat, sizeRestrictions,
 
 
     # Blank plot canvas
-    plot(tempECDF, col="white", las = 1, xlim=xlim,
-         main=paste0("ECDF of ", stat,"\n",paste0(mainTE,mainWait,mainK,collapse = ", ")))
+    plot(tempECDF, col="white", las = 1, xlim=xlim, xlab=xlab,
+         main=paste0("ECDF of ", xlab,"\n",paste0(c(mainTE,mainWait,mainK,mainLag,mainMax),collapse = ", ")),
+         cex.main=1)
     colIter <- 1
 
-    for(w in waitTime){
-      oo <- o[["mcmcEndOfStudy"]][[paste0("width_",waitTime[1])]][["mcmcECDFs"]][[paste0("mcmcEndOfStudyEcdf",stat)]]
 
-      for (k in alertK){
+    if(length(waitTime)>1){
 
-        plot(oo[[paste0("alertK_",k)]], col=cols[colIter], cex=0.5, add=TRUE)
-
+      for(w in waitTime){
+        oo <- o[["mcmcEndOfStudy"]][[paste0("width_",w)]][["mcmcECDFs"]][[paste0("mcmcEndOfStudyEcdf",stat)]]
+        plot(oo[[paste0("alertK_",alertK)]], col=cols[colIter], cex=0.5, add=TRUE)
         colIter <- colIter + 1
+
       }
 
-      colIter <- colIter + 1
+    } else if(length(alertK)>1){
+
+      oo <- o[["mcmcEndOfStudy"]][[paste0("width_",waitTime)]][["mcmcECDFs"]][[paste0("mcmcEndOfStudyEcdf",stat)]]
+
+      for(k in alertK){
+
+        plot(oo[[paste0("alertK_",k)]], col=cols[colIter], cex=0.5, add=TRUE)
+        colIter <- colIter + 1
+
+      }
 
     }
 
