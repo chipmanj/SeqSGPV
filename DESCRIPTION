@@ -11,4 +11,4 @@ Description: The sgpvAM package allows the user to obtain study design operating
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0

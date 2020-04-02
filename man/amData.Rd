@@ -4,7 +4,7 @@
 \alias{amData}
 \title{amData}
 \usage{
-amData(nreps, fork = TRUE, socket = TRUE, cores = detectCores(), ...)
+amData(nreps, os, fork = TRUE, socket = TRUE, cores = detectCores(), ...)
 }
 \description{
 Generate mcmc simulations of adaptive monitoring with parallel computing

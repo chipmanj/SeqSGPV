@@ -4,13 +4,35 @@
 \alias{sgpvAM}
 \title{Adaptive Monitoring with Second Generation p-Value}
 \usage{
-sgpvAM(mcmcData = NULL, nreps, waitTimes, dataGeneration = NULL,
-  dataGenArgs, effectGeneration = NULL, effectGenArgs, modelFit,
-  pointNull, deltaL2, deltaL1, deltaG1, deltaG2, lookSteps = 1,
-  kSteps = 10, maxAlertSteps = 100, getUnrestricted = TRUE,
-  maxN = NULL, lagOutcomeN = 0, monitoringIntervalLevel = 0.05,
-  printProgress = TRUE, outData = TRUE, getECDF = TRUE,
-  cores = NULL, fork = TRUE, socket = TRUE)
+sgpvAM(
+  mcmcData = NULL,
+  nreps,
+  waitTimes,
+  dataGeneration = NULL,
+  dataGenArgs,
+  effectGeneration = NULL,
+  effectGenArgs,
+  randomize = TRUE,
+  modelFit,
+  pointNull,
+  deltaL2,
+  deltaL1,
+  deltaG1,
+  deltaG2,
+  lookSteps = 1,
+  kSteps = 10,
+  maxAlertSteps = 100,
+  getUnrestricted = TRUE,
+  maxN = NULL,
+  lagOutcomeN = 0,
+  monitoringIntervalLevel = 0.05,
+  printProgress = TRUE,
+  outData = TRUE,
+  getECDF = TRUE,
+  cores = NULL,
+  fork = TRUE,
+  socket = TRUE
+)
 }
 \arguments{
 \item{mcmcData}{Previously generated data.  Default (NULL) uses mcmc generation inputs to generate new or additional data.}

@@ -4,9 +4,23 @@
 \alias{amDataSingleGetMore}
 \title{amDataSingleGetMore}
 \usage{
-amDataSingleGetMore(existingDataList, iInsufficient, getMore,
-  monitoringIntervalLevel, dataGeneration, dataGenArgs, effectGeneration,
-  effectGenArgs, pointNull, deltaL2, deltaL1, deltaG1, deltaG2, modelFit)
+amDataSingleGetMore(
+  existingDataList,
+  iInsufficient,
+  getMore,
+  monitoringIntervalLevel,
+  dataGeneration,
+  dataGenArgs,
+  effectGeneration,
+  effectGenArgs,
+  randomize,
+  pointNull,
+  deltaL2,
+  deltaL1,
+  deltaG1,
+  deltaG2,
+  modelFit
+)
 }
 \description{
 Generate additional observations for single mcmc simulation

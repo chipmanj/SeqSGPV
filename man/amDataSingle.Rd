@@ -4,8 +4,17 @@
 \alias{amDataSingle}
 \title{amDataSingle}
 \usage{
-amDataSingle(dataGeneration, dataGenArgs, effectGeneration, effectGenArgs,
-  modelFit, modelFitArgs, monitoringIntervalLevel, existingData = NULL)
+amDataSingle(
+  dataGeneration,
+  dataGenArgs,
+  effectGeneration,
+  effectGenArgs,
+  randomize = FALSE,
+  modelFit,
+  modelFitArgs,
+  monitoringIntervalLevel,
+  existingData = NULL
+)
 }
 \description{
 Generate a single adaptive monitoring simulation

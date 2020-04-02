@@ -4,8 +4,15 @@
 \alias{amDataGetMore}
 \title{amDataGetMore}
 \usage{
-amDataGetMore(insufficients, existingDataList, fork = TRUE,
-  socket = TRUE, cores = detectCores(), ...)
+amDataGetMore(
+  insufficients,
+  existingDataList,
+  os,
+  fork = TRUE,
+  socket = TRUE,
+  cores = detectCores(),
+  ...
+)
 }
 \arguments{
 \item{insufficients}{Column vector of indices corresponding to existingDataList that needs additional data}

@@ -6,14 +6,14 @@
 \alias{lrCI}
 \title{Functions for obtaining Confidence Intervals under a linear model and under logistic regression}
 \usage{
-lmCI(y, trt, look, miLevel)
+lmCI(y, XD, look, miLevel)
 
-lrCI(y, trt, look, miLevel)
+lrCI(y, XD, look, miLevel)
 }
 \arguments{
 \item{y}{outcomes}
 
-\item{trt}{treatment assignments for each patient}
+\item{XD}{Dexign matrix with last column corresponding to coefficient of interest}
 
 \item{look}{current number of patients accrued}
 
