@@ -7,6 +7,7 @@ amDataSingleGetMore <- function( existingDataList, iInsufficient, getMore,
                                  monitoringIntervalLevel,
                                  dataGeneration,   dataGenArgs,
                                  effectGeneration, effectGenArgs,
+                                 randomize,
                                  pointNull, deltaL2, deltaL1, deltaG1, deltaG2,
                                  modelFit ){
 
