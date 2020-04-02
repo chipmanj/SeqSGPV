@@ -205,7 +205,7 @@ ecdfAM <- function(am, stat, sizeRestrictions,
 
         legend(x = max(xlim) + abs(diff(xlim)) * .35,
                y = 1,
-               legend=alertK,
+               legend=waitTime,
                xjust = 1,
                col=cols, pch=19, bty="n",xpd=TRUE,title="Wait Time")
 
@@ -223,7 +223,7 @@ ecdfAM <- function(am, stat, sizeRestrictions,
 
 
   # If one K and one wait width return ecdf function
-  if(length(alertK)==1 & length(waitWidth)==1){
+  if(length(alertK)==1 & length(waitTime)==1){
     return(oo[[paste0("alertK_",alertK)]])
   }
 
