@@ -46,6 +46,13 @@ sgpvAMrulesSingle <- function(data,
         eosLag["stopNotROME"]      <- as.numeric(eosLag["sgpvROME"]==0)
         eosLag["stopInconclusive"] <- as.numeric(eosLag["stopNotROPE"]==0 &
                                                  eosLag["stopNotROME"]==0)
+        eosLag["stopInconsistent"] <-
+          as.numeric( ( eos[   "stopNotROPE"] == 1 & eos[   "stopNotROME"] != 1 &
+                        eosLag["stopNotROPE"] != 1 & eosLag["stopNotROME"] == 1 )  |
+                      ( eos[   "stopNotROPE"] != 1 & eos[   "stopNotROME"] == 1 &
+                        eosLag["stopNotROPE"] == 1 & eosLag["stopNotROME"] != 1 )  )
+
+
       } else {
         eosLag <- NULL
       }
@@ -68,6 +75,16 @@ sgpvAMrulesSingle <- function(data,
         eosLagMaxN["stopNotROME"]      <- as.numeric(eosLagMaxN["sgpvROME"]==0)
         eosLagMaxN["stopInconclusive"] <- as.numeric(eosLagMaxN["stopNotROPE"]==0 &
                                                      eosLagMaxN["stopNotROME"]==0)
+        if(data[,"n"]==stop+lagOutcomeN){
+          eosLagMaxN["stopInconsistent"] <-
+            as.numeric( ( eosMaxN[   "stopNotROPE"] == 1 & eosMaxN[   "stopNotROME"] != 1 &
+                          eosLagMaxN["stopNotROPE"] != 1 & eosLagMaxN["stopNotROME"] == 1 )  |
+                        ( eosMaxN[   "stopNotROPE"] != 1 & eosMaxN[   "stopNotROME"] == 1 &
+                          eosLagMaxN["stopNotROPE"] == 1 & eosLagMaxN["stopNotROME"] != 1 )  )
+        } else {
+          eosLagMaxN["stopInconsistent"] <- 0
+        }
+
       } else {
         eosLagMaxN <- NULL
       }
@@ -82,9 +99,9 @@ sgpvAMrulesSingle <- function(data,
     if(!is.na(stop)){
       oc <- c(theta=data[1,"theta"],
               eos[keepStats],
-              lag     = eosLag[    keepStats],
-              maxN    = eosMaxN[   keepStats],
-              lagMaxN = eosLagMaxN[keepStats])
+              lag     = eosLag[    c(keepStats,"stopInconsistent")],
+              maxN    = eosMaxN[     keepStats],
+              lagMaxN = eosLagMaxN[c(keepStats,"stopInconsistent")])
 
       return(c(oc,alertK=alertK))
     } else {
