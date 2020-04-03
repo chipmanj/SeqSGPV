@@ -11,10 +11,6 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   amInputs <- amShifted[[1]]$inputs
 
 
-  if(missing(xlim)) { xlim <- readline(prompt="xlim: ") }
-  if(missing(ylim)) { ylim <- readline(prompt="ylim: ") }
-
-
   # Get wait width and alert k parameters
   if(is.null(waitTime)){
     waitTime <- amInputs$waitTimes
@@ -43,23 +39,21 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   treatEffect <- unname(sapply(names(amShifted), FUN = function(x) as.numeric(strsplit(x,split="_")[[1]][2])))
 
 
-  # plot parameters
-  # Effects within bound periphery wait for CI width
-  mainWaitTime <- "Wait until n = "
-  # if(amInputs$waitEmpirical==TRUE){
-  #   mainME <- "Wait until margin of error < "
-  # } else {
-  #   mainME <- "Wait for expected CI width = "
-  # }
+  if(missing(xlim)) xlim <- c(min(treatEffect),max(treatEffect))
+
+  if(missing(ylim)) {
+    if(stat%in%c("rejPN","stopNotROPE")){
+      ylim <- c(0,0.10)
+    } else if(stat%in%c("stopNotROME")){
+      ylim <- c(0.75,1)
+    } else {
+      stop("Please enter ylim")
+    }
+  }
+
+
   if(length(waitTime)>1 & length(alertK) > 1){
     stop("Must fix at least waitTime or alertK to one value.")
-  } else if(length(waitTime) == 1 & length(alertK) >  1){
-    mainGiven <- paste0(mainWaitTime, waitTime)
-  } else if(length(waitTime) >  1 & length(alertK) == 1){
-    mainGiven <- paste0("Required affirmation steps = ", alertK)
-  } else {
-    mainGiven <- paste0(mainWaitTime, waitTime,
-                        "; Required affirmation steps = ", alertK)
   }
 
   if(stat=="rejPN"){
@@ -80,20 +74,50 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
     main <- "P( not ROME )"
   }
 
+  # Get title for wait time
+  if(length(waitTime) == 1){
+
+    mainWait <- paste0("wait time = ", waitTime)
+
+  } else mainWait <- NULL
+
+
+  # Get title for alert K
+  if(is.null(alertK)){
+    alertK    <- seq(0, amInputs$maxAlertSteps, by = amInputs$kSteps)
+  }
+  if(length(alertK)>11) stop("Please select at most 11 required affirmation steps to investigate")
+
+  if(length(alertK) == 1){
+
+    mainK <- paste0("alert k = ", alertK)
+
+  } else mainK <- NULL
 
   # Any restrictions
   if (missing(sizeRestrictions)) {
-    mainSub <- "Unrestricted Sample Size"
+    mainLag <- NULL
+    mainMax <- NULL
   } else if (is.element(sizeRestrictions,c("maxN","lag","lagMaxN"))){
     stat    <- paste0(sizeRestrictions,".",stat)
-    if(sizeRestrictions=="maxN")    mainSub <- "Maximum sample size specified" else
-      if(sizeRestrictions == "lag") mainSub <- paste0(amInputs$lagOutcomeN," Lag outcomes") else
-        if(sizeRestrictions == "lagMaxN") mainSub <- paste0("Maximum sample size after ", amInputs$lagOutcomeN," lag outcomes")
+
+    # Title if there is a lag time
+    if(grepl("LAG",toupper(stat))){
+      mainLag      <- paste0("lag time = ", amInputs$lagOutcomeN)
+    } else mainLag <- NULL
+
+    # Title if there is a lag time
+    if(grepl("MAX",toupper(stat))){
+      mainMax      <- paste0("max n = ", amInputs$maxN)
+    } else mainMax <- NULL
+
   } else stop("If provided, sizeRestrictions parameter must be one of: maxN, lag, lagMaxN")
 
 
+
+
   if(addMain) {
-    figMain <- paste0(main,"\n",mainGiven,"\n",mainSub)
+    figMain <- paste0(main,"\n",paste0(c(mainWait,mainK,mainLag,mainMax),collapse = ", "))
   } else {
     figMain <- NULL
   }
@@ -121,10 +145,6 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
     # Colors for figures
     cbPalette <- c("#d0d7e8","#f7f5f3", "#e8dbd0")
     cbAlpha   <- paste0(cbPalette,sep = "40")
-    colsZone  <- cbPalette
-
-    ptCols <- c("#ff0000","#0080ff","#bc03ff")
-    ptSymb <- c(19,17,15)
 
     # Shade clinically meaningful zones
     xLimBuff1 <- min(xlim) - abs(diff(xlim))
@@ -147,10 +167,10 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
 
     # ROPE / ROWPE
     # ROWPE: For figure plotting purposes only, set dL2 (or DG2) from NA to a point beyond plot region
-    if(is.na(dL2) & is.na(dL1)) dL2 <- xLimBuff1
-    if(is.na(dG2) & is.na(dG1)) dG2 <- xLimBuff2
+    if(is.na(dL2) & is.na(dL1)) dL1 <- xLimBuff1
+    if(is.na(dG2) & is.na(dG1)) dG1 <- xLimBuff2
 
-    polygon(x=c(dL1,dL1, dG1, dG1), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=colsZone[1], border=NA)
+    polygon(x=c(dL1,dL1, dG1, dG1), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=cbPalette[1], border=NA)
 
 
   }
