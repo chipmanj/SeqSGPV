@@ -142,7 +142,10 @@ ecdfAM <- function(am, stat, sizeRestrictions,
 
 
     # Blank plot canvas
-    plot(tempECDF, col="white", las = 1, xlim=xlim, xlab=xlab,
+
+    if(length(alertK)==1 & length(waitTime)==1) col="black" else col="white"
+
+    plot(tempECDF, col=col, las = 1, xlim=xlim, xlab=xlab,
          main=paste0("ECDF of ", xlab,"\n",paste0(c(mainTE,mainWait,mainK,mainLag,mainMax),collapse = ", ")),
          ...)
     colIter <- 1
@@ -171,7 +174,7 @@ ecdfAM <- function(am, stat, sizeRestrictions,
     }
 
     # If more than one study design to plot, place key on right of plot
-    if(length(c(waitTime,alertK))>1){
+    if(length(c(waitTime,alertK))>2){
       if(length(waitTime)>1){
 
         legend(x = max(xlim) + abs(diff(xlim)) * .35,
