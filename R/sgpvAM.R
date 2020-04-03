@@ -230,6 +230,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
   # 1 collect list of simulated data
   if(is.null(mcmcData)){
+    if(printProgress) cat("\rGenerate list of simulated data")
          mcmcMonitoring <- amData(nreps = nreps,
                                   monitoringIntervalLevel = monitoringIntervalLevel,
                                   dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
@@ -244,6 +245,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   } else mcmcMonitoring <- mcmcData
 
   # 2 Add stats (bias, rejPN, cover, sgpvNonTrival, sgpvFutility)
+  if(printProgress) cat("\rGenerate list of simulated data")
   mcmcMonitoring <- lapply(mcmcMonitoring,
                            addStats,
                            pointNull = pointNull,
@@ -253,6 +255,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   # 3 Make sure all generated simulations will continue until completion
   #   - Look for stability of sgpv for last set of maxAlert patients
   if(getUnrestricted==TRUE){
+    if(printProgress) cat("\rEnsure simulations with unrestricted sample size each continue to completion")
     getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck,
                                   waitN         = max(waitTimes),
                                   lookSteps     = lookSteps,
@@ -309,6 +312,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   mcmcEndOfStudy    <- list()
   mcmcECDFs         <- list()
 
+  if(printProgress) cat("\rAdaptively monitoring for each wait time")
   for (w in 1:length(waitTimes)){
 
     waitTime <- waitTimes[w]
