@@ -195,7 +195,8 @@ ecdfAM <- function(am, stat, sizeRestrictions,
 
   # If one K and one wait width return ecdf function
   if(length(alertK)==1 & length(waitTime)==1){
-    return(oo[[paste0("alertK_",alertK)]])
+    ECDF <- o[["mcmcEndOfStudy"]][[paste0("width_",waitTime)]][["mcmcECDFs"]][[paste0("mcmcEndOfStudyEcdf",stat)]][[paste0("alertK_",alertK)]]
+    return(ECDF)
   }
 
 
