@@ -1,9 +1,7 @@
 #'@export
 ecdfAM <- function(am, stat, sizeRestrictions,
                         waitTime = NULL, alertK = NULL, treatEffect = NULL,
-                        xlim,             ylim,         doPlot      = TRUE){
-
-
+                        xlim,             ylim,         doPlot      = TRUE, ...){
 
 
   # 1. Select treatment effect to summarize and reduce am object if needed
@@ -29,6 +27,25 @@ ecdfAM <- function(am, stat, sizeRestrictions,
   # 2. Inputs from main object
   amInputs <- o$inputs
 
+
+
+
+  # Get wait width and alert k parameters
+  if(is.null(waitTime)){
+    waitTime <- amInputs$waitTimes
+  }
+  if(length(waitTime)>10) stop("Please select at most 10 wait times to investigate")
+
+
+  if(is.null(alertK)){
+    alertK    <- seq(0, amInputs$maxAlertSteps, by = amInputs$kSteps)
+  }
+  if(length(alertK)>11) stop("Please select at most 11 required affirmation steps to investigate")
+
+
+  if(length(waitTime)>1 & length(alertK) > 1){
+    stop("Must fix at least waitTime or alertK to one value.")
+  }
 
   # 3. Translate stat to naming convention used with ECDF elements
   if(!is.element(stat,c("n","bias"))){
@@ -127,7 +144,7 @@ ecdfAM <- function(am, stat, sizeRestrictions,
     # Blank plot canvas
     plot(tempECDF, col="white", las = 1, xlim=xlim, xlab=xlab,
          main=paste0("ECDF of ", xlab,"\n",paste0(c(mainTE,mainWait,mainK,mainLag,mainMax),collapse = ", ")),
-         cex.main=1)
+         ...)
     colIter <- 1
 
 
@@ -180,6 +197,10 @@ ecdfAM <- function(am, stat, sizeRestrictions,
   if(length(alertK)==1 & length(waitTime)==1){
     return(oo[[paste0("alertK_",alertK)]])
   }
+
+
+  # Reset margins
+  par(mar=c(5,4,4,2)+.1)
 
 }
 
