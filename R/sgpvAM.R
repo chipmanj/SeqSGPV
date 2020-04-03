@@ -218,9 +218,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   }
 
   if(kSteps<lookSteps){
-    warning("kSteps must be >= lookSteps.  Setting kSteps to be >= lookSteps")
-    kSteps <- kSteps[kSteps >= lookSteps]
-    if(length(kSteps)==0) kSteps <- lookSteps
+    stop("kSteps must be >= lookSteps.  Setting kSteps to be >= lookSteps")
   }
 
 
