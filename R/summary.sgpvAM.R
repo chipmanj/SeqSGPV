@@ -63,10 +63,8 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
 
   cat(paste0("\nGiven: theta = ", te, ", wait time = ", w, ", and k = ",k))
 
-  cat("\n\no Immediately observed outcomes")
-
   if(is.element("n",names(o))){
-    cat("\n\n  - Unrestricted sample size - ")
+    cat("\n\no [Immediate outcomes] Unrestricted sample size")
     cat(paste0("\n  Average sample size           = ", round(o["n"],rd)))
     cat(paste0("\n  P( reject point null )        = ", round(o["rejPN"],rd)))
     cat(paste0("\n  P( conclude not ROPE effect ) = ", round(o["stopNotROPE"],rd)))
@@ -78,7 +76,7 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
 
 
   if(is.element("maxN.n",names(o))){
-    cat(paste0("\n\n  - Maximum sample size of ",maxN," - "))
+    cat(paste0("\n\no [Immediate outcomes] Maximum sample size of ",maxN))
     cat(paste0("\n  Average Observed Sample Size  = ", round(o["maxN.n"],rd)))
     cat(paste0("\n  P( reject point null )        = ", round(o["maxN.rejPN"],rd)))
     cat(paste0("\n  P( conclude not ROPE effect)  = ", round(o["maxN.stopNotROPE"],rd)))
@@ -91,9 +89,7 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
 
   if(is.element("lag.n",names(o))){
 
-    cat(paste0("\n\no Stopping and then observing ", lag, " lagged outcomes"))
-
-    cat(paste0("\n\n  - Unrestricted sample size - "))
+    cat(paste0("\n\no [Stopping and then observing ", lag, " lagged outcomes] Unrestricted sample size"))
     cat(paste0("\n  Average Sample Size                           = ", round(o["lag.n"],rd)))
     cat(paste0("\n  P( reject point null )                        = ", round(o["lag.rejPN"],rd)))
     cat(paste0("\n  P( conclude not ROPE effect )                 = ", round(o["lag.stopNotROPE"],rd)))
@@ -106,7 +102,7 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
 
 
   if(is.element("lagMaxN.n",names(o))){
-    cat(paste0("\n\n  - Maximum sample size of ",maxN," - "))
+    cat(paste0("\n\no [Stopping and then observing ", lag, " lagged outcomes] Maximum sample size of ",maxN))
     cat(paste0("\n  Average Total Sample Size                     = ", round(o["lagMaxN.n"],rd)))
     cat(paste0("\n  P( reject point null )                        = ", round(o["lagMaxN.rejPN"],rd)))
     cat(paste0("\n  P( conclude not ROPE effect )                 = ", round(o["lagMaxN.stopNotROPE"],rd)))
