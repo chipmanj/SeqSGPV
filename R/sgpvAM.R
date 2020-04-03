@@ -402,7 +402,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
   # Clear print progress
   if(printProgress) {
-    cat("\r                       \n")
+    cat("\r                                                         \n")
     # flush.console() ; Sys.sleep(.000001)
   }
 
