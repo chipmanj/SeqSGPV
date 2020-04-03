@@ -61,6 +61,8 @@ plot.sgpvAM <- function(am, stat, xlim, ylim, addMain = TRUE, sizeRestrictions, 
     main <- "P( not ROPE )"
   } else if(stat=="stopNotROME"){
     main <- "P( not ROME )"
+  } else if(stat=="stopInconsistent"){
+    main <- "P( Conclusion changed after lagged outcomes )"
   }
 
 
@@ -115,7 +117,7 @@ plot.sgpvAM <- function(am, stat, xlim, ylim, addMain = TRUE, sizeRestrictions, 
   # for k = 10 to 70 by 10
   for (i in 1:length(ks)){
     rpn <- getStats(am, stat, k=ks[i], wNs = wNs)
-    lines(wNs, rpn, col=cols[i+1])
+    lines(wNs, rpn, col=cols[i])
   }
 
   legend(x = max(xlim) + abs(diff(xlim)) * .35,
