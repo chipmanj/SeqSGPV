@@ -402,8 +402,8 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
   # Clear print progress
   if(printProgress) {
+    flush.console()
     cat("\rFinished\n")
-    # flush.console() ; Sys.sleep(.000001)
   }
 
   return(out)
