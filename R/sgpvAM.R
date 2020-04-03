@@ -400,6 +400,9 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   # Set class
   class(out) <- append("sgpvAM",class(out))
 
+  # Clear print progress
+  if(printProgress) cat("\r")
+
   return(out)
 
 }
