@@ -225,7 +225,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
   # 1 collect list of simulated data
   if(is.null(mcmcData)){
-    if(printProgress) cat("\rGenerating list of simulated data")
+    if(printProgress) cat("\rGenerating simulated data and sequential estimates")
          mcmcMonitoring <- amData(nreps = nreps,
                                   monitoringIntervalLevel = monitoringIntervalLevel,
                                   dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
