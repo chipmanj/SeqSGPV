@@ -7,6 +7,7 @@ amDataSingleGetMore <- function( existingDataList, iInsufficient, getMore,
                                  monitoringIntervalLevel,
                                  dataGeneration,   dataGenArgs,
                                  effectGeneration, effectGenArgs,
+                                 effectScale,
                                  randomize,
                                  pointNull, deltaL2, deltaL1, deltaG1, deltaG2,
                                  modelFit ){
@@ -18,6 +19,7 @@ amDataSingleGetMore <- function( existingDataList, iInsufficient, getMore,
                                      existingData     = existingDataList[[iInsufficient]],
                                      dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
                                      effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
+                                     effectScale      = effectScale,
                                      randomize        = randomize,
                                      modelFit         = modelFit)
 
@@ -28,16 +30,3 @@ amDataSingleGetMore <- function( existingDataList, iInsufficient, getMore,
 
   return(amDataSingleMore)
 }
-
-
-# test <- amDataSingleGetMore(mcmcMonitoring, getMoreWhich[1], getMore)
-# test <- lapply(getMoreWhich, amDataSingleGetMore, existingDataList = mcmcMonitoring, getMore = getMore,
-#                monitoringIntervalLevel = monitoringIntervalLevel,
-#                dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
-#                effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
-#                modelFit         = modelFit)
-#
-# names(mcmcMonitoring) <- 1:nreps
-# names(test) <- getMoreWhich
-#
-# test2 <- modifyList(mcmcMonitoring,test,keep.null = TRUE)

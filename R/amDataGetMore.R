@@ -30,6 +30,7 @@ amDataGetMore <- function(insufficients, existingDataList, os, fork=TRUE, socket
                                     monitoringIntervalLevel = monitoringIntervalLevel,
                                     dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
                                     effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
+                                    effectScale      = effectScale,
                                     randomize        = randomize,
                                     pointNull        = pointNull,
                                     deltaL2 = deltaL2, deltaL1 = deltaL1, deltaG1 = deltaG1, deltaG2 = deltaG2,

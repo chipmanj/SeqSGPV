@@ -5,6 +5,7 @@
 #' @export
 amDataSingle <- function(dataGeneration,   dataGenArgs,
                          effectGeneration, effectGenArgs,
+                         effectScale="identity",
                          randomize=FALSE,
                          modelFit,         modelFitArgs,
                          monitoringIntervalLevel,
@@ -12,18 +13,46 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
 
 
   # 0 Set arguments for dataGeneration and effectGeneration
-  dataType <- class(modelFit)
+  if(any(grepl("rbinom",deparse(dataGeneration)))){
+    dataType <- "dichotomous"
+  } else {
+    dataType <- NA
+  }
 
 
   # 1 Generate data under null of no difference
-  y <- do.call(dataGeneration,dataGenArgs)
+  if(!is.na(dataType) & dataType == "dichotomous"){
+    rUniform <- runif(dataGenArgs$n)
+    y        <- as.numeric(rUniform <= dataGenArgs$prob)
+  } else {
+    rUniform <- NA
+    y <- do.call(dataGeneration,dataGenArgs)
+  }
 
 
 
   # 2 Generate treatment effect if not provided
   if( is.function(effectGeneration) ){
-    theta <- do.call(effectGeneration,effectGenArgs)
+         theta <- do.call(effectGeneration,effectGenArgs)
   } else theta <- effectGeneration
+
+
+  # 2.1 Transform treatment effect to identity scale
+  #     Example, if effect is on the odds ratio scale, transform to probability
+  if( toupper(effectScale) == "IDENTITY" ){
+    thetaIdentity <- theta
+  } else if( dataType=="dichotomous"){
+    # transform to probabilities
+    if(toupper(effectScale) %in% c("ODDSRATIO","OR")){
+      dataOR <- dataGenArgs$prob / (1 - dataGenArgs$prob)
+      thetaIdentity <- (dataOR * theta) / (1 + dataOR * theta) - dataGenArgs$prob
+    } else if (toupper(effectScale) %in% c("ODDS")){
+      thetaIdentity <- theta / (1 + theta)
+    }
+  } else if(toupper(effectScale) %in% c("LOG")){
+      thetaIdentity <- exp(theta)
+  }
+
 
 
 
@@ -36,11 +65,10 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
   trt <- rep(1,length(y))
   if(randomize) trt[seq(2,length(y),2)] <- 0
 
-  if(dataType=="normal"){
-    y[trt==1] <- y[trt==1] + theta
-  } else if(dataType=="binomial"){
-    oddsNull  <- dataGenArgs[["prob"]] / (1 - dataGenArgs[["prob"]])
-    y[trt==1] <- rbinom(n = length(trt)/2,size = 1,prob = theta * oddsNull / (1 + theta * oddsNull))
+  if(!is.na(dataType) & dataType=="dichotomous"){
+    y[trt==1] <- as.numeric( as.numeric(rUniform[trt==1] <= dataGenArgs$prob + thetaIdentity) )
+  } else {
+    y[trt==1] <- y[trt==1] + thetaIdentity
   }
 
 
@@ -74,6 +102,6 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
 
 
   # 5 Return matrix of data, confidence interval, estimate, errors, and sgpvs
-  cbind(theta, n = 1:length(y), y, trt, eci)
+  cbind(theta, n = 1:length(y), y, rUniform, trt, eci)
 
 }

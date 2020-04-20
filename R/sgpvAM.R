@@ -192,7 +192,7 @@
 sgpvAM <- function(mcmcData=NULL, nreps,
                    waitTimes,
                    dataGeneration=NULL,   dataGenArgs,
-                   effectGeneration=NULL, effectGenArgs,
+                   effectGeneration=NULL, effectGenArgs, effectScale="identity",
                    randomize=TRUE,
                    modelFit,
                    pointNull, deltaL2, deltaL1, deltaG1, deltaG2,
@@ -208,11 +208,6 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
 
   # 0 Checks
-  # If normal data and no standard deviation provided, set sd to 1
-  # if(class(modelFit)=="normal"){
-  #   if(is.null(dataGenArgs$sd)) dataGenArgs$sd <- 1
-  # }
-
   if(getUnrestricted==FALSE & is.null(maxN)){
     stop("Must specify at least getUnrestricted=TRUE or maxN not null")
   }
@@ -230,11 +225,12 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
   # 1 collect list of simulated data
   if(is.null(mcmcData)){
-    if(printProgress) cat("\rGenerate list of simulated data")
+    if(printProgress) cat("\rGenerating list of simulated data")
          mcmcMonitoring <- amData(nreps = nreps,
                                   monitoringIntervalLevel = monitoringIntervalLevel,
                                   dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
                                   effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
+                                  effectScale      = effectScale,
                                   randomize        = randomize,
                                   modelFit         = modelFit,
                                   cores            = cores,
@@ -244,8 +240,8 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
   } else mcmcMonitoring <- mcmcData
 
-  # 2 Add stats (bias, rejPN, cover, sgpvNonTrival, sgpvFutility)
-  if(printProgress) cat("\rGenerate list of simulated data")
+  # 2 Add stats (bias, rejPN, cover, sgpvNotROPE, sgpvNotROME)
+  if(printProgress) cat("\rAdding monitoring statistics: bias, rejPN, cover, sgpvNotROPE, sgpvNotROME")
   mcmcMonitoring <- lapply(mcmcMonitoring,
                            addStats,
                            pointNull = pointNull,
@@ -254,14 +250,14 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
   # 3 Make sure all generated simulations will continue until completion
   #   - Look for stability of sgpv for last set of maxAlert patients
-  if(getUnrestricted==TRUE){
-    if(printProgress) cat("\rEnsure simulations with unrestricted sample size each continue to completion")
+  if(getUnrestricted==TRUE | dataGenArgs$n < maxN){
+    if(printProgress) cat("\rEnsuring simulations with unrestricted sample size each continue to completion")
     getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck,
                                   waitN         = max(waitTimes),
                                   lookSteps     = lookSteps,
                                   maxAlertSteps = maxAlertSteps,
                                   lagOutcomeN   = lagOutcomeN))
-    getMoreWhich      <- which(getMore > 0)
+    getMoreWhich <- which(getMore > 0)
     getMoreWhich
 
     if( !is.null(mcmcData)      & sum(getMore) > 0          &
@@ -272,15 +268,17 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
     } else {
 
+      iter <- 1
       while(sum(getMore) > 0){
 
-        if(printProgress==TRUE) print(paste("Adding up to", max(getMore), "observations for unrestricted sample size monitoring."))
+        if(printProgress==TRUE) cat(paste("\r",iter,". Adding up to", max(getMore), "observations for unrestricted sample size monitoring.       "))
 
         mcmcMonitoring <- amDataGetMore(insufficients    = getMoreWhich,
                                         existingDataList = mcmcMonitoring, getMore = getMore,
                                         monitoringIntervalLevel = monitoringIntervalLevel,
                                         dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
                                         effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
+                                        effectScale      = effectScale,
                                         randomize        = randomize,
                                         pointNull        = pointNull,
                                         deltaL2 = deltaL2, deltaL1 = deltaL1, deltaG1 = deltaG1, deltaG2 = deltaG2,
@@ -298,6 +296,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
                                       lagOutcomeN   = lagOutcomeN))
         getMoreWhich <- which(getMore > 0)
 
+        iter <- iter + 1
       }
     }
   }
@@ -402,7 +401,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
 
   # Clear print progress
   if(printProgress) {
-    cat("\r                                                               ")
+    cat("\r                                                                                    ")
     cat("\n")
   }
 

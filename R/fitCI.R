@@ -20,7 +20,6 @@ lmCI <- function(y, XD, look, miLevel){
                f$coefficients[betaCol] + c(-1,1) * qt(1-miLevel/2, df = f$df.residual) * f$se[betaCol])
   return(eci)
 }
-class(lmCI) <- "normal"
 
 
 ##' @rdname fitCI
@@ -37,4 +36,3 @@ lrCI <- function(y, XD, look, miLevel){
   return(eci)
 
 }
-class(lrCI) <- "binomial"
