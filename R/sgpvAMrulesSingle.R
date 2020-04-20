@@ -29,9 +29,10 @@ sgpvAMrulesSingle <- function(data,
     # Stop times for being Not ROPE and being Not ROME
     stopNotROPE  <- alertNotROPE[alertNotROPE %in% (alertNotROPE + alertK)]
     stopNotROME  <- alertNotROME[alertNotROME %in% (alertNotROME + alertK)]
-    stop         <- min(stopNotROPE, stopNotROME, na.rm = TRUE)
 
     if(getUnrestricted==TRUE){
+
+      stop <- min(stopNotROPE, stopNotROME, na.rm = TRUE)
 
       # Unrestricted sample size (immediate outcomes)
       eos                      <- data[data[,"n"]==stop,]
@@ -61,8 +62,12 @@ sgpvAMrulesSingle <- function(data,
 
     # MaxN stop
     if(!is.null(maxN)){
+
+
+      stop <- min(stopNotROPE, stopNotROME, maxN, na.rm = TRUE)
+
       # Maximum sample size of maxN (immediate outcomes)
-      eosMaxN                     <- data[data[,"n"]==min(stop,maxN),]
+      eosMaxN                     <- data[data[,"n"]==stop,]
       eosMaxN["stopNotROPE"]      <- as.numeric(eosMaxN["sgpvROPE"]==0)
       eosMaxN["stopNotROME"]      <- as.numeric(eosMaxN["sgpvROME"]==0)
       eosMaxN["stopInconclusive"] <- as.numeric(eosMaxN["stopNotROPE"]==0 &
@@ -97,7 +102,7 @@ sgpvAMrulesSingle <- function(data,
 
 
     if(!is.na(stop)){
-      oc <- c(theta=data[1,"theta"],
+      oc <- c(data[1,"theta"],
               eos[keepStats],
               lag     = eosLag[    c(keepStats,"stopInconsistent")],
               maxN    = eosMaxN[     keepStats],
