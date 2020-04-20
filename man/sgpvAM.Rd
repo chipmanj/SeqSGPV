@@ -12,6 +12,7 @@ sgpvAM(
   dataGenArgs,
   effectGeneration = NULL,
   effectGenArgs,
+  effectScale = "identity",
   randomize = TRUE,
   modelFit,
   pointNull,

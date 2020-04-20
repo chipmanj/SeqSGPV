@@ -9,6 +9,7 @@ amDataSingle(
   dataGenArgs,
   effectGeneration,
   effectGenArgs,
+  effectScale = "identity",
   randomize = FALSE,
   modelFit,
   modelFitArgs,

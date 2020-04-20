@@ -13,6 +13,7 @@ amDataSingleGetMore(
   dataGenArgs,
   effectGeneration,
   effectGenArgs,
+  effectScale,
   randomize,
   pointNull,
   deltaL2,
