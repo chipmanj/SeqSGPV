@@ -3,7 +3,7 @@ plot.shiftedEffects <- function( amShifted,        stat,
                                       waitTime = NULL,  alertK = NULL,
                                       xlim,             ylim,
                                       xlab = "", ylab = "",
-                                      log  = NA,
+                                      log,
                                       pts = FALSE,
                                       addLegend = TRUE, addMain = TRUE,
                                       addRegions = TRUE, addRegionLines = TRUE,
@@ -137,9 +137,15 @@ plot.shiftedEffects <- function( amShifted,        stat,
   }
 
   # Blank plot
-  plot(x=0,y=0,xlim=xlim,ylim=ylim,type="n",
-       las=1, xlab=xlab, ylab=ylab,
-       main=figMain, log=log, ... )
+  if(!missing(log)){
+    plot(x=0,y=0,xlim=xlim,ylim=ylim,type="n",
+         las=1, xlab=xlab, ylab=ylab,
+         main=figMain, log=log, ... )
+  } else {
+    plot(x=0,y=0,xlim=xlim,ylim=ylim,type="n",
+         las=1, xlab=xlab, ylab=ylab,
+         main=figMain, ... )
+  }
 
   if(addRegions){
 
@@ -154,9 +160,14 @@ plot.shiftedEffects <- function( amShifted,        stat,
     yLimBuff2 <- max(ylim) + abs(diff(ylim))
 
     # When plotting on the log scale, set lower plotting region bound to just greater than zero
-    if(log=="x"){
-      if(xLimBuff1<0) xLimBuff1 <- 0.001
-      if(xLimBuff2<0) xLimBuff2 <- 0.001
+    if(!missing(log)){
+      if(log=="x"){
+        if(xLimBuff1<0) xLimBuff1 <- 0.001
+        if(xLimBuff2<0) xLimBuff2 <- 0.001
+      } else if (log=="y"){
+        if(yLimBuff1<0) yLimBuff1 <- 0.001
+        if(yLimBuff2<0) yLimBuff2 <- 0.001
+      }
     }
 
     dL2 <- amInputs$deltaL2
