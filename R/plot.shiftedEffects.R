@@ -138,7 +138,7 @@ plot.shiftedEffects <- function( amShifted,        stat,
 
   # Blank plot
   if(!missing(log)){
-    plot(x=0,y=0,xlim=xlim,ylim=ylim,type="n",
+    plot(x=1,y=0,xlim=xlim,ylim=ylim,type="n",
          las=1, xlab=xlab, ylab=ylab,
          main=figMain, log=log, ... )
   } else {
