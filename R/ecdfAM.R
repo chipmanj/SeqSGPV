@@ -122,7 +122,7 @@ ecdfAM <- function(am, stat, sizeRestrictions,
   if(doPlot==TRUE){
 
     # One of the ECDF functions to be used for creating the plot template
-    tempECDF <- o[["mcmcEndOfStudy"]][[paste0("width_",waitTime[1])]][["mcmcECDFs"]][[paste0("mcmcEndOfStudyEcdf",stat)]][[1]]
+    tempECDF <- o[["mcmcEndOfStudy"]][[paste0("width_",waitTime[1])]][["mcmcECDFs"]][[paste0("mcmcEndOfStudyEcdf",stat)]][[paste0("alertK_",alertK[1])]]
 
 
     # Xlim and xlab
