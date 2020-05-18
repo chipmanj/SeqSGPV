@@ -102,7 +102,7 @@ sgpvAMthetas <- function(o, thetas, printProgress=TRUE){
 
 
   # Set class
-  class(mcmcEndOfStudyThetas) <- append(c("sgpvAMthetas","sgpvAM"),class(mcmcEndOfStudyShifted))
+  class(mcmcEndOfStudyThetas) <- append(c("sgpvAMthetas","sgpvAM"),class(mcmcEndOfStudyThetas))
 
 
   return(mcmcEndOfStudyThetas)
