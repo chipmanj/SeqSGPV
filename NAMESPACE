@@ -2,6 +2,7 @@
 
 S3method(plot,sgpvAM)
 S3method(plot,sgpvAMlocationShift)
+S3method(plot,sgpvAMthetas)
 S3method(plot,shiftedEffects)
 S3method(summary,sgpvAM)
 export(addStats)

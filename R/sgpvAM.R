@@ -311,7 +311,7 @@ sgpvAM <- function(mcmcData=NULL, nreps,
   mcmcEndOfStudy    <- list()
   mcmcECDFs         <- list()
 
-  if(printProgress) cat("\rAdaptively monitoring for each wait time")
+  if(printProgress) cat("\rAdaptively monitoring for each wait time                                                   ")
   for (w in 1:length(waitTimes)){
 
     waitTime <- waitTimes[w]
