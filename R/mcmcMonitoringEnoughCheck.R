@@ -43,8 +43,8 @@ mcmcMonitoringEnoughCheck <- function(o, waitN, lookSteps, maxAlertSteps, lagOut
     getMore <- getMore0
   }
 
-  # If getting more, get at least 50 more observations (arbitrary)
-  if(getMore > 0 & getMore < 50) getMore <- max(getMore, 50)
+  # If getting more, get at least 500 more observations (arbitrary)
+  if(getMore > 0 & getMore < 500) getMore <- max(getMore, 500)
 
   getMore
 }
