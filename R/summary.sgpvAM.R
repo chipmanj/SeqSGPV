@@ -7,7 +7,7 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
 
 
   # Select treatment effect to summarize and reduce am object
-  if(is.element(el = "shiftedEffects",class(am))){
+  if(is.element(el = "sgpvAMthetas",class(am))){
 
     if(missing(treatEffect)){
       cat(paste0(paste0("select treatment effect of interest from choices:\n",
