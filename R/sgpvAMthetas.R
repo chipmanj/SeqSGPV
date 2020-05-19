@@ -83,9 +83,6 @@ sgpvAMthetas <- function(o, thetas, printProgress=TRUE){
     # Ensure outputs set to not keep output data
     o$inputs$outData <- FALSE
 
-    # Store results for each theta of interest
-    mcmcEndOfStudyThetas <- list()
-
     for(effect in thetas){
 
       if(printProgress) print(paste0("theta: ",effect))
