@@ -23,9 +23,9 @@ mcmcMonitoringEnoughCheck <- function(o, waitN, lookSteps, maxAlertSteps, lagOut
   addedStabilityN <- maxAlertSteps + lagOutcomeN + lookSteps
   if(obs > addedStabilityN ){
 
-    # How many of the last set of observations would indicate to stop
-    stabilityROPE <- sum(o[(obs-addedStabilityN):obs,"sgpvROPE"]==0)
-    stabilityROME <- sum(o[(obs-addedStabilityN):obs,"sgpvROME"]==0)
+    # How many of the last set of observations would indicate to stop, +1 for indexing
+    stabilityROPE <- sum(o[(obs-addedStabilityN+1):obs,"sgpvROPE"]==0)
+    stabilityROME <- sum(o[(obs-addedStabilityN+1):obs,"sgpvROME"]==0)
 
     # Get a sense of how many additional observations needed and multiple by arbitraty factor of 4
     getMore0 <- min(addedStabilityN - stabilityROPE, addedStabilityN - stabilityROME) * 4
