@@ -1,13 +1,17 @@
 #' @export
-summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
+summary.sgpvAM <- function(am, affirmK, waitJ, treatEffect, rd = 4){
 
 
   # Inputs stored in am object
-  amInputs <- am$inputs
+  if(is.element(el = "sgpvAMeffects",class(am))){
+    amInputs <- am[[1]]$inputs
+  } else {
+    amInputs <- am$inputs
+  }
 
 
   # Select treatment effect to summarize and reduce am object
-  if(is.element(el = "sgpvAMthetas",class(am))){
+  if(is.element(el = "sgpvAMeffects",class(am))){
 
     if(missing(treatEffect)){
       cat(paste0(paste0("select treatment effect of interest from choices:\n",
@@ -20,7 +24,7 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
     }
 
     # Reduce to specific out object
-    o  <- am[[paste0("theta_",te)]]
+    o  <- am[[paste0("effect_",te)]]
 
   } else if(!is.function(am$inputs$effectGeneration)) {
 
@@ -30,43 +34,55 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
     return(NULL)
   }
 
-  lag  <- amInputs$lagOutcomeN
+  lag  <- amInputs$lagN
   maxN <- amInputs$maxN
 
 
   # Select and reduce to wait time to summarize
-  if(missing(waitTime)){
+  if(missing(waitJ)){
     cat(paste0(paste0("select wait time until applying monitoring rules:\n",
                       paste0(unname(sapply(names(o[["mcmcEndOfStudy"]]),
                                            FUN = function(x) as.numeric(strsplit(x,split="_")[[1]][2]))),
                              collapse=", "))))
     w <- readline(prompt="input: ")
 
-  } else w <- waitTime
+  } else w <- waitJ
 
-  o <- o[["mcmcEndOfStudy"]][[paste0("width_",w)]][["mcmcEndOfStudyAve"]]
+  o <- o[["mcmcEndOfStudy"]][[paste0("wait_",w)]][["mcmcEndOfStudyAve"]]
 
 
   # Select and reduce to number of affirmation steps required for stopping
-  if(missing(alertK)){
+  if(missing(affirmK)){
     cat(paste0(paste0("select required affirmation steps:\n",
-                      paste0(o[,"alertK"], collapse=", "))))
+                      paste0(o[,"affirmK"], collapse=", "))))
     k <- readline(prompt="input: ")
 
-  } else k <- alertK
+  } else k <- affirmK
 
-  o <- o[o[,"alertK"]==k,]
-
-
+  o <- o[o[,"affirmK"]==k,]
 
 
 
-  cat(paste0("\nGiven: theta = ", te, ", wait time = ", w, ", and k = ",k))
+
+
+
+  if(is.na(amInputs$deltaL2) & is.na(amInputs$deltaL1)){
+    H0label <- paste0("effect is less than or equal to ",am$inputs$effectPN)
+  } else if(is.na(amInputs$deltaL2) & is.na(amInputs$deltaL1)){
+    H0label <- paste0("effect is greater than or equal to ",am$inputs$effectPN)
+  } else {
+    H0label <- paste0("effect equals ",am$inputs$effectPN)
+  }
+
+  cat(paste0("\nGiven: effect = ", te, ", wait time = ", w, ", and k = ",k))
+  cat(paste0("\nH0   : ",H0label))
+
+
 
   if(is.element("n",names(o))){
     cat("\n\no [Immediate outcomes] Unrestricted sample size")
     cat(paste0("\n  Average sample size           = ", round(o["n"],rd)))
-    cat(paste0("\n  P( reject point null )        = ", round(o["rejPN"],rd)))
+    cat(paste0("\n  P( reject H0 )                = ", round(o["rejH0"],rd)))
     cat(paste0("\n  P( conclude not ROPE effect ) = ", round(o["stopNotROPE"],rd)))
     cat(paste0("\n  P( conclude not ROME effect ) = ", round(o["stopNotROME"],rd)))
     cat(paste0("\n  P( conclude inconclusive )    = ", round(o["stopInconclusive"],rd)))
@@ -78,7 +94,7 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
   if(is.element("maxN.n",names(o))){
     cat(paste0("\n\no [Immediate outcomes] Maximum sample size of ",maxN))
     cat(paste0("\n  Average Observed Sample Size  = ", round(o["maxN.n"],rd)))
-    cat(paste0("\n  P( reject point null )        = ", round(o["maxN.rejPN"],rd)))
+    cat(paste0("\n  P( reject H0 )                = ", round(o["maxN.rejH0"],rd)))
     cat(paste0("\n  P( conclude not ROPE effect)  = ", round(o["maxN.stopNotROPE"],rd)))
     cat(paste0("\n  P( conclude not ROME effect ) = ", round(o["maxN.stopNotROME"],rd)))
     cat(paste0("\n  P( conclude inconclusive )    = ", round(o["maxN.stopInconclusive"],rd)))
@@ -91,7 +107,7 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
 
     cat(paste0("\n\no [Stopping and then observing ", lag, " lagged outcomes] Unrestricted sample size"))
     cat(paste0("\n  Average Sample Size                           = ", round(o["lag.n"],rd)))
-    cat(paste0("\n  P( reject point null )                        = ", round(o["lag.rejPN"],rd)))
+    cat(paste0("\n  P( reject H0 )                                = ", round(o["lag.rejH0"],rd)))
     cat(paste0("\n  P( conclude not ROPE effect )                 = ", round(o["lag.stopNotROPE"],rd)))
     cat(paste0("\n  P( conclude not ROME effect )                 = ", round(o["lag.stopNotROME"],rd)))
     cat(paste0("\n  P( conclude inconclusive )                    = ", round(o["lag.stopInconclusive"],rd)))
@@ -104,7 +120,7 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
   if(is.element("lagMaxN.n",names(o))){
     cat(paste0("\n\no [Stopping and then observing ", lag, " lagged outcomes] Maximum sample size of ",maxN))
     cat(paste0("\n  Average Total Sample Size                     = ", round(o["lagMaxN.n"],rd)))
-    cat(paste0("\n  P( reject point null )                        = ", round(o["lagMaxN.rejPN"],rd)))
+    cat(paste0("\n  P( reject H0 )                                = ", round(o["lagMaxN.rejH0"],rd)))
     cat(paste0("\n  P( conclude not ROPE effect )                 = ", round(o["lagMaxN.stopNotROPE"],rd)))
     cat(paste0("\n  P( conclude not ROME effect )                 = ", round(o["lagMaxN.stopNotROME"],rd)))
     cat(paste0("\n  P( conclude inconclusive )                    = ", round(o["lagMaxN.stopInconclusive"],rd)))
@@ -113,5 +129,6 @@ summary.sgpvAM <- function(am, alertK, waitTime, treatEffect, rd = 4){
     cat(paste0("\n  Bias                                          = ", round(o["lagMaxN.bias"],rd)))
   }
 
+  cat("\n")
 }
 

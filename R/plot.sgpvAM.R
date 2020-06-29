@@ -2,14 +2,14 @@
 getStats <- function(am, stat, k, wNs){
   # Function to obtain statistics for plotting
 
-  if(is.element("sgpvAMlocationShift",class(am))){
+  if(is.element("sgpvAMeffects",class(am))){
     return(invisible())
   }
 
   s <- vector()
   for (w in wNs){
-    o <- am[["mcmcEndOfStudy"]][[paste0("width_",w)]]$mcmcEndOfStudyAve
-    s <- c(s,o[o[,"alertK"]==k,stat])
+    o <- am[["mcmcEndOfStudy"]][[paste0("wait_",w)]]$mcmcEndOfStudyAve
+    s <- c(s,o[o[,"affirmK"]==k,stat])
   }
   s
 
@@ -20,13 +20,13 @@ plot.sgpvAM <- function(am, stat, xlim, ylim, addMain = TRUE, sizeRestrictions, 
 
   # Wait times and k steps
   amInputs <- am$inputs
-  wNs <- amInputs$waitTimes
-  ks  <- seq(0,amInputs$maxAlertSteps,by=amInputs$kSteps)
+  wNs      <- amInputs$waitJ
+  ks       <- amInputs$affirmK
 
   if(missing(xlim)) xlim <- c(min(wNs),max(wNs))
 
   if(missing(ylim)) {
-    if(stat%in%c("rejPN","stopNotROPE")){
+    if(stat%in%c("rejH0","stopNotROPE")){
       ylim <- c(0,0.10)
     } else if(stat%in%c("stopNotROME")){
       ylim <- c(0.75,1)
@@ -45,8 +45,8 @@ plot.sgpvAM <- function(am, stat, xlim, ylim, addMain = TRUE, sizeRestrictions, 
   }
 
 
-  if(stat=="rejPN"){
-    main <- "P( reject point null )"
+  if(stat=="rejH0"){
+    main <- "P( reject H0 )"
   } else if (stat=="cover"){
     main <- "Interval Coverage"
   } else if (stat=="n"){
@@ -76,7 +76,7 @@ plot.sgpvAM <- function(am, stat, xlim, ylim, addMain = TRUE, sizeRestrictions, 
 
     # Title if there is a lag time
     if(grepl("LAG",toupper(stat))){
-      mainLag      <- paste0("lag time = ", amInputs$lagOutcomeN)
+      mainLag      <- paste0("lag time = ", amInputs$lagN)
     } else mainLag <- NULL
 
     # Title if there is a lag time

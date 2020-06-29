@@ -1,0 +1,107 @@
+#' @export
+sgpvAMeffects <- function(o, effects, printProgress=TRUE){
+
+  # Only perform given data generated under fixed effect and of location-shift family
+  if( is.function(o$inputs$effectGeneration) ){
+    stop("Location shift only performed for data generated under fixed treatment effects.")
+  }
+
+
+  # Store results for each shifted effect
+  mcmcEndOfStudyEffects <- list()
+
+  # Make note of original value of effect
+  effectOriginal <- o$inputs$effectGeneration
+
+  # Save original effect
+  mcmcEndOfStudyEffects[[paste0("effect_",effectOriginal)]]                     <- o
+  mcmcEndOfStudyEffects[[paste0("effect_",effectOriginal)]][["mcmcMonitoring"]] <- NULL
+  mcmcEndOfStudyEffects[[paste0("effect_",effectOriginal)]][["inputs"]][["mcmcData"]] <- NULL
+
+  # Exclude the original effect if included in effects objects
+  effects <- effects[effects != effectOriginal]
+
+
+  if( any(grepl("rnorm|rt",deparse(o$inputs$dataGeneration))) ){
+    ## A. If data were generated under normal or t-distributed, use previously
+    ##    generated data and shift the estimated mean and confidence intervals
+
+
+    # Keep columns theta0, effect1, n, y, trt, est, lo, up for each generated dataset
+    keepColumns <- function(simData){
+      simData <- simData[,c("theta0","effect1", "n", "y", "trt", "est", "lo", "up")]
+      simData
+    }
+    mcmcMonitoring <- lapply(X=o[["mcmcMonitoring"]], keepColumns)
+
+
+    # Function to location shift treatment effect
+    shiftEffect <- function(simData, shift){
+
+      simData[simData[,"trt"]==1,"y"]        <- simData[simData[,"trt"]==1,"y"]        + shift
+      simData[,c("effect1","est","lo","up")] <- simData[,c("effect1","est","lo","up")] + shift
+      simData
+
+    }
+
+
+    # Obtain performance under shifted effect
+    for(effect in effects){
+
+      if(printProgress) cat(paste0("\reffect: ",effect)) # cat(paste0("effect: ",effect))
+
+      # Note the amoung of shift between current effect and original effect
+      shift <- effect - effectOriginal
+
+      # New shifted study design
+      oo                         <- o
+      oo$inputs$mcmcData         <- lapply(X = mcmcMonitoring, shiftEffect, shift = shift)
+      oo$inputs$effectGeneration <- effect
+
+      mcmcEndOfStudyEffects[[paste0("effect_",oo$inputs$effectGeneration)]] <- do.call(sgpvAM, args=oo$inputs)
+
+      # If additional data was required for monitoring, keep for future use
+      mcmcMonitoringNew <- mcmcEndOfStudyEffects[[paste0("effect_",oo$inputs$effectGeneration)]]$mcmcMonitoring
+      mcmcShiftBack     <- lapply(X = mcmcMonitoringNew, shiftEffect, shift = -shift)
+      mcmcMonitoring    <- lapply(X = mcmcShiftBack, keepColumns)
+
+      # Don't keep generated data in output
+      mcmcEndOfStudyEffects[[paste0("effect_",oo$inputs$effectGeneration)]]$mcmcMonitoring  <- NULL
+      mcmcEndOfStudyEffects[[paste0("effect_",oo$inputs$effectGeneration)]]$inputs$mcmcData <- NULL
+
+    }
+
+
+
+  } else {
+    ## B. Otherwise, generate new data for Effects treatment effects
+
+
+    # Drop saved data if any (because will generate new data)
+    o$inputs$mcmcData <- NULL
+
+    # Ensure outputs set to not keep output data
+    o$inputs$outData <- FALSE
+
+    for(effect in effects){
+
+      if(printProgress) cat(paste0("\reffect: ",effect)) # cat(paste0("effect: ",effect))
+
+      # New Effects study design
+      oo                         <- o
+      oo$inputs$effectGeneration <- effect
+
+      mcmcEndOfStudyEffectss[[paste0("effect_",oo$inputs$effectGeneration)]] <- do.call(sgpvAM, args=oo$inputs)
+
+    }
+
+  }
+
+
+  # Set class
+  class(mcmcEndOfStudyEffects) <- append(c("sgpvAMeffects","sgpvAM"),class(mcmcEndOfStudyEffects))
+
+
+  return(mcmcEndOfStudyEffects)
+
+}

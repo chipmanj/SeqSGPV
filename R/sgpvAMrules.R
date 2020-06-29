@@ -6,24 +6,21 @@
 #'
 #'
 sgpvAMrules <- function(mcmcMonitoring, os, fork=TRUE, socket = TRUE, cores = detectCores(),
-                        waitTime,
-                        lookSteps,
-                        kSteps,
-                        maxAlertSteps,
-                        monitoringIntervalLevel,
-                        getUnrestricted, maxN, lagOutcomeN){
+                        waitJ,
+                        lookS,
+                        affirmK,
+                        miLevel,
+                        getUnrestricted, maxN, lagN){
 
 
   if(fork==TRUE & os!="Windows"){
     # Only works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.
     mcmcEOS <- parallel::mclapply(mcmcMonitoring, sgpvAMrulesSingle,
-                                  waitTime                 = waitTime,
-                                  lookSteps                = lookSteps,
-                                  kSteps                   = kSteps,
-                                  maxAlertSteps            = maxAlertSteps,
-                                  monitoringIntervalLevel  = monitoringIntervalLevel,
-                                  getUnrestricted = getUnrestricted, maxN = maxN, lagOutcomeN = lagOutcomeN,
-                                  mc.cores = cores)
+                                  waitJ           = waitJ,
+                                  lookS           = lookS,
+                                  affirmK         = affirmK,
+                                  getUnrestricted = getUnrestricted, maxN = maxN, lagN = lagN,
+                                  mc.cores        = cores)
 
   } else if(socket==TRUE){
     # Works on Mac and Windows; only slightly slower
@@ -31,21 +28,17 @@ sgpvAMrules <- function(mcmcMonitoring, os, fork=TRUE, socket = TRUE, cores = de
     clusterCall(cl, function() library(sgpvAM))
     on.exit(parallel::stopCluster(cl), add = TRUE)
     mcmcEOS <- parallel::parLapply(cl, mcmcMonitoring, sgpvAMrulesSingle,
-                                   waitTime                 = waitTime,
-                                   lookSteps                = lookSteps,
-                                   kSteps                   = kSteps,
-                                   maxAlertSteps            = maxAlertSteps,
-                                   monitoringIntervalLevel  = monitoringIntervalLevel,
-                                   getUnrestricted = getUnrestricted, maxN = maxN, lagOutcomeN = lagOutcomeN)
+                                   waitJ           = waitJ,
+                                   lookS           = lookS,
+                                   affirmK         = affirmK,
+                                   getUnrestricted = getUnrestricted, maxN = maxN, lagN = lagN)
   } else {
 
     mcmcEOS <- lapply(mcmcMonitoring, sgpvAMrulesSingle,
-                      waitTime                 = waitTime,
-                      lookSteps                = lookSteps,
-                      kSteps                   = kSteps,
-                      maxAlertSteps            = maxAlertSteps,
-                      monitoringIntervalLevel  = monitoringIntervalLevel,
-                      getUnrestricted = getUnrestricted, maxN = maxN, lagOutcomeN = lagOutcomeN)
+                      waitJ    = waitJ,
+                      lookS    = lookS,
+                      affirmK  = affirmK,
+                      getUnrestricted = getUnrestricted, maxN = maxN, lagN = lagN)
   }
 
   # Return End of Study

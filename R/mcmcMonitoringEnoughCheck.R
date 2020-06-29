@@ -8,19 +8,21 @@
 
 
 
-mcmcMonitoringEnoughCheck <- function(o, waitN, lookSteps, maxAlertSteps, lagOutcomeN){
+mcmcMonitoringEnoughCheck <- function(o, waitJ, lookS, affirmK, lagN){
 
-  obs <- nrow(o)
+  obs  <- nrow(o)
+  maxJ <- max(waitJ)
+  maxK <- max(affirmK)
 
   # Check that sufficient observed n
-  minN  <- waitN + maxAlertSteps + lagOutcomeN
+  minN  <- maxJ + maxK + lagN
   if(obs - minN <= 0) {
-         waitMoreN <- minN - obs + maxAlertSteps
+         waitMoreN <- minN - obs + maxK
   } else waitMoreN <- 0
 
   # Check for stability of sgpv
   #  - Additional observations needed to have SGPVs through the end of stopping rule + lag time
-  addedStabilityN <- maxAlertSteps + lagOutcomeN + lookSteps
+  addedStabilityN <- maxK + lagN + lookS
   if(obs > addedStabilityN ){
 
     # How many of the last set of observations would indicate to stop, +1 for indexing

@@ -4,18 +4,18 @@
 #'
 #' @export
 amDataSingleGetMore <- function( existingDataList, iInsufficient, getMore,
-                                 monitoringIntervalLevel,
+                                 miLevel,
                                  dataGeneration,   dataGenArgs,
                                  effectGeneration, effectGenArgs,
                                  effectScale,
                                  randomize,
-                                 pointNull, deltaL2, deltaL1, deltaG1, deltaG2,
+                                 effectPN, deltaL2, deltaL1, deltaG1, deltaG2,
                                  modelFit ){
 
   dataGenArgs$n     <- getMore[iInsufficient]
   effectGeneration  <- existingDataList[[iInsufficient]][1,"theta"]
 
-  amDataSingleMore  <- amDataSingle( monitoringIntervalLevel = monitoringIntervalLevel,
+  amDataSingleMore  <- amDataSingle( miLevel          = miLevel,
                                      existingData     = existingDataList[[iInsufficient]],
                                      dataGeneration   = dataGeneration,   dataGenArgs   = dataGenArgs,
                                      effectGeneration = effectGeneration, effectGenArgs = effectGenArgs,
@@ -24,7 +24,7 @@ amDataSingleGetMore <- function( existingDataList, iInsufficient, getMore,
                                      modelFit         = modelFit)
 
   amDataSingleMore  <- addStats(o = amDataSingleMore,
-                                pointNull = pointNull,
+                                effectPN = effectPN,
                                 deltaL2   = deltaL2, deltaL1 = deltaL1,
                                 deltaG1   = deltaG1, deltaG2 = deltaG2)
 
