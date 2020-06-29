@@ -13,7 +13,7 @@ amDataSingle(
   randomize = FALSE,
   modelFit,
   modelFitArgs,
-  monitoringIntervalLevel,
+  miLevel,
   existingData = NULL
 )
 }

@@ -7,26 +7,25 @@
 sgpvAM(
   mcmcData = NULL,
   nreps,
-  waitTimes,
-  dataGeneration = NULL,
-  dataGenArgs,
-  effectGeneration = NULL,
-  effectGenArgs,
+  dataGeneration = rnorm,
+  dataGenArgs = list(n = 200),
+  effectGeneration = 0,
+  effectGenArgs = NULL,
   effectScale = "identity",
-  randomize = TRUE,
-  modelFit,
-  pointNull,
+  randomize = FALSE,
+  effectPN = 0,
   deltaL2,
   deltaL1,
   deltaG1,
   deltaG2,
-  lookSteps = 1,
-  kSteps = 10,
-  maxAlertSteps = 100,
+  modelFit,
+  miLevel = 0.05,
+  waitJ = 1,
+  lookS = 1,
+  affirmK = 10,
   getUnrestricted = TRUE,
   maxN = NULL,
-  lagOutcomeN = 0,
-  monitoringIntervalLevel = 0.05,
+  lagN = 0,
   printProgress = TRUE,
   outData = TRUE,
   getECDF = TRUE,
@@ -48,10 +47,6 @@ sgpvAM(
 
 \item{effectGenArgs}{Arguments for effectGeneration function (if any)}
 
-\item{modelFit}{A existing or user-defined function to obtain intervals.  Two existing functions are provided: 1) lmCI which obtains a confidence interval from a linear model and has class 'normal' indicating normal data and 2) lrCI obtains Wald Confidence Interval from logistic regression model and has class 'binomial' indicating binomial data.}
-
-\item{pointNull}{Point null.}
-
 \item{deltaL2}{Clinical guidepost less than and furthest from point null.}
 
 \item{deltaL1}{Clinical guidepost less than and closest to point null.}
@@ -60,17 +55,11 @@ sgpvAM(
 
 \item{deltaG2}{Clinical guidepost greater than and furthest from point null.}
 
-\item{lookSteps}{The frequency data are observed (defaults to 1 -- fully sequential).}
+\item{modelFit}{A existing or user-defined function to obtain intervals.  Two existing functions are provided: 1) lmCI which obtains a confidence interval from a linear model and has class 'normal' indicating normal data and 2) lrCI obtains Wald Confidence Interval from logistic regression model and has class 'binomial' indicating binomial data.}
 
-\item{kSteps}{Affirmation steps to consider range from 0 to maxAlertSteps by kSteps.}
+\item{maxN}{Total enrolled patients equals maxN observed patients plus lagN.}
 
-\item{maxAlertSteps}{Maximum number of steps before affirming an alert.}
-
-\item{maxN}{Total enrolled patients equals maxN observed patients plus lagOutcomeN.}
-
-\item{lagOutcomeN}{Total enrolled patients equals MaxN observed patients plus lagOutcomeN.  lagOutcomeN are number of observations enrolled but awaiting to observe outcome.}
-
-\item{monitoringIntervalLevel}{Traditional (1-alpha) used in monitoring intervals.}
+\item{lagN}{Total enrolled patients equals MaxN observed patients plus lagN.  lagN are number of observations enrolled but awaiting to observe outcome.}
 
 \item{printProgress}{Prints when adding more data for mcmc replicates to have sufficient observations to monitor until a conclusion.  Defaults to TRUE.}
 
@@ -85,6 +74,16 @@ sgpvAM(
 \item{socket}{Socket clustering.  Defaults to TRUE yet only applies if FORK = FALSE.}
 
 \item{waitWidths}{Wait time, in terms of Confidence Interval width, before monitoring data.  Assuming the data generation standard deviation, waits until appropriate n to achieve confidence interval width.}
+
+\item{pointNull}{Point null.}
+
+\item{lookSteps}{The frequency data are observed (defaults to 1 -- fully sequential).}
+
+\item{kSteps}{Affirmation steps to consider range from 0 to maxAlertSteps by kSteps.}
+
+\item{maxAlertSteps}{Maximum number of steps before affirming an alert.}
+
+\item{monitoringIntervalLevel}{Traditional (1-alpha) used in monitoring intervals.}
 }
 \description{
 The Second Generation p-Value (SGPV) incorporates pre-specified clinical context
@@ -118,7 +117,7 @@ be raised k observations later.  To investigate the ideal choice of k, user may 
 
 While data are simulated to allow unrestricted sample size, practically the study may feasibly allow up to \code{maxN} units
 to accrue.  Further, outcomes are simulated to occur simultaneously.  However, there may be a lag time in Outcomes.
-\code{lagOutcomeN} indicates the number of units that are yet being followed.  A study may stop with unrestricted sample size
+\code{lagN} indicates the number of units that are yet being followed.  A study may stop with unrestricted sample size
 yet may still have a lag on observing additionally accrued units.
 
 Note: User may choose to save the generated or pre-specified data.  This can be substantive in size.  However, when
@@ -137,19 +136,19 @@ am <-  sgpvAM(nreps            = 100,
               modelFit         = lmCI,
               pointNull = 0, deltaL2 = -0.5, deltaL1=-0.2, deltaG1=0.2, deltaG2=0.5,
               monitoringIntervalLevel = 0.05,
-              maxN = 200, lagOutcomeN = 50)
+              maxN = 200, lagN = 50)
 amShifted <- locationShift(am, shiftedThetas = seq(-1,0,by=0.1))
 # Unrestricted Sample Size
 # Explore wait width (first with alert k specified at 50)
-plot(amShifted, "n",                 alertK = 50,      xlim=c(-1,0),   ylim=c(0,801),    maxVary = 10)
-plot(amShifted, "rejPN",             alertK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 10)
-plot(amShifted, "rejPN",             alertK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
-plot(amShifted, "bias",              alertK = 50,      xlim=c(-1,0),   ylim=c(-0.1,0.1), maxVary = 5)
-plot(amShifted, "mse",               alertK = 50,      xlim=c(-1,0),   ylim=c(0,0.1),    maxVary = 5)
-plot(amShifted, "cover",             alertK = 50,      xlim=c(-1,0),   ylim=c(0.75,1),   maxVary = 5)
-plot(amShifted, "stopInconclusive",  alertK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
-plot(amShifted, "stopNotImpactful",  alertK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
-plot(amShifted, "stopNotTrivial",    alertK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
+plot(amShifted, "n",                 affirmK = 50,      xlim=c(-1,0),   ylim=c(0,801),    maxVary = 10)
+plot(amShifted, "rejPN",             affirmK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 10)
+plot(amShifted, "rejPN",             affirmK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
+plot(amShifted, "bias",              affirmK = 50,      xlim=c(-1,0),   ylim=c(-0.1,0.1), maxVary = 5)
+plot(amShifted, "mse",               affirmK = 50,      xlim=c(-1,0),   ylim=c(0,0.1),    maxVary = 5)
+plot(amShifted, "cover",             affirmK = 50,      xlim=c(-1,0),   ylim=c(0.75,1),   maxVary = 5)
+plot(amShifted, "stopInconclusive",  affirmK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
+plot(amShifted, "stopNotImpactful",  affirmK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
+plot(amShifted, "stopNotTrivial",    affirmK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
 # Explore number of steps in affirmation step
 plot(amShifted, "n",                 waitWidth = 0.3,  xlim=c(-1,0),   ylim=c(0,801),    maxVary = 5)
 plot(amShifted, "bias",              waitWidth = 0.3,  xlim=c(-1,0),   ylim=c(-0.1,0.1), maxVary = 5)
@@ -159,13 +158,13 @@ plot(amShifted, "stopInconclusive",  waitWidth = 0.3,  xlim=c(-1,0),   ylim=c(0,
 plot(amShifted, "stopNotImpactful",  waitWidth = 0.3,  xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
 plot(amShifted, "stopNotTrivial",    waitWidth = 0.3,  xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
 # Unrestricted Sample Size with lag of remaining outcomes
-plot(amShifted, "n",                 alertK = 50,     xlim=c(-1,0),   ylim=c(0,801), maxVary = 10, sizeRestrictions = "lag")
-plot(amShifted, "stopInconclusive",  alertK = 50,     xlim=c(-1,0),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
+plot(amShifted, "n",                 affirmK = 50,     xlim=c(-1,0),   ylim=c(0,801), maxVary = 10, sizeRestrictions = "lag")
+plot(amShifted, "stopInconclusive",  affirmK = 50,     xlim=c(-1,0),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
 plot(amShifted, "stopInconclusive",  waitWidth = 0.3, xlim=c(-1,0),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
 # Max N with immediate outcomes
-plot(amShifted, "n",     alertK = 50,     xlim=c(-1,0),   ylim=c(0,801), maxVary = 10, sizeRestrictions = "maxN")
-plot(amShifted, "stopInconclusive",     alertK = 50,     xlim=c(-1,0),   ylim=c(0,1), maxVary = 10, sizeRestrictions = "lag")
-summary(amShifted, alertK = 50, waitTime = 0.3, treatEffect = -0.5)
+plot(amShifted, "n",     affirmK = 50,     xlim=c(-1,0),   ylim=c(0,801), maxVary = 10, sizeRestrictions = "maxN")
+plot(amShifted, "stopInconclusive",     affirmK = 50,     xlim=c(-1,0),   ylim=c(0,1), maxVary = 10, sizeRestrictions = "lag")
+summary(amShifted, affirmK = 50, waitTime = 0.3, treatEffect = -0.5)
 summary(amShifted)
 summary(am)
 # Simulate AM trial
@@ -178,19 +177,19 @@ am2 <-  sgpvAM(nreps           = 100,
                modelFit         = lmCI,
                pointNull = 0, deltaL2 = -1, deltaL1=-0.2, deltaG1=NA, deltaG2=NA,
                monitoringIntervalLevel = 0.05,
-               maxN = 200, lagOutcomeN = 50)
+               maxN = 200, lagN = 50)
 amShifted2 <- locationShift(am2, shiftedThetas = seq(-2,0.8,by=0.4))
 # Unrestricted Sample Size
 # Explore wait width (first with alert k specified at 50)
-plot(amShifted2, "n",                 alertK = 0,       xlim=c(-2,1),    ylim=c(0,500))
-plot(amShifted2, "n",                 alertK = 50,      xlim=c(-2,1),    ylim=c(0,500))
-plot(amShifted2, "rejPN",             alertK = 50,      xlim=c(-2,1),   ylim=c(0,1))
-plot(amShifted2, "bias",              alertK = 50,      xlim=c(-2,1),   ylim=c(-0.2,0.2))
-plot(amShifted2, "mse",               alertK = 50,      xlim=c(-2,1),   ylim=c(0,0.3))
-plot(amShifted2, "cover",             alertK = 50,      xlim=c(-2,1),   ylim=c(0.75,1))
-plot(amShifted2, "stopInconclusive",  alertK = 50,      xlim=c(-2,1),   ylim=c(0,1))
-plot(amShifted2, "stopNotImpactful",  alertK = 50,      xlim=c(-2,1),   ylim=c(0,1))
-plot(amShifted2, "stopNotTrivial",    alertK = 50,      xlim=c(-2,1),   ylim=c(0,1))
+plot(amShifted2, "n",                 affirmK = 0,       xlim=c(-2,1),    ylim=c(0,500))
+plot(amShifted2, "n",                 affirmK = 50,      xlim=c(-2,1),    ylim=c(0,500))
+plot(amShifted2, "rejPN",             affirmK = 50,      xlim=c(-2,1),   ylim=c(0,1))
+plot(amShifted2, "bias",              affirmK = 50,      xlim=c(-2,1),   ylim=c(-0.2,0.2))
+plot(amShifted2, "mse",               affirmK = 50,      xlim=c(-2,1),   ylim=c(0,0.3))
+plot(amShifted2, "cover",             affirmK = 50,      xlim=c(-2,1),   ylim=c(0.75,1))
+plot(amShifted2, "stopInconclusive",  affirmK = 50,      xlim=c(-2,1),   ylim=c(0,1))
+plot(amShifted2, "stopNotImpactful",  affirmK = 50,      xlim=c(-2,1),   ylim=c(0,1))
+plot(amShifted2, "stopNotTrivial",    affirmK = 50,      xlim=c(-2,1),   ylim=c(0,1))
 # Explore number of steps in affirmation step
 plot(amShifted2, "n",                waitWidth = 0.4,  xlim=c(-2,1),   ylim=c(0,500),    maxVary = 5)
 plot(amShifted2, "bias",             waitWidth = 0.4,  xlim=c(-2,1),   ylim=c(-0.1,0.1), maxVary = 5)
@@ -200,22 +199,22 @@ plot(amShifted2, "stopInconclusive", waitWidth = 0.4,  xlim=c(-2,1),   ylim=c(0,
 plot(amShifted2, "stopNotImpactful", waitWidth = 0.4,  xlim=c(-2,1),   ylim=c(0,1),      maxVary = 5)
 plot(amShifted2, "stopNotTrivial",   waitWidth = 0.4,  xlim=c(-2,1),   ylim=c(0,1),      maxVary = 5)
 # Unrestricted Sample Size with lag of remaining outcomes
-plot(amShifted2, "stopInconclusive",  alertK = 50,     xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
+plot(amShifted2, "stopInconclusive",  affirmK = 50,     xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
 plot(amShifted2, "stopInconclusive",  waitWidth = 0.4, xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
 plot(amShifted2, "stopInconclusive",  waitWidth = 0.6, xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
 # Max N with immediate outcomes
-plot(amShifted2, "n",                    alertK = 50, xlim=c(-2,1),   ylim=c(0,500), maxVary = 10, sizeRestrictions = "maxN")
-plot(amShifted2, "stopInconclusive",     alertK = 50, xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
-summary(amShifted2, alertK = 50, waitTime = 0.6, treatEffect = -0.4)
+plot(amShifted2, "n",                    affirmK = 50, xlim=c(-2,1),   ylim=c(0,500), maxVary = 10, sizeRestrictions = "maxN")
+plot(amShifted2, "stopInconclusive",     affirmK = 50, xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
+summary(amShifted2, affirmK = 50, waitTime = 0.6, treatEffect = -0.4)
 summary(amShifted2)
 summary(am2)
 # Explore ECDF of Bias and Sample Size
-ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Bias",alertK = 50,treatEffect = 0,xlim = c(-1,2))
-ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Bias",waitWidth = 0.4,alertK = 50,treatEffect = 0,xlim = c(-1,2))
-ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Size",alertK = 50,treatEffect = 0,xlim = c(0,400))
+ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Bias",affirmK = 50,treatEffect = 0,xlim = c(-1,2))
+ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Bias",waitWidth = 0.4,affirmK = 50,treatEffect = 0,xlim = c(-1,2))
+ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Size",affirmK = 50,treatEffect = 0,xlim = c(0,400))
 # Explore quantiles of sample size for fully specified study design
 # See probability of stopping by certain sample size under fully specified design
-ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Size",waitWidth = 0.4,alertK = 50,treatEffect = 0,xlim = c(0,400))
+ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Size",waitWidth = 0.4,affirmK = 50,treatEffect = 0,xlim = c(0,400))
 quantile(ooo, probs=c(0,0.05,0.1,0.2,0.5,0.8,0.9,0.95,1))
 ooo(200)
 

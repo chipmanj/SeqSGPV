@@ -10,14 +10,13 @@ sgpvAMrules(
   fork = TRUE,
   socket = TRUE,
   cores = detectCores(),
-  waitTime,
-  lookSteps,
-  kSteps,
-  maxAlertSteps,
-  monitoringIntervalLevel,
+  waitJ,
+  lookS,
+  affirmK,
+  miLevel,
   getUnrestricted,
   maxN,
-  lagOutcomeN
+  lagN
 )
 }
 \description{
