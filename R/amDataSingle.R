@@ -30,12 +30,10 @@ amDataSingle <- function(dataGeneration,   dataGenArgs,
   } else if( any(grepl("runif",deparse(dataGeneration))) ) {
     dichotomous <- FALSE
     theta0      <- mean(c(dataGenArgs$min,dataGenArgs$max))
-    warning("FYI: sgpvAM package has not been tested for random uniform data.")
 
   } else {
     dichotomous <- NA
     theta0      <- NA
-    warning("FYI: sgpvAM package has not been tested for data generated outside of normal and dichotomous data.")
 
   }
 
