@@ -13,7 +13,7 @@ amDataSingleGetMore <- function( existingDataList, iInsufficient, getMore,
                                  modelFit ){
 
   dataGenArgs$n     <- getMore[iInsufficient]
-  effectGeneration  <- existingDataList[[iInsufficient]][1,"theta"]
+  effectGeneration  <- existingDataList[[iInsufficient]][1,"effect1"]
 
   amDataSingleMore  <- amDataSingle( miLevel          = miLevel,
                                      existingData     = existingDataList[[iInsufficient]],
