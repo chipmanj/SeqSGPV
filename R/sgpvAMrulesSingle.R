@@ -48,8 +48,11 @@ sgpvAMrulesSingle <- function(data,
         eosLag["stopInconclusive"] <- as.numeric(eosLag["stopNotROPE"]==0 &
                                                  eosLag["stopNotROME"]==0)
         eosLag["stopInconsistent"] <-
-          as.numeric( ( eos["stopNotROPE"] == 1 & eos["stopNotROME"] != 1 & eosLag["stopNotROPE"] != 1 )  |
-                      ( eos["stopNotROPE"] != 1 & eos["stopNotROME"] == 1 & eosLag["stopNotROME"] != 1 )  )
+          as.numeric( ( eos["stopNotROPE"] == 1 & eosLag["stopNotROPE"] != 1 )  |
+                      ( eos["stopNotROME"] == 1 & eosLag["stopNotROME"] != 1 )  )
+
+        eosLag["stopRejH0_YN"] <- as.numeric( ( eos["rejH0"] == 1 & eosLag["rejH0"] != 1 ) )
+        eosLag["stopRejH0_NY"] <- as.numeric( ( eos["rejH0"] != 1 & eosLag["rejH0"] == 1 ) )
 
 
       } else {
@@ -78,14 +81,14 @@ sgpvAMrulesSingle <- function(data,
         eosLagMaxN["stopNotROME"]      <- as.numeric(eosLagMaxN["sgpvROME"]==0)
         eosLagMaxN["stopInconclusive"] <- as.numeric(eosLagMaxN["stopNotROPE"]==0 &
                                                      eosLagMaxN["stopNotROME"]==0)
-        if(data[,"n"]==stop+lagN){
+        # if(data[,"n"]==stop+lagN){
           eosLagMaxN["stopInconsistent"] <-
-            as.numeric( ( eosMaxN["stopNotROPE"] == 1 & eosMaxN["stopNotROME"] != 1 & eosLagMaxN["stopNotROPE"] != 1 )  |
-                        ( eosMaxN["stopNotROPE"] != 1 & eosMaxN["stopNotROME"] == 1 & eosLagMaxN["stopNotROME"] != 1 )  )
+            as.numeric( ( eosMaxN["stopNotROPE"] == 1 & eosLagMaxN["stopNotROPE"] != 1 )  |
+                        ( eosMaxN["stopNotROME"] == 1 & eosLagMaxN["stopNotROME"] != 1 )  )
 
-        } else {
-          eosLagMaxN["stopInconsistent"] <- 0
-        }
+          eosLagMaxN["stopRejH0_YN"] <- as.numeric( ( eosMaxN["rejH0"] == 1 & eosLagMaxN["rejH0"] != 1 ) )
+          eosLagMaxN["stopRejH0_NY"] <- as.numeric( ( eosMaxN["rejH0"] != 1 & eosLagMaxN["rejH0"] == 1 ) )
+
 
       } else {
         eosLagMaxN <- NULL
@@ -102,9 +105,9 @@ sgpvAMrulesSingle <- function(data,
       oc <- c(data[1,"theta0"],
               data[1,"effect1"],
               eos[keepStats],
-              lag     = eosLag[    c(keepStats,"stopInconsistent")],
+              lag     = eosLag[    c(keepStats,"stopInconsistent","stopRejH0_YN","stopRejH0_NY")],
               maxN    = eosMaxN[     keepStats],
-              lagMaxN = eosLagMaxN[c(keepStats,"stopInconsistent")])
+              lagMaxN = eosLagMaxN[c(keepStats,"stopInconsistent","stopRejH0_YN","stopRejH0_NY")])
 
       return(c(oc,affirmK=K))
     } else {
