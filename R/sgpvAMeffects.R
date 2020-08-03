@@ -1,11 +1,22 @@
 #' @export
-sgpvAMeffects <- function(o, effects, printProgress=TRUE){
+sgpvAMeffects <- function(o, effects, printProgress=TRUE,locationShift){
 
   # Only perform given data generated under fixed effect and of location-shift family
   if( is.function(o$inputs$effectGeneration) ){
     stop("Location shift only performed for data generated under fixed treatment effects.")
   }
 
+  # Determine if inference can use location-shifts to speed up computations (rather than re-sampling for each new effect)
+  # Identified through any of:
+  # 1. Using the lmCI model fit assuming normality
+  # 2. Setting locationShift == TRUE
+  if( any(grepl("fastLmPure",deparse(o$inputs$modelFit))) ) {
+    locationShift <- TRUE
+  } else if (missing(locationShift)){
+    locationShift <- FALSE
+  } else if(!is.logical(locationShift)){
+    stop("locationShift must be inputted as logical TRUE or FALSE.")
+  }
 
   # Store results for each shifted effect
   mcmcEndOfStudyEffects <- list()
@@ -22,10 +33,7 @@ sgpvAMeffects <- function(o, effects, printProgress=TRUE){
   effects <- effects[effects != effectOriginal]
 
 
-  if( any(grepl("rnorm|rt",deparse(o$inputs$dataGeneration))) ){
-    ## A. If data were generated under normal or t-distributed, use previously
-    ##    generated data and shift the estimated mean and confidence intervals
-
+  if( locationShift ){
 
     # Keep columns theta0, effect1, n, y, trt, est, lo, up for each generated dataset
     keepColumns <- function(simData){
@@ -48,7 +56,7 @@ sgpvAMeffects <- function(o, effects, printProgress=TRUE){
     # Obtain performance under shifted effect
     for(effect in effects){
 
-      if(printProgress) cat(paste0("\reffect: ",effect)) # cat(paste0("effect: ",effect))
+      if(printProgress) print(paste0("effect: ",effect))
 
       # Note the amoung of shift between current effect and original effect
       shift <- effect - effectOriginal
@@ -74,7 +82,6 @@ sgpvAMeffects <- function(o, effects, printProgress=TRUE){
 
 
   } else {
-    ## B. Otherwise, generate new data for Effects treatment effects
 
 
     # Drop saved data if any (because will generate new data)
@@ -85,13 +92,13 @@ sgpvAMeffects <- function(o, effects, printProgress=TRUE){
 
     for(effect in effects){
 
-      if(printProgress) cat(paste0("\reffect: ",effect)) # cat(paste0("effect: ",effect))
+      if(printProgress) print(paste0("effect: ",effect))
 
       # New Effects study design
       oo                         <- o
       oo$inputs$effectGeneration <- effect
 
-      mcmcEndOfStudyEffectss[[paste0("effect_",oo$inputs$effectGeneration)]] <- do.call(sgpvAM, args=oo$inputs)
+      mcmcEndOfStudyEffects[[paste0("effect_",oo$inputs$effectGeneration)]] <- do.call(sgpvAM, args=oo$inputs)
 
     }
 
