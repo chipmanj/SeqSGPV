@@ -48,10 +48,8 @@ sgpvAMrulesSingle <- function(data,
         eosLag["stopInconclusive"] <- as.numeric(eosLag["stopNotROPE"]==0 &
                                                  eosLag["stopNotROME"]==0)
         eosLag["stopInconsistent"] <-
-          as.numeric( ( eos[   "stopNotROPE"] == 1 & eos[   "stopNotROME"] != 1 &
-                        eosLag["stopNotROPE"] != 1 & eosLag["stopNotROME"] == 1 )  |
-                      ( eos[   "stopNotROPE"] != 1 & eos[   "stopNotROME"] == 1 &
-                        eosLag["stopNotROPE"] == 1 & eosLag["stopNotROME"] != 1 )  )
+          as.numeric( ( eos["stopNotROPE"] == 1 & eos["stopNotROME"] != 1 & eosLag["stopNotROPE"] != 1 )  |
+                      ( eos["stopNotROPE"] != 1 & eos["stopNotROME"] == 1 & eosLag["stopNotROME"] != 1 )  )
 
 
       } else {
@@ -82,10 +80,9 @@ sgpvAMrulesSingle <- function(data,
                                                      eosLagMaxN["stopNotROME"]==0)
         if(data[,"n"]==stop+lagN){
           eosLagMaxN["stopInconsistent"] <-
-            as.numeric( ( eosMaxN[   "stopNotROPE"] == 1 & eosMaxN[   "stopNotROME"] != 1 &
-                          eosLagMaxN["stopNotROPE"] != 1 & eosLagMaxN["stopNotROME"] == 1 )  |
-                        ( eosMaxN[   "stopNotROPE"] != 1 & eosMaxN[   "stopNotROME"] == 1 &
-                          eosLagMaxN["stopNotROPE"] == 1 & eosLagMaxN["stopNotROME"] != 1 )  )
+            as.numeric( ( eosMaxN["stopNotROPE"] == 1 & eosMaxN["stopNotROME"] != 1 & eosLagMaxN["stopNotROPE"] != 1 )  |
+                        ( eosMaxN["stopNotROPE"] != 1 & eosMaxN["stopNotROME"] == 1 & eosLagMaxN["stopNotROME"] != 1 )  )
+
         } else {
           eosLagMaxN["stopInconsistent"] <- 0
         }
