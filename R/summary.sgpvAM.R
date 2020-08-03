@@ -78,25 +78,25 @@ summary.sgpvAM <- function(am, affirmK, waitJ, treatEffect, rd = 4, unrestricted
 
   if(is.element("n",names(o)) & unrestricted==TRUE){
     cat("\n\no [Immediate outcomes] Unrestricted sample size")
-    cat(paste0("\n  Average sample size           = ", round(o["n"],rd)))
-    cat(paste0("\n  P( reject H0 )                = ", round(o["rejH0"],rd)))
-    cat(paste0("\n  P( conclude not ROPE effect ) = ", round(o["stopNotROPE"],rd)))
-    cat(paste0("\n  P( conclude not ROME effect ) = ", round(o["stopNotROME"],rd)))
-    cat(paste0("\n  P( conclude inconclusive )    = ", round(o["stopInconclusive"],rd)))
-    cat(paste0("\n  Coverage                      = ", round(o["cover"],rd)))
-    cat(paste0("\n  Bias                          = ", round(o["bias"],rd)))
+    cat(paste0("\n  Average sample size              = ", round(o["n"],rd)))
+    cat(paste0("\n  P( reject H0 )                   = ", round(o["rejH0"],rd)))
+    cat(paste0("\n  P( conclude not ROPE effect )    = ", round(o["stopNotROPE"],rd)))
+    cat(paste0("\n  P( conclude not ROME effect )    = ", round(o["stopNotROME"],rd)))
+    cat(paste0("\n  P( conclude PRISM inconclusive ) = ", round(o["stopInconclusive"],rd)))
+    cat(paste0("\n  Coverage                         = ", round(o["cover"],rd)))
+    cat(paste0("\n  Bias                             = ", round(o["bias"],rd)))
   }
 
 
   if(is.element("maxN.n",names(o)) & maxN==TRUE){
     cat(paste0("\n\no [Immediate outcomes] Maximum sample size of ",amInputs$maxN))
-    cat(paste0("\n  Average Observed Sample Size  = ", round(o["maxN.n"],rd)))
-    cat(paste0("\n  P( reject H0 )                = ", round(o["maxN.rejH0"],rd)))
-    cat(paste0("\n  P( conclude not ROPE effect)  = ", round(o["maxN.stopNotROPE"],rd)))
-    cat(paste0("\n  P( conclude not ROME effect ) = ", round(o["maxN.stopNotROME"],rd)))
-    cat(paste0("\n  P( conclude inconclusive )    = ", round(o["maxN.stopInconclusive"],rd)))
-    cat(paste0("\n  Coverage                      = ", round(o["maxN.cover"],rd)))
-    cat(paste0("\n  Bias                          = ", round(o["maxN.bias"],rd)))
+    cat(paste0("\n  Average Observed Sample Size     = ", round(o["maxN.n"],rd)))
+    cat(paste0("\n  P( reject H0 )                   = ", round(o["maxN.rejH0"],rd)))
+    cat(paste0("\n  P( conclude not ROPE effect)     = ", round(o["maxN.stopNotROPE"],rd)))
+    cat(paste0("\n  P( conclude not ROME effect )    = ", round(o["maxN.stopNotROME"],rd)))
+    cat(paste0("\n  P( conclude PRISM inconclusive ) = ", round(o["maxN.stopInconclusive"],rd)))
+    cat(paste0("\n  Coverage                         = ", round(o["maxN.cover"],rd)))
+    cat(paste0("\n  Bias                             = ", round(o["maxN.bias"],rd)))
   }
 
 
@@ -107,7 +107,7 @@ summary.sgpvAM <- function(am, affirmK, waitJ, treatEffect, rd = 4, unrestricted
     cat(paste0("\n  P( reject H0 )                                                = ", round(o["lag.rejH0"],rd)))
     cat(paste0("\n  P( conclude not ROPE effect )                                 = ", round(o["lag.stopNotROPE"],rd)))
     cat(paste0("\n  P( conclude not ROME effect )                                 = ", round(o["lag.stopNotROME"],rd)))
-    cat(paste0("\n  P( conclude inconclusive )                                    = ", round(o["lag.stopInconclusive"],rd)))
+    cat(paste0("\n  P( conclude PRISM inconclusive )                              = ", round(o["lag.stopInconclusive"],rd)))
     cat(paste0("\n  P( conclusion on ROPE or ROME changed with lagged outcomes )  = ", round(o["lag.stopInconsistent"],rd)))
     cat(paste0("\n  P( newly reject H0 with lagged outcomes )                     = ", round(o["lag.stopRejH0_NY"],rd)))
     cat(paste0("\n  P( newly fail to reject H0 with lagged outcomes )             = ", round(o["lag.stopRejH0_YN"],rd)))
@@ -122,6 +122,7 @@ summary.sgpvAM <- function(am, affirmK, waitJ, treatEffect, rd = 4, unrestricted
     cat(paste0("\n  P( reject H0 )                                                = ", round(o["lagMaxN.rejH0"],rd)))
     cat(paste0("\n  P( conclude not ROPE effect )                                 = ", round(o["lagMaxN.stopNotROPE"],rd)))
     cat(paste0("\n  P( conclude not ROME effect )                                 = ", round(o["lagMaxN.stopNotROME"],rd)))
+    cat(paste0("\n  P( conclude PRISM inconclusive )                              = ", round(o["lagMaxN.stopInconclusive"],rd)))
     cat(paste0("\n  P( conclusion on ROPE or ROME changed with lagged outcomes )  = ", round(o["lagMaxN.stopInconsistent"],rd)))
     cat(paste0("\n  P( newly reject H0 with lagged outcomes )                     = ", round(o["lagMaxN.stopRejH0_NY"],rd)))
     cat(paste0("\n  P( newly fail to reject H0 with lagged outcomes )             = ", round(o["lagMaxN.stopRejH0_YN"],rd)))
