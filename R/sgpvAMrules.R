@@ -6,20 +6,16 @@
 #'
 #'
 sgpvAMrules <- function(mcmcMonitoring, os, fork=TRUE, socket = TRUE, cores = detectCores(),
-                        waitJ,
-                        lookS,
-                        affirmK,
+                        designLooks,
                         miLevel,
-                        getUnrestricted, maxN, lagN){
+                        getUnrestricted){
 
 
   if(fork==TRUE & os!="Windows"){
     # Only works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.
     mcmcEOS <- parallel::mclapply(mcmcMonitoring, sgpvAMrulesSingle,
-                                  waitJ           = waitJ,
-                                  lookS           = lookS,
-                                  affirmK         = affirmK,
-                                  getUnrestricted = getUnrestricted, maxN = maxN, lagN = lagN,
+                                  designLooks     = designLooks,
+                                  getUnrestricted = getUnrestricted,
                                   mc.cores        = cores)
 
   } else if(socket==TRUE){
@@ -28,17 +24,13 @@ sgpvAMrules <- function(mcmcMonitoring, os, fork=TRUE, socket = TRUE, cores = de
     clusterCall(cl, function() library(sgpvAM))
     on.exit(parallel::stopCluster(cl), add = TRUE)
     mcmcEOS <- parallel::parLapply(cl, mcmcMonitoring, sgpvAMrulesSingle,
-                                   waitJ           = waitJ,
-                                   lookS           = lookS,
-                                   affirmK         = affirmK,
-                                   getUnrestricted = getUnrestricted, maxN = maxN, lagN = lagN)
+                                       designLooks     = designLooks,
+                                       getUnrestricted = getUnrestricted)
   } else {
 
     mcmcEOS <- lapply(mcmcMonitoring, sgpvAMrulesSingle,
-                      waitJ    = waitJ,
-                      lookS    = lookS,
-                      affirmK  = affirmK,
-                      getUnrestricted = getUnrestricted, maxN = maxN, lagN = lagN)
+                      designLooks     = designLooks,
+                      getUnrestricted = getUnrestricted)
   }
 
   # Return End of Study

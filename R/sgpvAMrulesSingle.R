@@ -1,100 +1,67 @@
 #' @export
-sgpvAMrulesSingle <- function(data,
-                              waitJ,
-                              lookS,
-                              affirmK,
-                              getUnrestricted,  maxN, lagN=0){
-
-
-  # 1 Establish observations that surpass wait time and occur at lookSteps
-  looks     <- waitJ + (0:nrow(data)) * lookS
-  monitor   <- data[,"n"] %in% looks
-
-
-
-  # 2 Raise Alert
-  alertNotROPE  <- which(data[,"sgpvROPE"] == 0 & monitor==TRUE)
-  alertNotROME  <- which(data[,"sgpvROME"] == 0 & monitor==TRUE)
-
-  alertNotROPEAny  <- length(alertNotROPE) > 0
-  alertNotROMEAny  <- length(alertNotROME) > 0
+sgpvAMrulesSingle <- function(data, designLooks, getUnrestricted){
 
 
 
   # 3 Affirm alert and report end of study (eos) operating characteristics (oc)
   #   - To be applied across various k (affirmation steps)
-  affirmEndOfStudy <- function(K){
+  affirmEndOfStudy <- function(i, designLooks){
+
+    W <- designLooks[i,"W"]   # wait time
+    S <- designLooks[i,"S"]   # monitoring steps
+    A <- designLooks[i,"A"]   # required affirmation steps
+    L <- designLooks[i,"L"]   # lag time to outcome
+    N <- designLooks[i,"N"]   # maximum sample size
+
+
+    # 1 Establish observations that surpass wait time and occur at lookSteps
+    looks     <- W + (0:nrow(data)) * S
+    monitor   <- data[,"n"] %in% looks
+
+
+    # 2 Raise Alert
+    alertNotROPE  <- which(data[,"sgpvROPE"] == 0 & monitor==TRUE)
+    alertNotROME  <- which(data[,"sgpvROME"] == 0 & monitor==TRUE)
+
+    alertNotROPEAny  <- length(alertNotROPE) > 0
+    alertNotROMEAny  <- length(alertNotROME) > 0
+
 
 
     # Stop times for being Not ROPE and being Not ROME
-    stopNotROPE  <- alertNotROPE[alertNotROPE %in% (alertNotROPE + K)]
-    stopNotROME  <- alertNotROME[alertNotROME %in% (alertNotROME + K)]
+    stopNotROPE  <- alertNotROPE[alertNotROPE %in% (alertNotROPE + A)]
+    stopNotROME  <- alertNotROME[alertNotROME %in% (alertNotROME + A)]
 
-    if(getUnrestricted==TRUE){
+    # Stop times with and without Lag
+    if(N==Inf){
+      stop    <- min(stopNotROPE, stopNotROME, na.rm = TRUE)
+      stopLag <- stop + L
+    } else {
+      stop    <- min(stopNotROPE, stopNotROME, N, na.rm = TRUE)
+      stopLag <- min(stop+L,N)
+    }
 
-      stop <- min(stopNotROPE, stopNotROME, na.rm = TRUE)
-
-      # Unrestricted sample size (immediate outcomes)
-      eos                      <- data[data[,"n"]==stop,]
-      eos["stopNotROPE"]       <- as.numeric(eos["sgpvROPE"]==0)
-      eos["stopNotROME"]       <- as.numeric(eos["sgpvROME"]==0)
-      eos["stopInconclusive"]  <- as.numeric(eos["stopNotROPE"]==0 & eos["stopNotROME"]==0)
-
-      if(lagN > 0){
-        # Unrestricted sample size (stopping and then observing lagged outcomes)
-        eosLag                     <- data[data[,"n"]==stop + lagN,]
-        eosLag["stopNotROPE"]      <- as.numeric(eosLag["sgpvROPE"]==0)
-        eosLag["stopNotROME"]      <- as.numeric(eosLag["sgpvROME"]==0)
-        eosLag["stopInconclusive"] <- as.numeric(eosLag["stopNotROPE"]==0 &
-                                                 eosLag["stopNotROME"]==0)
-        eosLag["stopInconsistent"] <-
-          as.numeric( ( eos["stopNotROPE"] == 1 & eosLag["stopNotROPE"] != 1 )  |
-                      ( eos["stopNotROME"] == 1 & eosLag["stopNotROME"] != 1 )  )
-
-        eosLag["stopRejH0_YN"] <- as.numeric( ( eos["rejH0"] == 1 & eosLag["rejH0"] != 1 ) )
-        eosLag["stopRejH0_NY"] <- as.numeric( ( eos["rejH0"] != 1 & eosLag["rejH0"] == 1 ) )
+    # End of study (immediate outcomes)
+    eos                      <- data[data[,"n"]==stop,]
+    eos["stopNotROPE"]       <- as.numeric(eos["sgpvROPE"]==0)
+    eos["stopNotROME"]       <- as.numeric(eos["sgpvROME"]==0)
+    eos["stopInconclusive"]  <- as.numeric(eos["stopNotROPE"]==0 & eos["stopNotROME"]==0)
 
 
-      } else {
-        eosLag <- NULL
-      }
+    # Lag outcomes
+    eosLag                     <- data[data[,"n"]==stopLag,]
+    eosLag                     <- data[data[,"n"]==stop + L,]
+    eosLag["stopNotROPE"]      <- as.numeric(eosLag["sgpvROPE"]==0)
+    eosLag["stopNotROME"]      <- as.numeric(eosLag["sgpvROME"]==0)
+    eosLag["stopInconclusive"] <- as.numeric(eosLag["stopNotROPE"]==0 &
+                                             eosLag["stopNotROME"]==0)
+    eosLag["stopInconsistent"] <-
+      as.numeric( ( eos["stopNotROPE"] == 1 & eosLag["stopNotROPE"] != 1 )  |
+                  ( eos["stopNotROME"] == 1 & eosLag["stopNotROME"] != 1 )  )
 
-    } else eos <- eosLag <- NULL
+    eosLag["stopRejH0_YN"] <- as.numeric( ( eos["rejH0"] == 1 & eosLag["rejH0"] != 1 ) )
+    eosLag["stopRejH0_NY"] <- as.numeric( ( eos["rejH0"] != 1 & eosLag["rejH0"] == 1 ) )
 
-    # MaxN stop
-    if(!is.null(maxN)){
-
-
-      stop <- min(stopNotROPE, stopNotROME, maxN, na.rm = TRUE)
-
-      # Maximum sample size of maxN (immediate outcomes)
-      eosMaxN                     <- data[data[,"n"]==stop,]
-      eosMaxN["stopNotROPE"]      <- as.numeric(eosMaxN["sgpvROPE"]==0)
-      eosMaxN["stopNotROME"]      <- as.numeric(eosMaxN["sgpvROME"]==0)
-      eosMaxN["stopInconclusive"] <- as.numeric(eosMaxN["stopNotROPE"]==0 &
-                                                eosMaxN["stopNotROME"]==0)
-
-      if(lagN > 0){
-        # Maximum sample size of maxN (stopping and then observing lagged outcomes)
-        eosLagMaxN                     <- data[data[,"n"]==min(stop+lagN,maxN),]
-        eosLagMaxN["stopNotROPE"]      <- as.numeric(eosLagMaxN["sgpvROPE"]==0)
-        eosLagMaxN["stopNotROME"]      <- as.numeric(eosLagMaxN["sgpvROME"]==0)
-        eosLagMaxN["stopInconclusive"] <- as.numeric(eosLagMaxN["stopNotROPE"]==0 &
-                                                     eosLagMaxN["stopNotROME"]==0)
-        # if(data[,"n"]==stop+lagN){
-          eosLagMaxN["stopInconsistent"] <-
-            as.numeric( ( eosMaxN["stopNotROPE"] == 1 & eosLagMaxN["stopNotROPE"] != 1 )  |
-                        ( eosMaxN["stopNotROME"] == 1 & eosLagMaxN["stopNotROME"] != 1 )  )
-
-          eosLagMaxN["stopRejH0_YN"] <- as.numeric( ( eosMaxN["rejH0"] == 1 & eosLagMaxN["rejH0"] != 1 ) )
-          eosLagMaxN["stopRejH0_NY"] <- as.numeric( ( eosMaxN["rejH0"] != 1 & eosLagMaxN["rejH0"] == 1 ) )
-
-
-      } else {
-        eosLagMaxN <- NULL
-      }
-
-    } else eosMaxN <- eosLagMaxN <- NULL
 
 
     # Keep theta and operating characteristics (drop y, trt, and sgpvs)
@@ -105,17 +72,15 @@ sgpvAMrulesSingle <- function(data,
       oc <- c(data[1,"theta0"],
               data[1,"effect1"],
               eos[keepStats],
-              lag     = eosLag[    c(keepStats,"stopInconsistent","stopRejH0_YN","stopRejH0_NY")],
-              maxN    = eosMaxN[     keepStats],
-              lagMaxN = eosLagMaxN[c(keepStats,"stopInconsistent","stopRejH0_YN","stopRejH0_NY")])
+              lag = eosLag[c(keepStats,"stopInconsistent","stopRejH0_YN","stopRejH0_NY")])
 
-      return(c(oc,affirmK=K))
+      return(c(oc,wait=W,steps=S,affirm=A,lag=L,maxN=N))
     } else {
       return(NULL)
     }
   }
 
-  affirmedEnd <- t(sapply(affirmK,affirmEndOfStudy))
+  affirmedEnd <- t(sapply(1:nrow(designLooks),affirmEndOfStudy,designLooks=designLooks))
 
 
   return(affirmedEnd)

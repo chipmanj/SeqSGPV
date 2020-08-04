@@ -67,125 +67,6 @@
 #' @examples
 #' #' devtools::install_github("chipmanj/sgpvAM")
 #' library(sgpvAM)
-
-#' # Simulate AM trial
-#' # Two-sided deltas
-#' # defaults to sd = 1
-#' am <-  sgpvAM(nreps            = 100,
-#'               maxAlertSteps    = 100,       lookSteps = 1, waitWidths = seq(0.15, 0.6, by = 0.05),
-#'               dataGeneration   = rnorm,   dataGenArgs = list(n=800),
-#'               effectGeneration = 0,
-#'               modelFit         = lmCI,
-#'               pointNull = 0, deltaL2 = -0.5, deltaL1=-0.2, deltaG1=0.2, deltaG2=0.5,
-#'               monitoringIntervalLevel = 0.05,
-#'               maxN = 200, lagN = 50)
-
-#' amShifted <- locationShift(am, shiftedThetas = seq(-1,0,by=0.1))
-
-
-#' # Unrestricted Sample Size
-#' # Explore wait width (first with alert k specified at 50)
-#' plot(amShifted, "n",                 affirmK = 50,      xlim=c(-1,0),   ylim=c(0,801),    maxVary = 10)
-#' plot(amShifted, "rejPN",             affirmK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 10)
-#' plot(amShifted, "rejPN",             affirmK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
-#' plot(amShifted, "bias",              affirmK = 50,      xlim=c(-1,0),   ylim=c(-0.1,0.1), maxVary = 5)
-#' plot(amShifted, "mse",               affirmK = 50,      xlim=c(-1,0),   ylim=c(0,0.1),    maxVary = 5)
-#' plot(amShifted, "cover",             affirmK = 50,      xlim=c(-1,0),   ylim=c(0.75,1),   maxVary = 5)
-#' plot(amShifted, "stopInconclusive",  affirmK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
-#' plot(amShifted, "stopNotImpactful",  affirmK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
-#' plot(amShifted, "stopNotTrivial",    affirmK = 50,      xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
-
-#' # Explore number of steps in affirmation step
-#' plot(amShifted, "n",                 waitWidth = 0.3,  xlim=c(-1,0),   ylim=c(0,801),    maxVary = 5)
-#' plot(amShifted, "bias",              waitWidth = 0.3,  xlim=c(-1,0),   ylim=c(-0.1,0.1), maxVary = 5)
-#' plot(amShifted, "mse",               waitWidth = 0.3,  xlim=c(-1,0),   ylim=c(0,0.1),    maxVary = 5)
-#' plot(amShifted, "cover",             waitWidth = 0.3,  xlim=c(-1,0),   ylim=c(0.75,1),   maxVary = 5)
-#' plot(amShifted, "stopInconclusive",  waitWidth = 0.3,  xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
-#' plot(amShifted, "stopNotImpactful",  waitWidth = 0.3,  xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
-#' plot(amShifted, "stopNotTrivial",    waitWidth = 0.3,  xlim=c(-1,0),   ylim=c(0,1),      maxVary = 5)
-
-
-#' # Unrestricted Sample Size with lag of remaining outcomes
-#' plot(amShifted, "n",                 affirmK = 50,     xlim=c(-1,0),   ylim=c(0,801), maxVary = 10, sizeRestrictions = "lag")
-#' plot(amShifted, "stopInconclusive",  affirmK = 50,     xlim=c(-1,0),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
-#' plot(amShifted, "stopInconclusive",  waitWidth = 0.3, xlim=c(-1,0),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
-
-#' # Max N with immediate outcomes
-#' plot(amShifted, "n",     affirmK = 50,     xlim=c(-1,0),   ylim=c(0,801), maxVary = 10, sizeRestrictions = "maxN")
-#' plot(amShifted, "stopInconclusive",     affirmK = 50,     xlim=c(-1,0),   ylim=c(0,1), maxVary = 10, sizeRestrictions = "lag")
-
-
-#' summary(amShifted, affirmK = 50, waitTime = 0.3, treatEffect = -0.5)
-#' summary(amShifted)
-#' summary(am)
-
-
-
-
-
-#' # Simulate AM trial
-#' # One-sided deltas
-#' # Outcome has sd = 2
-#' am2 <-  sgpvAM(nreps           = 100,
-#'                maxAlertSteps    = 100,       lookSteps = 1, waitWidths = sort(c(seq(0.2, 1.2, by = 0.2),c(0.5,0.7))),
-#'                dataGeneration   = rnorm,   dataGenArgs = list(n=800, sd=2),
-#'                effectGeneration = 0,
-#'                modelFit         = lmCI,
-#'                pointNull = 0, deltaL2 = -1, deltaL1=-0.2, deltaG1=NA, deltaG2=NA,
-#'                monitoringIntervalLevel = 0.05,
-#'                maxN = 200, lagN = 50)
-
-#' amShifted2 <- locationShift(am2, shiftedThetas = seq(-2,0.8,by=0.4))
-
-
-
-#' # Unrestricted Sample Size
-#' # Explore wait width (first with alert k specified at 50)
-#' plot(amShifted2, "n",                 affirmK = 0,       xlim=c(-2,1),    ylim=c(0,500))
-#' plot(amShifted2, "n",                 affirmK = 50,      xlim=c(-2,1),    ylim=c(0,500))
-#' plot(amShifted2, "rejPN",             affirmK = 50,      xlim=c(-2,1),   ylim=c(0,1))
-#' plot(amShifted2, "bias",              affirmK = 50,      xlim=c(-2,1),   ylim=c(-0.2,0.2))
-#' plot(amShifted2, "mse",               affirmK = 50,      xlim=c(-2,1),   ylim=c(0,0.3))
-#' plot(amShifted2, "cover",             affirmK = 50,      xlim=c(-2,1),   ylim=c(0.75,1))
-#' plot(amShifted2, "stopInconclusive",  affirmK = 50,      xlim=c(-2,1),   ylim=c(0,1))
-#' plot(amShifted2, "stopNotImpactful",  affirmK = 50,      xlim=c(-2,1),   ylim=c(0,1))
-#' plot(amShifted2, "stopNotTrivial",    affirmK = 50,      xlim=c(-2,1),   ylim=c(0,1))
-
-#' # Explore number of steps in affirmation step
-#' plot(amShifted2, "n",                waitWidth = 0.4,  xlim=c(-2,1),   ylim=c(0,500),    maxVary = 5)
-#' plot(amShifted2, "bias",             waitWidth = 0.4,  xlim=c(-2,1),   ylim=c(-0.1,0.1), maxVary = 5)
-#' plot(amShifted2, "mse",              waitWidth = 0.4,  xlim=c(-2,1),   ylim=c(0,0.3),    maxVary = 5)
-#' plot(amShifted2, "cover",            waitWidth = 0.4,  xlim=c(-2,1),   ylim=c(0.75,1),   maxVary = 5)
-#' plot(amShifted2, "stopInconclusive", waitWidth = 0.4,  xlim=c(-2,1),   ylim=c(0,1),      maxVary = 5)
-#' plot(amShifted2, "stopNotImpactful", waitWidth = 0.4,  xlim=c(-2,1),   ylim=c(0,1),      maxVary = 5)
-#' plot(amShifted2, "stopNotTrivial",   waitWidth = 0.4,  xlim=c(-2,1),   ylim=c(0,1),      maxVary = 5)
-
-
-#' # Unrestricted Sample Size with lag of remaining outcomes
-#' plot(amShifted2, "stopInconclusive",  affirmK = 50,     xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
-#' plot(amShifted2, "stopInconclusive",  waitWidth = 0.4, xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
-#' plot(amShifted2, "stopInconclusive",  waitWidth = 0.6, xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
-
-#' # Max N with immediate outcomes
-#' plot(amShifted2, "n",                    affirmK = 50, xlim=c(-2,1),   ylim=c(0,500), maxVary = 10, sizeRestrictions = "maxN")
-#' plot(amShifted2, "stopInconclusive",     affirmK = 50, xlim=c(-2,1),   ylim=c(0,1),   maxVary = 10, sizeRestrictions = "lag")
-
-
-#' summary(amShifted2, affirmK = 50, waitTime = 0.6, treatEffect = -0.4)
-#' summary(amShifted2)
-#' summary(am2)
-
-
-#' # Explore ECDF of Bias and Sample Size
-#' ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Bias",affirmK = 50,treatEffect = 0,xlim = c(-1,2))
-#' ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Bias",waitWidth = 0.4,affirmK = 50,treatEffect = 0,xlim = c(-1,2))
-#' ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Size",affirmK = 50,treatEffect = 0,xlim = c(0,400))
-
-#' # Explore quantiles of sample size for fully specified study design
-#' # See probability of stopping by certain sample size under fully specified design
-#' ooo <- ecdf.sgpvAM(am = amShifted2, stat = "Size",waitWidth = 0.4,affirmK = 50,treatEffect = 0,xlim = c(0,400))
-#' quantile(ooo, probs=c(0,0.05,0.1,0.2,0.5,0.8,0.9,0.95,1))
-#' ooo(200)
 #'
 #' @export
 
@@ -194,37 +75,56 @@ sgpvAM <- function(mcmcData = NULL,
                    dataGeneration   = rnorm,   dataGenArgs = list(n=200),
                    effectGeneration = 0, effectGenArgs=NULL,  effectScale  = "identity",
                    randomize        = FALSE,
-                   effectPN = 0, deltaL2, deltaL1, deltaG1, deltaG2,
-                   modelFit,  miLevel = 0.05,
-                   waitJ           = 1,
-                   lookS           = 1,
-                   affirmK         = 10,
-                   getUnrestricted = TRUE, maxN=NULL, lagN=0,
-                   printProgress   = TRUE, outData = TRUE,
-                   getECDF         = TRUE,
-                   cores           = NULL,
-                   fork            = TRUE,
-                   socket          = TRUE){
+                   effectPN         = 0,
+                   PRISM,
+                   modelFit,
+                   miLevel          = 0.05,
+                   designLooks      = NULL,
+                   wait             = 4,
+                   steps            = 1,
+                   affirm           = 0,
+                   lag              = 0,
+                   maxN             = NA,
+                   getUnrestricted  = TRUE,
+                   printProgress    = TRUE,
+                   outData          = TRUE,
+                   getECDF          = TRUE,
+                   cores            = NULL,
+                   fork             = TRUE,
+                   socket           = TRUE){
 
 
-  # 0.1 Check on sample size restrictions
-  if(getUnrestricted==FALSE & is.null(maxN)){
-    stop("Must specify at least getUnrestricted=TRUE or maxN not null")
+
+  # 0.1 PRISM parameters
+  if(missing(PRISM)){
+    stop("Must specify PRISM")
+  } else {
+    deltaL2 <- PRISM[["deltaL2"]]
+    deltaL1 <- PRISM[["deltaL1"]]
+    deltaG1 <- PRISM[["deltaG1"]]
+    deltaG2 <- PRISM[["deltaG2"]]
   }
 
-  # 0.2 Check on sample size restrictions
-  # if(any(affirmK<lookS)){
-  #   warning("affirmK must be >= lookSteps.  Setting afirmK to be >= lookSteps")
-  #   affirmK <- affirmK[affirmK>=lookS]
-  #   if(length(affirmK)==0) affirmK <- lookS
-  # }
+  # 0.2 Design parameters
+  if(is.null(designLooks)){
+    designLooks        <- expand.grid(wait,steps,affirm,lag,maxN)
+    names(designLooks) <- c("W","S","A","L","N")
+  }
+  designLooksLabels    <- paste0("W",designLooks[,"W"],
+                                 "_S",designLooks[,"S"],
+                                 "_A",designLooks[,"A"],
+                                 "_L",designLooks[,"L"],
+                                 "_N",designLooks[,"N"])
 
 
-  # 0.4 set cores for parallel computing
+  # 0.3 set cores for parallel computing
   if(is.null(cores)) cores <- parallel::detectCores()
 
-  # 0.5 if POSIX systems (Mac, Linux, Unix, BSD) use mcapply.  For windows use parLapply
+
+  # 0.4 if POSIX systems (Mac, Linux, Unix, BSD) use mcapply.  For windows use parLapply
   os <- Sys.info()["sysname"]
+
+
 
   # 1 collect list of simulated data
   if(is.null(mcmcData)){
@@ -253,15 +153,14 @@ sgpvAM <- function(mcmcData = NULL,
 
   # 3 Make sure all generated simulations will continue until completion
   #   - Look for stability of sgpv for last set of maxAlert patients
-  if(getUnrestricted==TRUE | dataGenArgs$n < maxN){
+  if( any(designLooks[,"N"]==Inf) | dataGenArgs$n < max(designLooks[designLooks!=Inf,"N"])){
+
     if(printProgress) cat("\rEnsuring simulations with unrestricted sample size each continue to completion")
-    getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck,
-                                  waitJ   = waitJ,
-                                  lookS   = lookS,
-                                  affirmK = affirmK,
-                                  lagN    = lagN))
+
+    getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck, designLooks=designLooks))
     getMoreWhich <- which(getMore > 0)
     getMoreWhich
+
 
     if( !is.null(mcmcData)      & sum(getMore) > 0          &
         is.null(dataGeneration) & is.null(effectGeneration) ){
@@ -292,11 +191,7 @@ sgpvAM <- function(mcmcData = NULL,
                                         socket           = socket)
 
         # Continue checking until all datasets have sufficient n
-        getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck,
-                                      waitJ    = waitJ,
-                                      lookS    = lookS,
-                                      affirmK  = affirmK,
-                                      lagN     = lagN))
+        getMore      <- unlist(lapply(mcmcMonitoring, mcmcMonitoringEnoughCheck, designLooks=designLooks))
         getMoreWhich <- which(getMore > 0)
 
         iter <- iter + 1
@@ -305,86 +200,50 @@ sgpvAM <- function(mcmcData = NULL,
   }
 
 
-  # 4 adaptively monitor simulated data across multiple burn ins
-  # 5 aggregate simulated data
-  #   average performance and mse
-  #   ecdf of n and bias
+  # 4 adaptively monitor simulated data across designLooks parameters
   mcmcEndOfStudyAve <- list()
   mcmcEndOfStudyVar <- list()
   mcmcEndOfStudy    <- list()
   mcmcECDFs         <- list()
 
   if(printProgress) cat("\rAdaptively monitoring for each wait time                                                   ")
-  for (w in 1:length(waitJ)){
 
-    waitTime <- waitJ[w]
-
-    # 4 adaptively monitor simulated data across multiple burn ins
-    mcmcEOS <- sgpvAMrules(mcmcMonitoring  = mcmcMonitoring,
-                           os              = os,
-                           fork            = fork,
-                           socket          = socket,
-                           waitJ           = waitTime,
-                           lookS           = lookS,
-                           affirmK         = affirmK,
-                           getUnrestricted = getUnrestricted,
-                           maxN            = maxN,
-                           lagN            = lagN)
+  mcmcEOS <- sgpvAMrules(mcmcMonitoring  = mcmcMonitoring,
+                        designLooks     = designLooks,
+                        os              = os,
+                        fork            = fork,
+                        socket          = socket,
+                        getUnrestricted = getUnrestricted)
 
 
-    # 5 aggregate simulated data
-    #   average performance and mse
-    #   ecdf of n and bias
-    ooAve <- plyr::aaply(mcmcEOS, .margins = c(1,2), .fun = mean)
-    ooVar <- plyr::aaply(mcmcEOS, .margins = c(1,2), .fun = var )
+  # 5 aggregate simulated data
+  #   average performance and mse
+  #   ecdf of n and bias
+  ooAve <- plyr::aaply(mcmcEOS, .margins = c(1,2), .fun = mean)
+  ooVar <- plyr::aaply(mcmcEOS, .margins = c(1,2), .fun = var )
 
-    mcmcEndOfStudyAve   <- ooAve
-    # mcmcEndOfStudyAve <- cbind(ooAve, mse = ooVar[,"bias"] + ooAve[,"bias"]^2)
+  mcmcEndOfStudyAve   <- ooAve
 
-    if(getECDF==TRUE){
+  if(getECDF==TRUE){
 
-      # Unrestricted sample size (immediate outcomes)
-      if(getUnrestricted==TRUE){
-        mcmcECDFs$mcmcEndOfStudyEcdfSize           <- apply(mcmcEOS[,"n",],    1, ecdfDataReduction)
-        mcmcECDFs$mcmcEndOfStudyEcdfBias           <- apply(mcmcEOS[,"bias",], 1, ecdfDataReduction)
-        names(mcmcECDFs$mcmcEndOfStudyEcdfSize)    <- paste0("affirmK_",mcmcEOS[,"affirmK",1])
-        names(mcmcECDFs$mcmcEndOfStudyEcdfBias)    <- paste0("affirmK_",mcmcEOS[,"affirmK",1])
+    # Without lag
+    mcmcECDFs$mcmcEndOfStudyEcdfSize           <- apply(mcmcEOS[,"n",],    1, ecdfDataReduction)
+    mcmcECDFs$mcmcEndOfStudyEcdfBias           <- apply(mcmcEOS[,"bias",], 1, ecdfDataReduction)
+    names(mcmcECDFs$mcmcEndOfStudyEcdfSize)    <- designLooksLabels
+    names(mcmcECDFs$mcmcEndOfStudyEcdfBias)    <- designLooksLabels
 
-        # Unrestricted sample size (stopping and then observing lagged outcomes)
-        if(getUnrestricted==TRUE & lagN > 0){
-          mcmcECDFs$mcmcEndOfStudyEcdfSizeLag           <- apply(mcmcEOS[,"lag.n",],    1, ecdfDataReduction)
-          mcmcECDFs$mcmcEndOfStudyEcdfBiasLag           <- apply(mcmcEOS[,"lag.bias",], 1, ecdfDataReduction)
-          names(mcmcECDFs$mcmcEndOfStudyEcdfSizeLag)    <- paste0("affirmK_",mcmcEOS[,"affirmK",1])
-          names(mcmcECDFs$mcmcEndOfStudyEcdfBiasLag)    <- paste0("affirmK_",mcmcEOS[,"affirmK",1])
-        }
-
-      }
-
-      # Maximum sample size of maxN (immediate outcomes)
-      if(!is.null(maxN)){
-        mcmcECDFs$mcmcEndOfStudyEcdfSizeMaxN          <- apply(mcmcEOS[,"maxN.n",],    1, ecdfDataReduction)
-        mcmcECDFs$mcmcEndOfStudyEcdfBiasMaxN          <- apply(mcmcEOS[,"maxN.bias",], 1, ecdfDataReduction)
-        names(mcmcECDFs$mcmcEndOfStudyEcdfSizeMaxN)   <- paste0("affirmK_",mcmcEOS[,"affirmK",1])
-        names(mcmcECDFs$mcmcEndOfStudyEcdfBiasMaxN)   <- paste0("affirmK_",mcmcEOS[,"affirmK",1])
-
-        # Maximum sample size of maxN (stopping and then observing lagged outcomes)
-        if(!is.null(maxN) & lagN > 0){
-          mcmcECDFs$mcmcEndOfStudyEcdfSizeLagMaxN          <- apply(mcmcEOS[,"lagMaxN.n",],    1, ecdf)
-          mcmcECDFs$mcmcEndOfStudyEcdfBiasLagMaxN          <- apply(mcmcEOS[,"lagMaxN.bias",], 1, ecdf)
-          names(mcmcECDFs$mcmcEndOfStudyEcdfSizeLagMaxN)   <- paste0("affirmK_",mcmcEOS[,"affirmK",1])
-          names(mcmcECDFs$mcmcEndOfStudyEcdfBiasLagMaxN)   <- paste0("affirmK_",mcmcEOS[,"affirmK",1])
-        }
-
-      }
-
-    }
-
-
-    mcmcEndOfStudy[[paste0("wait_",waitTime)]] <-
-      list(mcmcEndOfStudyAve      = mcmcEndOfStudyAve,
-           mcmcECDFs              = mcmcECDFs)
+    # With lag
+    mcmcECDFs$mcmcEndOfStudyEcdfSizeLag        <- apply(mcmcEOS[,"lag.n",],    1, ecdfDataReduction)
+    mcmcECDFs$mcmcEndOfStudyEcdfBiasLag        <- apply(mcmcEOS[,"lag.bias",], 1, ecdfDataReduction)
+    names(mcmcECDFs$mcmcEndOfStudyEcdfSizeLag) <- designLooksLabels
+    names(mcmcECDFs$mcmcEndOfStudyEcdfBiasLag) <- designLooksLabels
 
   }
+
+
+
+
+  # 6 output object
 
   # Indicate whether to keep generated data
   if(outData==FALSE) {
@@ -392,11 +251,10 @@ sgpvAM <- function(mcmcData = NULL,
     mcmcData       <- NULL
   }
 
-
-
   out <- list(mcmcMonitoring = mcmcMonitoring,
-              mcmcEndOfStudy = mcmcEndOfStudy,
-              inputs = lapply(match.call.defaults()[-1], eval))
+              mcmcOC         = mcmcEndOfStudyAve,
+              mcmcECDFs      = mcmcECDFs,
+              inputs         = lapply(match.call.defaults()[-1], eval))
 
 
   # Set class
