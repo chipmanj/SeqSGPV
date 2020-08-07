@@ -44,7 +44,7 @@ addStats <- function(o, effectPN, deltaL2, deltaL1, deltaG1, deltaG2){
     sgpvROME  <- 1 - sgpv::sgpvalue(est.lo = o[,"lo"], est.hi = o[,"up"], null.lo = deltaL2, null.hi = deltaG2)$p.delta
 
   } else if(!anyNA(c(deltaL2, deltaL1))){
-    # One sided: efficacy when less than null
+    # One sided: H0: effect >= null
 
     rejH0 <- as.numeric(o[,"lo"] < effectPN & o[,"up"] < effectPN)
 
@@ -58,7 +58,7 @@ addStats <- function(o, effectPN, deltaL2, deltaL1, deltaG1, deltaG2){
     options(warn = defaultW)
 
   } else if(!anyNA(c(deltaG1, deltaG2))){
-    # One sided: efficacy when greater than null
+    # One sided: H0: effect <= null
 
     rejH0 <- as.numeric(o[,"lo"] > effectPN & o[,"up"] > effectPN)
 
