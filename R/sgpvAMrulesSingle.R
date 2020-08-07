@@ -50,7 +50,6 @@ sgpvAMrulesSingle <- function(data, designLooks, getUnrestricted){
 
     # Lag outcomes
     eosLag                     <- data[data[,"n"]==stopLag,]
-    eosLag                     <- data[data[,"n"]==stop + L,]
     eosLag["stopNotROPE"]      <- as.numeric(eosLag["sgpvROPE"]==0)
     eosLag["stopNotROME"]      <- as.numeric(eosLag["sgpvROME"]==0)
     eosLag["stopInconclusive"] <- as.numeric(eosLag["stopNotROPE"]==0 &
