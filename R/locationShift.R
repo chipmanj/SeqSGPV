@@ -2,7 +2,7 @@
 locationShift <- function(o, shiftedThetas, printProgress=TRUE){
 
   # Only perform given data generated under fixed effect and of location-shift family
-  if(  is.function(o$inputs$effectGeneration) | any(grepl("Lm|lm", deparse(lagsROE$inputs$modelFit)))  ){
+  if(  is.function(o$inputs$effectGeneration) | any(grepl("Lm|lm", deparse(o$inputs$modelFit)))  ){
     stop("Currently, location shift only performed for data generated under fixed treatment effect and using an OLS model.")
   }
 
