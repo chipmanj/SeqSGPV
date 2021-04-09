@@ -33,7 +33,7 @@ locationShift <- function(o, shiftedEffects, printProgress=TRUE){
 
 
   for(shift in shiftedEffects){
-    if(printProgress) print(paste0("theta shifted by: ",shift))
+    if(printProgress) print(paste0("effect shifted by: ",shift))
 
 
     # Use previously generated study design if provided in object o
