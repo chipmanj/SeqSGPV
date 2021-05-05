@@ -1,6 +1,6 @@
 #' @export
 plot.sgpvAMlocationShift <- function( amShifted,        stat,
-                                      waitTime = NULL,  alertK = NULL,
+                                      waitTime = NULL,  affirm = NULL,
                                       xlim,             ylim,
                                       xlab = "", ylab = "",
                                       pts = FALSE,
@@ -11,22 +11,22 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   amInputs <- amShifted[[1]]$inputs
 
 
-  # Get wait width and alert k parameters
+  # Get wait width and alert a parameters
   if(is.null(waitTime)){
-    waitTime <- amInputs$waitTimes
+    waitTime <- unique(amInputs$designLooks$W)
   }
   if(length(waitTime)>10) stop("Please select at most 10 wait times to investigate")
 
 
-  if(is.null(alertK)){
-    alertK    <- seq(0, amInputs$maxAlertSteps, by = amInputs$kSteps)
+  if(is.null(affirm)){
+    affirm    <- unique(amInputs$designLooks$A)
   }
-  if(length(alertK)>11) stop("Please select at most 11 required affirmation steps to investigate")
+  if(length(affirm)>11) stop("Please select at most 11 required affirmation steps to investigate")
 
 
 
   # Set colors
-  nVary <- max(c(length(waitTime),length(alertK)))
+  nVary <- max(c(length(waitTime),length(affirm)))
   if(nVary >= 3) {
     cols <- brewer.pal(nVary, name="Spectral")
   } else {
@@ -34,7 +34,7 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   }
 
 
-  # If alertK not provided, get from names of amShifted
+  # If affirm not provided, get from names of amShifted
   # Number of treatment effects not limited
   treatEffect <- unname(sapply(names(amShifted), FUN = function(x) as.numeric(strsplit(x,split="_")[[1]][2])))
 
@@ -42,7 +42,7 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   if(missing(xlim)) xlim <- c(min(treatEffect),max(treatEffect))
 
   if(missing(ylim)) {
-    if(stat%in%c("rejPN","stopNotROPE")){
+    if(stat%in%c("rejH0","stopNotROPE")){
       ylim <- c(0,0.10)
     } else if(stat%in%c("stopNotROME")){
       ylim <- c(0.75,1)
@@ -52,11 +52,11 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   }
 
 
-  if(length(waitTime)>1 & length(alertK) > 1){
-    stop("Must fix at least waitTime or alertK to one value.")
+  if(length(waitTime)>1 & length(affirm) > 1){
+    stop("Must fix at least waitTime or affirm to one value.")
   }
 
-  if(stat=="rejPN"){
+  if(stat=="rejH0"){
     main <- "P( reject point null )"
   } else if (stat=="cover"){
     main <- "Interval Coverage"
@@ -82,15 +82,15 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
   } else mainWait <- NULL
 
 
-  # Get title for alert K
-  if(is.null(alertK)){
-    alertK    <- seq(0, amInputs$maxAlertSteps, by = amInputs$kSteps)
-  }
-  if(length(alertK)>11) stop("Please select at most 11 required affirmation steps to investigate")
+  # # Get title for alert K
+  # if(is.null(affirm)){
+  #   affirm    <- seq(0, amInputs$maxAlertSteps, by = amInputs$kSteps)
+  # }
+  # if(length(affirm)>11) stop("Please select at most 11 required affirmation steps to investigate")
 
-  if(length(alertK) == 1){
+  if(length(affirm) == 1){
 
-    mainK <- paste0("alert k = ", alertK)
+    mainK <- paste0("alert a = ", affirm)
 
   } else mainK <- NULL
 
@@ -152,10 +152,10 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
     yLimBuff1 <- min(ylim) - abs(diff(ylim))
     yLimBuff2 <- max(ylim) + abs(diff(ylim))
 
-    dL2 <- amInputs$deltaL2
-    dL1 <- amInputs$deltaL1
-    dG1 <- amInputs$deltaG1
-    dG2 <- amInputs$deltaG2
+    dL2 <- amInputs$PRISM$deltaL2
+    dL1 <- amInputs$PRISM$deltaL1
+    dG1 <- amInputs$PRISM$deltaG1
+    dG2 <- amInputs$PRISM$deltaG2
 
     # ROME
     polygon(x=c(xLimBuff1, xLimBuff1, dL2, dL2), y=c(yLimBuff1,yLimBuff2,yLimBuff2,yLimBuff1),col=cbAlpha[3], xpd=FALSE, border=NA)
@@ -178,26 +178,26 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
 
   if(addRegionLines){
     # Add line for point null
-    abline(v=amInputs$pointNull,lty=2)
-    abline(v=c(amInputs$deltaL2,
-               amInputs$deltaL1,
-               amInputs$deltaG1,
-               amInputs$deltaG2),lwd=2)
+    abline(v=amInputs$effectPN,lty=2)
+    abline(v=c(amInputs$PRISM$deltaL2,
+               amInputs$PRISM$deltaL1,
+               amInputs$PRISM$deltaG1,
+               amInputs$PRISM$deltaG2),lwd=2)
   }
 
   # Collect average effects across specified parameters
-  toPlot           <- matrix(NA,nrow=length(treatEffect)*length(waitTime)*length(alertK),ncol=4)
-  colnames(toPlot) <- c("te","w","k","y")
+  toPlot           <- matrix(NA,nrow=length(treatEffect)*length(waitTime)*length(affirm),ncol=4)
+  colnames(toPlot) <- c("te","w","a","y")
   iter   <- 1
 
   for(te in treatEffect){
 
     for(w in waitTime){
-      o     <- amShifted[[paste0("theta_",te)]][["mcmcEndOfStudy"]][[paste0("width_",w)]][["mcmcEndOfStudyAve"]]
+      o     <- amShifted[[paste0("effect_",te)]][["mcmcOC"]]
 
-      for (k in alertK){
+      for (a in affirm){
 
-        toPlot[iter,] <- c(te,w,k,o[o[,"alertK"]==k,stat])
+        toPlot[iter,] <- c(te,w,a,o[o[,"affirm"]==a & o[,"wait"]==w,stat])
         iter <- iter + 1
 
       }
@@ -205,11 +205,11 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
     }
 
   }
-  toPlot <- toPlot[order(toPlot[,"te"], toPlot[,"w"], toPlot[,"k"]),]
+  toPlot <- toPlot[order(toPlot[,"te"], toPlot[,"w"], toPlot[,"a"]),]
 
   # Plot stats across varying parameter
   colIter <- 1
-  if(length(alertK)==1){
+  if(length(affirm)==1){
     for(w in waitTime){
       lines( x=toPlot[toPlot[,"w"]==w,"te"], toPlot[toPlot[,"w"]==w,"y"], col=cols[colIter], ... )
       if(pts) points(x=toPlot[toPlot[,"w"]==w,"te"], toPlot[toPlot[,"w"]==w,"y"], col=cols[colIter], ... )
@@ -225,16 +225,16 @@ plot.sgpvAMlocationShift <- function( amShifted,        stat,
     }
 
   } else if(length(waitTime)==1){
-    for(k in alertK){
-      lines( x=toPlot[toPlot[,"k"]==k,"te"], toPlot[toPlot[,"k"]==k,"y"], col=cols[colIter], ... )
-      if(pts) points(x=toPlot[toPlot[,"k"]==k,"te"], toPlot[toPlot[,"k"]==k,"y"], col=cols[colIter], ... )
+    for(a in affirm){
+      lines( x=toPlot[toPlot[,"a"]==a,"te"], toPlot[toPlot[,"a"]==a,"y"], col=cols[colIter], ... )
+      if(pts) points(x=toPlot[toPlot[,"a"]==a,"te"], toPlot[toPlot[,"a"]==a,"y"], col=cols[colIter], ... )
       colIter <- colIter + 1
     }
 
     if(addLegend){
       legend(x = max(xlim) + abs(diff(xlim)) * .35,
            y = max(ylim),
-           legend=alertK,
+           legend=affirm,
            xjust = 1,
            col=cols, pch=19, bty="n",xpd=TRUE,title="Required\nAffirmation\nSteps")
     }
