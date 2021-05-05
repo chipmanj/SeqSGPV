@@ -153,7 +153,7 @@ sgpvAM <- function(mcmcData = NULL,
 
   # 3 Make sure all generated simulations will continue until completion
   #   - Look for stability of sgpv for last set of maxAlert patients
-  if( any(designLooks[,"N"]==Inf) | dataGenArgs$n < max(designLooks[designLooks!=Inf,"N"])){
+  if( any(designLooks[,"N"]==Inf) | dataGenArgs$n < max(designLooks[designLooks[,"N"]!=Inf,"N"])){
 
     if(printProgress) cat("\rEnsuring simulations with unrestricted sample size each continue to completion")
 
