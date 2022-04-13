@@ -140,8 +140,10 @@ SeqSGPV <- function(mcmcData = NULL,
 
 
   # 0.7 Neither effect generation nor effect pn can be 0 if effect scale is odds ratio
-  if(toupper(effectScale) %in% c("OR","ODDSRATIO") & (effectGeneration == 0 | effectPN == 0)){
-    stop("effectScale is set to 'OR' or 'ODDSRATIO' and either effectGeneration or effectPN = 0.")
+  if(toupper(effectScale) %in% c("OR","ODDSRATIO") & !is.function(effectGeneration)){
+    if((effectGeneration == 0 | effectPN == 0)){
+      stop("effectScale is set to 'OR' or 'ODDSRATIO' and either effectGeneration or effectPN = 0.")
+    }
   }
 
 
