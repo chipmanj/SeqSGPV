@@ -8,21 +8,60 @@ amDataSingleGetMore(
   existingDataList,
   iInsufficient,
   getMore,
-  miLevel,
   dataGeneration,
   dataGenArgs,
   effectGeneration,
   effectGenArgs,
   effectScale,
+  allocation,
   randomize,
   effectPN,
+  null,
   deltaL2,
   deltaL1,
   deltaG1,
   deltaG2,
-  modelFit
+  modelFit,
+  modelFitArgs
 )
 }
+\arguments{
+\item{existingDataList}{Previously provided data}
+
+\item{iInsufficient}{Single index of list element with insufficient data for SeqSGPV to be conclusion}
+
+\item{getMore}{List of additional data to generate}
+
+\item{dataGeneration}{See SeqSGPV}
+
+\item{dataGenArgs}{See SeqSGPV}
+
+\item{effectGeneration}{See SeqSGPV}
+
+\item{effectGenArgs}{See SeqSGPV}
+
+\item{effectScale}{See SeqSGPV}
+
+\item{allocation}{See SeqSGPV}
+
+\item{randomize}{TRUE if length(allocation) > 1}
+
+\item{effectPN}{See SeqSGPV}
+
+\item{null}{See SeqSGPV}
+
+\item{deltaL2}{See SeqSGPV}
+
+\item{deltaL1}{See SeqSGPV}
+
+\item{deltaG1}{See SeqSGPV}
+
+\item{deltaG2}{See SeqSGPV}
+
+\item{modelFit}{See SeqSGPV}
+
+\item{modelFitArgs}{See SeqSGPV}
+}
 \description{
-Generate additional observations for single mcmc simulation
+Generate additional observations for single mcmc simulation. amDataSingleGetMore is called within SeqSGPV.
 }

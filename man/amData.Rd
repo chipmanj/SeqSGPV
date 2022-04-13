@@ -4,8 +4,55 @@
 \alias{amData}
 \title{amData}
 \usage{
-amData(nreps, os, fork = TRUE, socket = TRUE, cores = detectCores(), ...)
+amData(
+  nreps,
+  os,
+  fork = TRUE,
+  socket = TRUE,
+  cores = detectCores(),
+  dataGeneration,
+  dataGenArgs,
+  effectGeneration,
+  effectGenArgs,
+  effectScale,
+  allocation,
+  randomize,
+  modelFit,
+  modelFitArgs,
+  existingData
+)
+}
+\arguments{
+\item{nreps}{See SeqSGPV}
+
+\item{os}{See SeqSGPV}
+
+\item{fork}{See SeqSGPV}
+
+\item{socket}{See SeqSGPV}
+
+\item{cores}{See SeqSGPV}
+
+\item{dataGeneration}{See SeqSGPV}
+
+\item{dataGenArgs}{See SeqSGPV}
+
+\item{effectGeneration}{See SeqSGPV}
+
+\item{effectGenArgs}{See SeqSGPV}
+
+\item{effectScale}{See SeqSGPV}
+
+\item{allocation}{See SeqSGPV}
+
+\item{randomize}{TRUE if length(allocation) > 1}
+
+\item{modelFit}{See SeqSGPV}
+
+\item{modelFitArgs}{See SeqSGPV}
+
+\item{existingData}{Previously provided data}
 }
 \description{
-Generate mcmc simulations of adaptive monitoring with parallel computing
+Generate mcmc simulations of adaptive monitoring with parallel computing. amData is called within SeqSGPV.
 }

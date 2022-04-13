@@ -15,5 +15,5 @@ ecdfDataReduction(x, n = 200)
 ecdf after reducing (if applicable) the number of observations
 }
 \description{
-Order and reduce x observations before obtaining ecdf.  Helps save storage space when saving ecdf function to object and when drawing upon many observations.
+Order and reduce x observations before obtaining ecdf.  Helps save storage space when saving ecdf function to object and when drawing upon many observations.  ecdfDataReduction is called within SeqSGPV.
 }

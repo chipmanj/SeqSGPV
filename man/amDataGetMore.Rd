@@ -11,20 +11,69 @@ amDataGetMore(
   fork = TRUE,
   socket = TRUE,
   cores = detectCores(),
-  ...
+  getMore,
+  dataGeneration,
+  dataGenArgs,
+  effectGeneration,
+  effectGenArgs,
+  effectScale,
+  allocation,
+  randomize,
+  effectPN,
+  null,
+  deltaL2,
+  deltaL1,
+  deltaG1,
+  deltaG2,
+  modelFit,
+  modelFitArgs
 )
 }
 \arguments{
-\item{insufficients}{Column vector of indices corresponding to existingDataList that needs additional data}
+\item{insufficients}{Indexes of list with insufficient data for drawing SeqSGPV conclusions}
 
-\item{fork}{Fork clustering, works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.  Defaults to TRUE.}
+\item{existingDataList}{List of mcmc replicates}
 
-\item{socket}{Socket clustering.  Defaults to TRUE yet only applies if FORK = FALSE.}
+\item{os}{See SeqSGPV}
 
-\item{...}{Inputs to amDataSingleGetMore}
+\item{fork}{See SeqSGPV}
 
-\item{exisitingDataList}{List of generated mcmc data in each element.}
+\item{socket}{See SeqSGPV}
+
+\item{cores}{See SeqSGPV}
+
+\item{getMore}{List of additional data to generate}
+
+\item{dataGeneration}{See SeqSGPV}
+
+\item{dataGenArgs}{See SeqSGPV}
+
+\item{effectGeneration}{See SeqSGPV}
+
+\item{effectGenArgs}{See SeqSGPV}
+
+\item{effectScale}{See SeqSGPV}
+
+\item{allocation}{See SeqSGPV}
+
+\item{randomize}{TRUE if length(allocation) > 1}
+
+\item{effectPN}{See SeqSGPV}
+
+\item{null}{See SeqSGPV}
+
+\item{deltaL2}{See SeqSGPV}
+
+\item{deltaL1}{See SeqSGPV}
+
+\item{deltaG1}{See SeqSGPV}
+
+\item{deltaG2}{See SeqSGPV}
+
+\item{modelFit}{See SeqSGPV}
+
+\item{modelFitArgs}{See SeqSGPV}
 }
 \description{
-Generate additional data if previously generated data were insufficient to run to conclusion with unrestricted n.
+Generate additional data if previously generated data were insufficient to run to conclusion with unrestricted n. amDataGetMore is called within SeqSGPV.
 }

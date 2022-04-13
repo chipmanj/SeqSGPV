@@ -1,20 +1,18 @@
+#' @title mcmcMontiroingEnoughCheck
+#'
+#' @description Makes sure enough observations collected to ensure end of study when applying monitoring rules. mcmcMontiroingEnoughCheck is called within SeqSPGV.
+#'
+#' @param o List of mcmc replicates
+#' @param monitoringFrequency Matrix of monitoring frequency combinations
+#'
 #' @export
-
-# mcmcMonitoringEnoughCheck.R
-# J Chipman
-#
-# Makes sure enough observations collected to ensure end of study
-# when applying monitoring rules
-
-
-
-mcmcMonitoringEnoughCheck <- function(o, designLooks){
+mcmcMonitoringEnoughCheck <- function(o, monitoringFrequency){
 
   obs  <- nrow(o)
-  maxW <- max(designLooks[,"W"])
-  maxS <- max(designLooks[,"S"])
-  maxA <- max(designLooks[,"A"])
-  maxL <- max(designLooks[,"L"])
+  maxW <- max(monitoringFrequency[,"W"])
+  maxS <- max(monitoringFrequency[,"S"])
+  maxA <- max(monitoringFrequency[,"A"])
+  maxL <- max(monitoringFrequency[,"L"])
 
   # Check that sufficient observed n
   minN  <- maxW + maxA + maxL
@@ -31,7 +29,7 @@ mcmcMonitoringEnoughCheck <- function(o, designLooks){
     stabilityROPE <- sum(o[(obs - maxL - addedStabilityN+1):(obs - maxL),"sgpvROPE"]==0)
     stabilityROME <- sum(o[(obs - maxL - addedStabilityN+1):(obs - maxL),"sgpvROME"]==0)
 
-    # Get a sense of how many additional observations needed and multiple by arbitraty factor of 4
+    # Get a sense of how many additional observations needed and multiple by arbitrary factor of 4
     getMore0 <- min(addedStabilityN - stabilityROPE, addedStabilityN - stabilityROME) * 4
 
   } else {

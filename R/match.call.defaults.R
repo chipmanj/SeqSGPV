@@ -1,7 +1,12 @@
-# Return inputs of call, including default inputs
-# https://stackoverflow.com/questions/14397364/match-call-with-default-arguments
-# Answer from Neal Fultz
+#' @title Get list of inputs
+#'
+#' @export
 match.call.defaults <- function(...) {
+
+  # Return inputs of call, including default inputs
+  # https://stackoverflow.com/questions/14397364/match-call-with-default-arguments
+  # Answer from Neal Fultz
+
   call <- evalq(match.call(expand.dots = FALSE), parent.frame(1))
   formals <- evalq(formals(), parent.frame(1))
 

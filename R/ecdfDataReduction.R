@@ -1,14 +1,12 @@
-##' ecdfDataReduction.R
+##' @title ecdfDataReduction.R
 ##'
-##' Order and reduce x observations before obtaining ecdf.  Helps save storage space when saving ecdf function to object and when drawing upon many observations.
-##'
+##' @description Order and reduce x observations before obtaining ecdf.  Helps save storage space when saving ecdf function to object and when drawing upon many observations.  ecdfDataReduction is called within SeqSGPV.
 ##'
 ##' @param x observations
 ##' @param n desired number of reduced, ordered observations
 ##'
 ##' @return ecdf after reducing (if applicable) the number of observations
-
-##' @rdname ecdfDataReduction
+##'
 ##' @export
 ecdfDataReduction <- function(x,n=200){
   # Data reduction not necessary if number of x observations < n
