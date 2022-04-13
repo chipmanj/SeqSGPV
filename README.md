@@ -624,6 +624,7 @@ system.time(PRISM3 <-  SeqSGPV(nreps            = 500,
 
        user  system elapsed 
      87.197   2.729  45.117 
+     89.747   2.927  46.606 
 
 ``` r
 se3 <- round(exp(seq(-0.1, .7, by = .1)),2)
@@ -642,12 +643,16 @@ system.time(PRISMse3 <- fixedDesignEffects(PRISM3, shift = se3))
 
        user  system elapsed 
     687.405  24.638 357.098 
+    703.398  25.833 366.224 
 
 ``` r
 plot(PRISMse3, stat = "rejH0")
 ```
 
+
 <img src="README_files/figure-gfm/unnamed-chunk-20-1.png" style="display: block; margin: auto;" />
+![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
 
 ## Example 4: Re-visiting example 1 with random effect generation
 
@@ -655,6 +660,8 @@ This example uses a small number of replicates to demonstrate how to
 obtain end of study replicates where the effect generation follows a
 random distribution. For each replicate, a success probability is drawn
 uniformly between 0.1 and 0.5.
+random distribution.
+
 
 ``` r
 system.time(PRISM1c <-  SeqSGPV(nreps            = 20,
@@ -678,12 +685,17 @@ system.time(PRISM1c <-  SeqSGPV(nreps            = 20,
 ```
 
        user  system elapsed 
+<<<<<<< HEAD
       5.509   3.345   1.988 
+=======
+      4.388   2.487   1.303 
+>>>>>>> d6ae415372693bce311fc1fd3997bfbecfa397e8
 
 ``` r
 head(PRISM1c$mcmcEOS$W5_S1_A0_L0_N35)
 ```
 
+<<<<<<< HEAD
          theta0     effect0  n         est        bias rejH0 cover stopNotROPE
     [1,]    0.2  0.04109123 24 0.208454810 -0.03263642     0     1           0
     [2,]    0.2  0.04851830 35 0.314338760  0.06582046     0     1           0
@@ -704,6 +716,28 @@ head(PRISM1c$mcmcEOS$W5_S1_A0_L0_N35)
     [3,]         1               1               0                    0
     [4,]         1               1               0                    0
     [5,]         0               0               1                    0
+=======
+         theta0     effect0  n       est        bias rejH0 cover stopNotROPE
+    [1,]    0.2 -0.02161585 30 0.2334222  0.05503804     0     1           0
+    [2,]    0.2  0.28658816 18 0.4444753 -0.04211287     1     1           1
+    [3,]    0.2 -0.05600805  9 0.1115427 -0.03244922     0     1           0
+    [4,]    0.2 -0.01438061 27 0.2223251  0.03670568     0     1           0
+    [5,]    0.2  0.01038074 13 0.1541122 -0.05626852     0     1           0
+    [6,]    0.2 -0.03740836  9 0.1115427 -0.05104891     0     1           0
+         stopNotROME stopInconclusive lag.n   lag.est    lag.bias lag.rejH0
+    [1,]           1                0    30 0.2334222  0.05503804         0
+    [2,]           0                0    18 0.4444753 -0.04211287         1
+    [3,]           1                0     9 0.1115427 -0.03244922         0
+    [4,]           1                0    27 0.2223251  0.03670568         0
+    [5,]           1                0    13 0.1541122 -0.05626852         0
+    [6,]           1                0     9 0.1115427 -0.05104891         0
+         lag.cover lag.stopNotROPE lag.stopNotROME lag.stopInconclusive
+    [1,]         1               0               1                    0
+    [2,]         1               1               0                    0
+    [3,]         1               0               1                    0
+    [4,]         1               0               1                    0
+    [5,]         1               0               1                    0
+>>>>>>> d6ae415372693bce311fc1fd3997bfbecfa397e8
     [6,]         1               0               1                    0
          lag.stopInconsistent lag.stopRejH0_YN lag.stopRejH0_NY wait steps affirm
     [1,]                    0                0                0    5     1      0

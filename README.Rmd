@@ -375,12 +375,14 @@ se3 <- round(exp(seq(-0.1, .7, by = .1)),2)
 system.time(PRISMse3 <- fixedDesignEffects(PRISM3, shift = se3))
 ```
 
+
 ```{r, fig.align='center', fig.height=6, fig.width=6}
 plot(PRISMse3, stat = "rejH0")
 ```
 
 
 ## Example 4: Re-visiting example 1 with random effect generation
+
 
 This example uses a small number of replicates to demonstrate how to obtain end of study replicates where the effect generation follows a random distribution.  For each replicate, a success probability is drawn uniformly between 0.1 and 0.5.
 
