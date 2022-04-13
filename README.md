@@ -169,7 +169,7 @@ system.time(PRISM <-  SeqSGPV(nreps            = 20000,
 ```
 
         user   system  elapsed 
-    4059.600   48.354  686.334 
+    4056.330   41.770  676.359 
 
 Type I error under different monitoring frequencies. Increasing the
 number of observations between assessments (steps) and requiring a
@@ -194,13 +194,12 @@ futile when there is evidence the effect is &lt; 0.4.
 ``` r
 # Change to monitoring null-bound ROE
 inputs <- PRISM$inputs
-inputs$PRISM$deltaG1 <- 0.2
-
+inputs$PRISM$deltaG1 <- 0.20
 system.time(PRISM_NullROE <-  do.call(SeqSGPV, inputs))
 ```
 
         user   system  elapsed 
-    4060.044   74.112  700.766 
+    4050.970   44.591  673.154 
 
 ``` r
 par(mfrow=c(2,2))
@@ -208,13 +207,13 @@ par(mfrow=c(2,2))
 plot(PRISM,        stat = "rejH0", affirm=0, steps=1,lag=0,ylim=c(0.02, 0.10))
 title(sub="PRISM", adj=0)
 abline(h=.05)
-plot(PRISM,        stat = "rejH0", affirm=1, steps=2,lag=0,ylim=c(0.02, 0.10))
+plot(PRISM,        stat = "rejH0", affirm=1, steps=3,lag=0,ylim=c(0.02, 0.10))
 title(sub="PRISM", adj=0)
 abline(h=.05)
 plot(PRISM_NullROE,stat = "rejH0", affirm=0, steps=1,lag=0,ylim=c(0.02, 0.10))
 title(sub="Null-bound ROE", adj=0)
 abline(h=.05)
-plot(PRISM_NullROE,stat = "rejH0", affirm=1, steps=2,lag=0,ylim=c(0.02, 0.10))
+plot(PRISM_NullROE,stat = "rejH0", affirm=1, steps=3,lag=0,ylim=c(0.02, 0.10))
 title(sub="Null-bound ROE", adj=0)
 abline(h=.05)
 ```
@@ -231,28 +230,28 @@ summary(PRISM,effect = 0,steps=1,affirm=0,wait=9,N=39,lag=0)
 
     Given: theta = 0.2, W = 9 S = 1, A = 0 and N = 39, with 0 lag (delayed) outcomes
     H0   : theta is less than or equal to 0.2
-      Average sample size              = 16.571
-      P( reject H0 )                   = 0.0514
-      P( conclude not ROPE effect )    = 0.0492
-      P( conclude not ROME effect )    = 0.8769
-      P( conclude PRISM inconclusive ) = 0.074
-      Coverage                         = 0.816
-      Bias                             = -0.0353
+      Average sample size              = 16.7617
+      P( reject H0 )                   = 0.0515
+      P( conclude not ROPE effect )    = 0.0496
+      P( conclude not ROME effect )    = 0.8748
+      P( conclude PRISM inconclusive ) = 0.0756
+      Coverage                         = 0.8102
+      Bias                             = -0.0354
 
 ``` r
-summary(PRISM_NullROE,effect = 0,steps=2,affirm=1,wait=9,N=39,lag=0)
+summary(PRISM_NullROE,effect = 0,steps=3,affirm=1,wait=6,N=39,lag=0)
 ```
 
 
-    Given: theta = 0.2, W = 9 S = 2, A = 1 and N = 39, with 0 lag (delayed) outcomes
+    Given: theta = 0.2, W = 6 S = 3, A = 1 and N = 39, with 0 lag (delayed) outcomes
     H0   : theta is less than or equal to 0.2
-      Average sample size              = 20.0625
-      P( reject H0 )                   = 0.0523
-      P( conclude not ROPE effect )    = 0.0523
-      P( conclude not ROME effect )    = 0.843
-      P( conclude PRISM inconclusive ) = 0.1047
-      Coverage                         = 0.8124
-      Bias                             = -0.0346
+      Average sample size              = 19.1292
+      P( reject H0 )                   = 0.0492
+      P( conclude not ROPE effect )    = 0.0492
+      P( conclude not ROME effect )    = 0.8368
+      P( conclude PRISM inconclusive ) = 0.1141
+      Coverage                         = 0.6881
+      Bias                             = -0.0499
 
 Average sample size between PRISM and null-bound ROE designs.
 
@@ -260,7 +259,7 @@ Average sample size between PRISM and null-bound ROE designs.
 par(mfrow=c(1,2))
 plot(PRISM,        stat = "n", affirm=0, steps=1,lag=0,ylim=c(14,23))
 title(sub="PRISM", adj=0)
-plot(PRISM_NullROE,stat = "n", affirm=1, steps=2,lag=0,ylim=c(14,23))
+plot(PRISM_NullROE,stat = "n", affirm=1, steps=3,lag=0,ylim=c(14,23))
 title(sub="Null-bound ROE", adj=0)
 ```
 
@@ -270,14 +269,49 @@ Operating characteristics of PRISM design across a range of effects.
 
 ``` r
 # Obtain design under range of effects
-se <- seq(-0.1, 0.3, by = 0.025)
+se <- seq(-0.05, 0.3, by = 0.025)
 system.time(PRISMse <- fixedDesignEffects(PRISM, shift = se))
 ```
 
+    [1] "effect: -0.05"
+    [1] "effect: -0.025"
+    [1] "effect: 0"
+    [1] "effect: 0.025"
+    [1] "effect: 0.05"
+    [1] "effect: 0.075"
+    [1] "effect: 0.1"
+    [1] "effect: 0.125"
+    [1] "effect: 0.15"
+    [1] "effect: 0.175"
+    [1] "effect: 0.2"
+    [1] "effect: 0.225"
+    [1] "effect: 0.25"
+    [1] "effect: 0.275"
+    [1] "effect: 0.3"
+
+         user    system   elapsed 
+    56302.561   707.827  9092.803 
+
 ``` r
 plot(PRISMse, stat = "rejH0", steps = 1, affirm = 0, N = 39, lag=0)
+```
+
+![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
 summary(PRISMse, effect = 0.2, wait = 9, steps = 1, affirm = 0, N = 39, lag = 0)
 ```
+
+
+    Given: theta = 0.4, W = 9 S = 1, A = 0 and N = 39, with 0 lag (delayed) outcomes
+    H0   : theta is less than or equal to 0.2
+      Average sample size              = 18.7221
+      P( reject H0 )                   = 0.766
+      P( conclude not ROPE effect )    = 0.7418
+      P( conclude not ROME effect )    = 0.1427
+      P( conclude PRISM inconclusive ) = 0.1154
+      Coverage                         = 0.8305
+      Bias                             = 0.0358
 
 For comparison with Simon’s 2 stage design,
 
@@ -409,7 +443,7 @@ power.t.test(300/2, delta=.5, sig.level = 0.05, alternative = "one.sided")
 # Maximum sample size -- 150, 300, Inf
 
 
-system.time(PRISM2 <-  SeqSGPV(nreps            = 200,
+system.time(PRISM2 <-  SeqSGPV(nreps            = 20000,
                                dataGeneration   = rnorm, dataGenArgs = list(n=300,sd=1),
                                effectGeneration = 0, effectGenArgs=NULL,  effectScale  = "identity",
                                allocation       = c(1,1),
@@ -428,7 +462,7 @@ system.time(PRISM2 <-  SeqSGPV(nreps            = 200,
 ```
 
        user  system elapsed 
-     30.468   9.371   8.225 
+    678.045  48.464 192.160 
 
 Assess the impact of delayed outcomes.
 
@@ -477,15 +511,15 @@ system.time(PRISMse2 <- fixedDesignEffects(PRISM2, shift = se))
     [1] "effect: 0.65"
     [1] "effect: 0.7"
 
-       user  system elapsed 
-     91.384  51.632  23.750 
+        user   system  elapsed 
+    6562.191 1290.690 1511.386 
 
 ``` r
 par(mfrow=c(2,2))
 plot(PRISMse2, stat = "lag.rejH0", steps = 25, affirm = 0,  N = 300, lag = 75)
 plot(PRISMse2, stat = "lag.n",     steps = 25, affirm = 0,  N = 300, lag = 75)
 plot(PRISMse2, stat = "lag.bias",  steps = 25, affirm = 0,  N = 300, lag = 75)
-plot(PRISMse2, stat = "lag.cover", steps = 25, affirm = 0,  N = 300, lag = 75)
+plot(PRISMse2, stat = "lag.cover", steps = 25, affirm = 0,  N = 300, lag = 75, ylim=c(0.93, 0.97))
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
@@ -519,7 +553,7 @@ plot(PRISMse2$`effect1_0.3`$mcmcECDFs$mcmcEndOfStudyEcdfNLag$W25_S25_A0_L0_N300,
     \[lo, hi\]) which is insufficient evidence to rule out any of
     essentially null effects (SGPV<sub>*R**O**W**P**E*</sub> = 0),
     clinically meaningful effects (SGPV<sub>*R**O**M**E*</sub> = 0), nor
-    the null hypothesis effects (SGPV<sub>*X**X*</sub> = 0).
+    the null hypothesis effects (SGPV<sub>*N**U**L**L*</sub> = XX).
 
 For each conclusion, the following clarification may be provided: Based
 on simulations, there may be an absolute bias, in terms of effect size,
@@ -527,6 +561,20 @@ as large 0.02 and interval coverage as low as 0.93. The bias is towards
 the null for effects less than 0.31 and away from the null for effects
 greater than 0.31 (see figure of simulated design-based bias and
 coverage).
+
+## Example 3: Two-arm randomized trial comparing odds ratios between groups
+
+An investigator wants to compare the odds ratio between two groups in
+which the underlying success probability is 0.35.
+
+H0: odds ratio ≤ 1  
+H1: odds ratio &gt; 1
+
+PRISM: *δ*<sub>*G*1</sub> = 1.05 and *δ*<sub>*G*2</sub> = 1.75; ROWPE =
+( − ∞, 1.05\], ROME = \[1.75, ∞)
+
+This example uses a small number of replicates to get an initial sense
+of operating characteristics
 
 ``` r
 # Example 3
@@ -536,8 +584,25 @@ coverage).
 # PRISM: deltaG1 = 1.05, deltaG2 = 1.75
 epiR::epi.sscc(OR = 1.75, p1 = NA, p0 = 0.4, n = NA, power = 0.80, r = 1,
                sided.test = 1, conf.level = 0.95, method = "unmatched", fleiss = FALSE)
+```
 
-system.time(PRISM3 <-  SeqSGPV(nreps            = nreps,
+    $n.total
+    [1] 320
+
+    $n.case
+    [1] 160
+
+    $n.control
+    [1] 160
+
+    $power
+    [1] 0.8
+
+    $OR
+    [1] 1.75
+
+``` r
+system.time(PRISM3 <-  SeqSGPV(nreps            = 500,
                                dataGeneration   = rbinom, dataGenArgs = list(n=320, size = 1, prob = 0.35),
                                effectGeneration = 1, effectGenArgs=NULL,  effectScale  = "oddsratio",
                                allocation       = c(1,1),
@@ -553,10 +618,31 @@ system.time(PRISM3 <-  SeqSGPV(nreps            = nreps,
                                lag              = 0,
                                N                = 320,
                               printProgress    = FALSE))
+```
 
+       user  system elapsed 
+     89.487   2.863  46.326 
 
+``` r
 se3 <- round(exp(seq(-0.1, .7, by = .1)),2)
 system.time(PRISMse3 <- fixedDesignEffects(PRISM3, shift = se3))
+```
 
+    [1] "effect: 0.9"
+    [1] "effect: 1"
+    [1] "effect: 1.11"
+    [1] "effect: 1.22"
+    [1] "effect: 1.35"
+    [1] "effect: 1.49"
+    [1] "effect: 1.65"
+    [1] "effect: 1.82"
+    [1] "effect: 2.01"
+
+       user  system elapsed 
+    693.559  23.866 359.664 
+
+``` r
 plot(PRISMse3, stat = "rejH0")
 ```
+
+![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
