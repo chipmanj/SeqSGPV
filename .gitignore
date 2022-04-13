@@ -3,4 +3,4 @@
 .RData
 .Ruserdata
 test.R
-README_*
+README_cache/gfm/*
