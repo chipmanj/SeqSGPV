@@ -332,27 +332,28 @@ clinfun::ph2simon(pu = 0.2, pa = 0.4, ep1 = 0.05, ep2 = 0.2)
 
 **Example interpretations following SeqSGPV monitoring of PRISM:**
 
-1.  The estimated success probability was XX (95% credible interval:
-    \[lo, hi\]) which is evidence that the treatment effect is at least
+1.  The estimated success probability was 0.39 (95% credible interval:
+    0.23, 0.54) which is evidence that the treatment effect is at least
     trivially better than the null hypothesis
-    (SGPV<sub>*R**O**W**P**E*</sub> = 0) and is evidence to reject the
-    null hypothesis (SGPV<sub>*N**U**L**L*</sub> = 0).
+    (p<sub>*R**O**W**P**E*</sub> = 0) and is evidence to reject the null
+    hypothesis (p<sub>*N**U**L**L*</sub> = 0).
 
-2.  The estimated success probability was XX (95% credible interval:
-    \[lo, hi\]) which is evidence that the treatment effect is not
-    clinically meaningful (SGPV<sub>*R**O**M**E*</sub> = 0).
+2.  The estimated success probability was 0.13 (95% credible interval:
+    0.00, 0.33) which is evidence that the treatment effect is not
+    clinically meaningful (p<sub>*R**O**M**E*</sub> = 0). The evidence
+    toward the null hypothesis is *p*<sub>*N**U**L**L*</sub> = 0.61.
 
-3.  The estimated success probability was XX (95% credible interval:
-    \[lo, hi\]), which is suggestive though inconclusive evidence to
-    rule out at essentially null effects (SGPV<sub>*R**O**W**P**E*</sub>
-    = XX) yet is evidence to reject the null hypothesis
-    (SGPV<sub>*N**U**L**L*</sub> = 0).
+3.  The estimated success probability was 0.35 (95% credible interval:
+    0.203, 0.508), which is suggestive though inconclusive evidence to
+    rule out at essentially null effects (p<sub>*R**O**W**P**E*</sub> =
+    0.07) yet is evidence to reject the null hypothesis
+    (p<sub>*N**U**L**L*</sub> = 0).
 
-4.  The estimated treatment effect was XX (95% confidence interval:
-    \[lo, hi\]) which is insufficient evidence to rule out any of
-    essentially null effects (SGPV<sub>*R**O**W**P**E*</sub> = 0),
-    clinically meaningful effects (SGPV<sub>*R**O**M**E*</sub> = 0), nor
-    the null hypothesis effects (SGPV<sub>*X**X*</sub> = 0).
+4.  The estimated treatment effect was 0.29 (95% confidence interval:
+    0.16, 0.45) which is insufficient evidence to rule out any of
+    essentially null effects (p<sub>*R**O**W**P**E*</sub> = 0.23),
+    clinically meaningful effects (p<sub>*R**O**M**E*</sub> = 0.16), nor
+    the null hypothesis effects (p<sub>*N**U**L**L*</sub> = 0.15).
 
 ## Example 1b: Phase II trial with delayed outcomes
 
@@ -533,27 +534,28 @@ plot(PRISMse2$`effect1_0.3`$mcmcECDFs$mcmcEndOfStudyEcdfNLag$W25_S25_A0_L0_N300,
 
 **Example interpretations following SeqSGPV monitoring of PRISM:**
 
-1.  The estimated treatment effect was XX (95% confidence interval:
-    \[lo, hi\]) which is evidence that the treatment effect is at least
+1.  The estimated treatment effect was 1.05 (95% confidence interval:
+    0.24, 1.85) which is evidence that the treatment effect is at least
     trivially better than the null hypothesis
-    (SGPV<sub>*R**O**W**P**E*</sub> = 0) and is evidence to reject the
-    null hypothesis (SGPV<sub>*N**U**L**L*</sub> = 0).
+    (p<sub>*R**O**W**P**E*</sub> = 0) and is evidence to reject the null
+    hypothesis (p<sub>*N**U**L**L*</sub> = 0).
 
-2.  The estimated treatment effect was XX (95% confidence interval:
-    \[lo, hi\]) which is evidence that the treatment effect is not
-    clinically meaningful (SGPV<sub>*R**O**M**E*</sub> = 0).
+2.  The estimated treatment effect was -0.61 (95% confidence interval:
+    -1.45, 0.24) which is evidence that the treatment effect is not
+    clinically meaningful (p<sub>*R**O**M**E*</sub> = 0). The evidence
+    toward the null hypothesis is *p*<sub>*N**U**L**L*</sub> = 0.86.
 
-3.  The estimated treatment effect was XX (95% confidence interval:
-    \[lo, hi\]), which is suggestive though inconclusive evidence to
-    rule out at essentially null effects (SGPV<sub>*R**O**W**P**E*</sub>
-    = XX) yet is evidence to reject the null hypothesis
-    (SGPV<sub>*N**U**L**L*</sub> = 0).
+3.  The estimated treatment effect was 0.26 (95% confidence interval:
+    0.005, 0.514), which is suggestive though inconclusive evidence to
+    rule out at essentially null effects (p<sub>*R**O**W**P**E*</sub> =
+    0.14) yet is evidence to reject the null hypothesis
+    (p<sub>*N**U**L**L*</sub> = 0).
 
-4.  The estimated treatment effect was XX (95% confidence interval:
-    \[lo, hi\]) which is insufficient evidence to rule out any of
-    essentially null effects (SGPV<sub>*R**O**W**P**E*</sub> = 0),
-    clinically meaningful effects (SGPV<sub>*R**O**M**E*</sub> = 0), nor
-    the null hypothesis effects (SGPV<sub>*N**U**L**L*</sub> = XX).
+4.  The estimated treatment effect was 0.30 (95% confidence interval:
+    -0.10, 0.69) which is insufficient evidence to rule out any of
+    essentially null effects (p<sub>*R**O**W**P**E*</sub> = 0.22),
+    clinically meaningful effects (p<sub>*R**O**M**E*</sub> = 0.25), nor
+    the null hypothesis effects (p<sub>*N**U**L**L*</sub> = 0.13).
 
 For each conclusion, the following clarification may be provided: Based
 on simulations, there may be an absolute bias, in terms of effect size,
@@ -621,7 +623,7 @@ system.time(PRISM3 <-  SeqSGPV(nreps            = 500,
 ```
 
        user  system elapsed 
-     89.487   2.863  46.326 
+     89.747   2.927  46.606 
 
 ``` r
 se3 <- round(exp(seq(-0.1, .7, by = .1)),2)
@@ -639,10 +641,80 @@ system.time(PRISMse3 <- fixedDesignEffects(PRISM3, shift = se3))
     [1] "effect: 2.01"
 
        user  system elapsed 
-    693.559  23.866 359.664 
+    703.398  25.833 366.224 
 
 ``` r
 plot(PRISMse3, stat = "rejH0")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+## Example 4: Re-visiting example 1 with random effect generation
+
+This example uses a small number of replicates to demonstrate how to
+obtain end of study replicates where the effect generation follows a
+random distribution.
+
+``` r
+system.time(PRISM1c <-  SeqSGPV(nreps            = 20,
+                               dataGeneration   = rbinom, dataGenArgs = list(n=40, size=1, prob = .2),
+                               effectGeneration = runif, effectGenArgs=list(n=1, min=-.1, max = .3),  effectScale  = "identity",
+                               allocation       = 1,
+                               effectPN         = 0.2,
+                               null             = "less",
+                               PRISM            = list(deltaL2 = NA, deltaL1 = NA, 
+                                                       deltaG1 = .225, deltaG2 = .4),
+                               modelFit         = binomCI,
+                               modelFitArgs     = list(conf.level=.95, 
+                                                       prior.shape1=0.005, prior.shape2=0.005,
+                                                       methods="bayes", type="central"),
+                               wait             = 5:10,
+                               steps            = 1:3,
+                               affirm           = 0:1,
+                               lag              = c(0,5,10),
+                               N                = 35:40,
+                               printProgress    = FALSE))
+```
+
+       user  system elapsed 
+      4.388   2.487   1.303 
+
+``` r
+head(PRISM1c$mcmcEOS$W5_S1_A0_L0_N35)
+```
+
+         theta0     effect0  n       est        bias rejH0 cover stopNotROPE
+    [1,]    0.2 -0.02161585 30 0.2334222  0.05503804     0     1           0
+    [2,]    0.2  0.28658816 18 0.4444753 -0.04211287     1     1           1
+    [3,]    0.2 -0.05600805  9 0.1115427 -0.03244922     0     1           0
+    [4,]    0.2 -0.01438061 27 0.2223251  0.03670568     0     1           0
+    [5,]    0.2  0.01038074 13 0.1541122 -0.05626852     0     1           0
+    [6,]    0.2 -0.03740836  9 0.1115427 -0.05104891     0     1           0
+         stopNotROME stopInconclusive lag.n   lag.est    lag.bias lag.rejH0
+    [1,]           1                0    30 0.2334222  0.05503804         0
+    [2,]           0                0    18 0.4444753 -0.04211287         1
+    [3,]           1                0     9 0.1115427 -0.03244922         0
+    [4,]           1                0    27 0.2223251  0.03670568         0
+    [5,]           1                0    13 0.1541122 -0.05626852         0
+    [6,]           1                0     9 0.1115427 -0.05104891         0
+         lag.cover lag.stopNotROPE lag.stopNotROME lag.stopInconclusive
+    [1,]         1               0               1                    0
+    [2,]         1               1               0                    0
+    [3,]         1               0               1                    0
+    [4,]         1               0               1                    0
+    [5,]         1               0               1                    0
+    [6,]         1               0               1                    0
+         lag.stopInconsistent lag.stopRejH0_YN lag.stopRejH0_NY wait steps affirm
+    [1,]                    0                0                0    5     1      0
+    [2,]                    0                0                0    5     1      0
+    [3,]                    0                0                0    5     1      0
+    [4,]                    0                0                0    5     1      0
+    [5,]                    0                0                0    5     1      0
+    [6,]                    0                0                0    5     1      0
+         lag  N
+    [1,]   0 35
+    [2,]   0 35
+    [3,]   0 35
+    [4,]   0 35
+    [5,]   0 35
+    [6,]   0 35
