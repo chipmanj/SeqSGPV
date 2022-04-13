@@ -33,7 +33,7 @@ The SeqSGPV package supports the paper '' [arxiv] which advances:
     D. Maximum sample size\
   
 
-**Why SGPV**: The SGPV is an evidence-based metric that measures the overlap between an interval and clinically meaningful hypotheses.  It may be used with any inferential interval (ex: bayesian, frequentist, likelihood, etc.) and therefore has been called 'method agnostic'.
+**Why SGPV**: The SGPV is an evidence-based metric that measures the overlap between an interval and clinically meaningful hypotheses.  It may be used with any inferential interval (ex: bayesian, frequentist, likelihood, etc.) and therefore has been called 'method agnostic'. For an interval hypothesis $H$, the SGPV is denoted as p$_H$.
   
 **Why PRISM**: Previously established clinically meaningful hypotheses include a Region of Practical Equivalence (ROPE) and Region of Equivalence (ROE).  The ROPE is an indifference zone around the null hypothesis and monitoring continues until evidence supports the ROPE or rules out the ROPE.  Monitoring a ROPE reduces risks of Type I error of the point null hypothesis; however, it can lead to indefinite monitoring for effects on the ROPE boundary.  The ROE is a region of indifference for which the benefit of a treatment is questionable -- may be of value but not quite meaningful enough.  The ROE may be monitored with various strategies.  For example, the ROE could mimic ROPE monitoring.  It can also be used to monitoring until ruling out effects below ROE or effects above ROE (creating overlapping hypotheses).
 
