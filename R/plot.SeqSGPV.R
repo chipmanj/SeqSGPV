@@ -24,6 +24,11 @@ plot.SeqSGPV <- function( am, stat, wait, steps, affirm, lag, N, xlim, ylim, log
                           addMain = TRUE, addLegend=TRUE, ablineH=NULL,ablineV=NULL,
                           setMargins, ylab="", ...){
 
+  if(length(am$inputs$effectGenArgs)!=0){
+
+    stop("plot function is currently only for when conditioning on a fixed parameter value")
+
+  }
 
   # Inputs stored in am object
   if(is.element(el = "SeqSGPVeffects",class(am))){
@@ -196,7 +201,29 @@ plot.SeqSGPV <- function( am, stat, wait, steps, affirm, lag, N, xlim, ylim, log
 
 
   if(addMain) {
-    figMain <- paste0(main,"\nEffect = ", e, ", ",
+
+
+
+
+    # 1 or 2 arm trial
+    if(length(amInputs$allocation)==1){
+
+      # 1 arm trial with effect on identity scale, report theta
+      if(amInputs$effectScale=="identity"){
+        param      <- "Theta"
+        fixedParam <- e + o[1,"theta0"]
+      } else {
+        param      <- "Effect"
+        fixedParam <- e
+      }
+
+    } else {
+      param <- "Effect"
+      fixedParam <- e
+    }
+
+
+    figMain <- paste0(main,"\n",param," = ", fixedParam, ", ",
                      paste0(toupper(substr(names(unlist(mfl[which(mfl_lengths==1)])),start=1,stop = 1)),
                             " = ",
                             unlist(mfl[which(mfl_lengths==1)]), collapse=", "))
