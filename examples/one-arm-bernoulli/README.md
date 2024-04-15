@@ -17,8 +17,8 @@ the success probability.
 
 For this early phase study, the clinician deems success probabilities
 less than 0.225 as essentially equivalent or worse than the null
-hypothesis (i.e. ROWPE). The minimal scientifically meaningful effect
-(i.e. ROME boundary) is 0.4.
+hypothesis (i.e. ROWPE). The minimal scientifically meaningful effect
+(i.e. ROME boundary) is 0.4.
 
 As a secondary outcome, the investigator is interested in 3m quality of
 life. Before measuring a single patient’s outcome, an additional 5-10

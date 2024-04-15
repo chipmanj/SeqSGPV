@@ -92,7 +92,7 @@ system.time(PRISM2 <-  SeqSGPV(nreps            = nreps,
 ```
 
        user  system elapsed 
-      0.290   0.204   0.284 
+      0.303   0.209   0.270 
 
 Assess the impact of delayed outcomes.
 
@@ -103,7 +103,7 @@ plot(PRISM2,stat = "lag.rejH0", affirm=0, steps=25)
 plot(PRISM2,stat = "lag.n",     affirm=0, steps=25)
 ```
 
-<img src="example-two-arm-continuous_files/figure-gfm/unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
 
 ``` r
 par(mfrow=c(1,2))
@@ -113,7 +113,7 @@ plot(PRISM2$mcmcECDFs$mcmcEndOfStudyEcdfN$W25_S25_A25_L75_NInf,las=1,
      main = "Sample Size ECDF\nmu = 0, S=25, A=25, L=75, N=Inf")
 ```
 
-<img src="example-two-arm-continuous_files/figure-gfm/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
 
 Evaluate operating characteristics under a range of plausible outcomes.
 
@@ -142,7 +142,7 @@ system.time(PRISMse2 <- fixedDesignEffects(PRISM2, shift = se))
     [1] "effect: 0.7"
 
        user  system elapsed 
-      4.248   5.247   3.703 
+      4.503   5.636   3.886 
 
 ``` r
 par(mfrow=c(2,2))
@@ -152,7 +152,7 @@ plot(PRISMse2, stat = "lag.bias",  steps = 25, affirm = 0,  N = 300, lag = 75)
 plot(PRISMse2, stat = "lag.cover", steps = 25, affirm = 0,  N = 300, lag = 75, ylim=c(0.93, 0.97))
 ```
 
-<img src="example-two-arm-continuous_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
 
 ECDF of sample size for a treatment effect in the Grey Zone.
 
@@ -161,7 +161,7 @@ plot(PRISMse2$`effect1_0.3`$mcmcECDFs$mcmcEndOfStudyEcdfNLag$W25_S25_A0_L0_N300,
      main = "Sample Size ECDF\nmu = 0.3")
 ```
 
-<img src="example-two-arm-continuous_files/figure-gfm/unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
 
 ## Example interpretations following SeqSGPV monitoring of PRISM:
 

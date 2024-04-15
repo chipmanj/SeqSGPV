@@ -1,5 +1,5 @@
 ---
-title: "Phase II, single arm bernoulli outcomes"
+title: "Phase II, two arm bernoulli outcomes"
 output: github_document
 editor_options: 
   markdown: 
