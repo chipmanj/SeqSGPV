@@ -192,7 +192,7 @@ for 1-2 arm trials with bernoulli or normally distributed outcomes.
 -   [one arm trial, bernoulli outcomes, effect generated from prior
     distribution](one-arm-bernoulli-prior-generated-effect/README.md)
 -   [two arm trial, continous
-    outcomes](examples/two-arm-trial-continuous/two-arm-continuous.md)
+    outcomes](examples/two-arm-continuous/README.md)
 -   [two arm trial, bernoulli
     outcomes](examples/two-arm-bernoulli/README.md)
 
