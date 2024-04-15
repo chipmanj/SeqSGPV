@@ -82,10 +82,6 @@ and *b* are real numbers such that *a*\<*b*, and the length of the
 interval is *b-a* and denoted $I$. The overlap between the interval and
 the set *H* is $\left| I \cap H \right|$. The SGPV is then calculated as
 
-$$
-p_{H} = \frac{| I \cap H |}{|I|} \times \max \left\{\frac{| I |}{2 | H |}, 1 \right\}.
-$$
-
 The adjustment, $max\left\{\frac{|I|}{2|H|},1\right\}$, is a small
 sample size correction – setting $p_H$ to half of the overlap when the
 inferential interval overwhelms $H$ by at least twice the length.
