@@ -1,7 +1,7 @@
 ---
 title: "SeqSGPV Package"
 output: github_document
-bibliography: temp.bib
+bibliography: refs.bib
 csl: apa.csl
 editor_options: 
   markdown: 
