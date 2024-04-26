@@ -102,7 +102,7 @@ $$
 p_{H} = \frac{| I \cap H |}{|I|} \times \max \left\{\frac{| I |}{2 | H |}, 1 \right\}.
 $$
 
-\noindent The adjustment, $max\left\{\frac{|I|}{2|H|},1\right\}$, is a
+\noindent The adjustment, $max\left\[\frac{|I|}{2|H|},1\right\]$, is a
 small sample size correction – setting $p_H$ to half of the overlap when
 the inferential interval overwhelms $H$ by at least twice the length.
 
@@ -190,7 +190,7 @@ for 1-2 arm trials with bernoulli or normally distributed outcomes.
 -   [one arm trial, bernoulli outcomes](examples/one-arm-bernoulli/README.md)
 -   [one arm trial, bernoulli outcomes, effect generated from prior
     distribution](examples/one-arm-bernoulli-prior-generated-effect/README.md)
--   [two arm trial, continous
+-   [two arm trial, continuous
     outcomes](examples/two-arm-continuous/README.md)
 -   [two arm trial, bernoulli
     outcomes](examples/two-arm-bernoulli/README.md)

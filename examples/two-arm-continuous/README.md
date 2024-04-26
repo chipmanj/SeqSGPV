@@ -1,126 +1,173 @@
 Two-arm randomized trial comparing differences in mean of normal outcome
 ================
 
-## Two-arm randomized trial comparing differences in mean of normal outcome
+## Context
 
-An implementation scientist wishes to compare the impact of using a
-fidelity feedback measure to roll out an intervention program. Over
-time, the fidelity of the program decreases. The comparison of interest
-is mean difference in 12m fidelity between arms. The outcome is assumed
-to be normally distributed and a greater mean difference reflects
-greater fidelity in the intervention arm.
+An implementation scientist wishes to test whether a phone app can help
+adults 18+ in an urban city to reduce their sodium intake. At enrollment
+a baseline measure of sodium intake will be assessed and then
+participants will be randomized 1:1 to receive the phone app. The
+estimand of interest is the mean difference in 3-month sodium intake,
+$\Delta$, between the two arms. Assuming loss-to-follow-up is not
+related to treatment assignment, the trial will compare the observed
+3-month sodium intake, adjusted for baseline, between treatment arms.
 
-Participants will be randomized 1:1 to either the standard of care or to
-receive the fidelity feedback tool.
+In previous studies, the outcome has been observed to be heavily skewed,
+similar to a `dgamma(shape=2,scale=sqrt(0.5))` distribution, and a
+greater mean difference reflects greater fidelity in the intervention
+arm. The outcome standard deviation is 1.
 
-H0: mean difference $\le$ 0  
-H1: mean difference \> 0
+Without incorporating scientific relevance, a traditional hypothesis
+could be:
 
-The investigators says study can afford up to 300 participants, though a
-maximum of 150 participants would be ideal, and would like to know the
-design-based average sample size, Type I error, and Power across a range
-of treatment effects. The investigator prefers to monitor for meaningful
-effects using a 95% confidence interval.
+H0: $\Delta$ $\le$ 0  
+H1: $\Delta$ \> 0
 
-In this study, effects deemed essentially equivalent or worse than the
-null hypothesis (i.e. ROWPE) are mean differences of -0.075 and greater.
-The minimal scientifically meaningful effect (i.e. ROME) is an effect
-size of at least -0.5.
+However, practically equivalent effects to the null are up to 0.075. The
+minimally scientifically meaningful effect is 0.5. The PRISM is defined
+by ROE$_{(0.075, 0.50)}$.
 
-The investigator wants a Type I error $\le$ 0.05.
+The investigator wants a Type I error $\le$ 0.025 when $\Delta = 0$.
+
+The investigators say the study can afford up to 300 participants,
+though a maximum of 150 participants would be ideal, and would like to
+know the design-based average sample size, Type I error, and Power
+across a range of treatment effects. The investigator prefers to monitor
+for meaningful effects using a 95% confidence interval.
+
+Logistically, the outcome takes 1 month to observe, and the planned
+accrual is 25 participants a month. The team wishes to monitor outcomes
+monthly. Hence, the wait time would be 25 observations, and there could
+be 75 delayed outcomes at the point of evaluation. If the accrual is
+slower, then the number of delayed outcomes could be lower.
+
+To inform the wait time, the investigator would want the expected width
+of the confidence interval to be, approximately, no more than 0.75.
+Assuming normality, the calculate the desired wait time to be:
+
+``` r
+ciwidth <- 0.75
+ceiling((2 * 1.96 / ciwidth)^2)
+```
+
+    [1] 28
+
+If they were to start after the first month of observed outcomes, the
+expected CI width would be:
+
+``` r
+2 * 1.96 * sqrt(1 / 25)
+```
+
+    [1] 0.784
+
+The study team is satisfied with this to inform their wait time until
+observing outcomes.
+
+To benchmark a maximum sample size, they perform power calculations for
+a single look study:
 
 ``` r
 # Benchmark power for single-look design
-power.t.test(150/2, delta=.5, sig.level = 0.05, alternative = "one.sided")
+power.t.test(power = 0.8, delta=.5, sig.level = 0.025, alternative = "one.sided")
 ```
 
 
          Two-sample t test power calculation 
 
-                  n = 75
+                  n = 63.76576
               delta = 0.5
                  sd = 1
-          sig.level = 0.05
-              power = 0.9196865
+          sig.level = 0.025
+              power = 0.8
         alternative = one.sided
 
     NOTE: n is number in *each* group
 
-``` r
-power.t.test(300/2, delta=.5, sig.level = 0.05, alternative = "one.sided")
-```
-
-
-         Two-sample t test power calculation 
-
-                  n = 150
-              delta = 0.5
-                 sd = 1
-          sig.level = 0.05
-              power = 0.9962682
-        alternative = one.sided
-
-    NOTE: n is number in *each* group
+A SeqSGPV trial design to monitor PRISM is set with $W=25$,
+$S=\{1, 25\}$, $N=\{100, 150, 300, Inf\}$, and $A=\{0, 25\}$.
 
 ``` r
-# Example 2
-# 2 sample trial with normally distributed outcomes
+# 2 sample trial with skewed outcomes and monitoring assuming normality (95% CIs)
+# Hypotheses uninformed by scientific context
 # H0: mu > 0
 # H1: mu < 0
-# PRISM: deltaL2 = -0.5, deltaL1 = -0.075
+# PRISM: deltaG1 = 0.075, deltaG2 = 0.50
 # Assess outcomes monthly -- 25 participants per month
 # Possible delayed outcomes -- 0, 25, 50, 75
-# Maximum sample size -- 150, 300, Inf
-
-nreps <- 20
-system.time(PRISM2 <-  SeqSGPV(nreps            = nreps,
-                               dataGeneration   = rnorm, dataGenArgs = list(n=300,sd=1),
-                               effectGeneration = 0, effectGenArgs=NULL,  effectScale  = "identity",
-                               allocation       = c(1,1),
-                               effectPN         = 0,
-                               null             = "less",
-                               PRISM            = list(deltaL2 = NA,      deltaL1 = NA, 
-                                                       deltaG1 = 0.075,   deltaG2 = 0.5),
-                               modelFit         = lmCI,
-                               modelFitArgs     = list(miLevel=.95),
-                               wait             = 25,
-                               steps            = c(1,25),
-                               affirm           = c(0, 25),
-                               lag              = c(0, 25, 50, 75),
-                               N                = c(150, 300, Inf),
-                               printProgress    = FALSE))
+# Maximum sample size -- 100, 150, 300, Inf
+system.time(PRISM <-  SeqSGPV(nreps            = nreps,
+                              dataGeneration   = rgamma, dataGenArgs = list(n=300,shape=2,scale=.5),
+                              effectGeneration = 0, effectGenArgs=NULL,  effectScale  = "identity",
+                              allocation       = c(1,1),
+                              effectPN         = 0,
+                              null             = "less",
+                              PRISM            = list(deltaL2 = NA,      deltaL1 = NA, 
+                                                      deltaG1 = 0.075,   deltaG2 = 0.5),
+                              modelFit         = lmCI,
+                              modelFitArgs     = list(miLevel=.95),
+                              wait             = 25,
+                              steps            = c(1,25),
+                              affirm           = c(0, 25),
+                              lag              = c(0, 25, 50, 75),
+                              N                = c(100, 150, 300, Inf),
+                              printProgress    = FALSE))
 ```
 
        user  system elapsed 
-      0.303   0.209   0.270 
+    160.474   7.122  39.958 
 
-Assess the impact of delayed outcomes.
+Assess the impact of delayed outcomes and additional control for using
+an affirmation step.
 
 ``` r
-par(mfrow=c(1,2))
+par(mfrow=c(2,2))
 # Impact of delayed outcomes
-plot(PRISM2,stat = "lag.rejH0", affirm=0, steps=25)
-plot(PRISM2,stat = "lag.n",     affirm=0, steps=25)
+plot(PRISM,stat = "lag.rejH0", affirm=0,  steps=25)
+plot(PRISM,stat = "lag.n",     affirm=0,  steps=25)
+plot(PRISM,stat = "lag.rejH0", affirm=25, steps=25)
+plot(PRISM,stat = "lag.n",     affirm=25, steps=25)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
+
+The affirmation step helps control the Type I error rate to be below
+0.025.
+
+In a more extreme case, assess the operating characteristics if outcomes
+were assessed fully suquentially with and without an affirmation step.
+
+``` r
+par(mfrow=c(2,2))
+# Impact of delayed outcomes
+plot(PRISM,stat = "lag.rejH0", affirm=0,  steps=1)
+plot(PRISM,stat = "lag.n",     affirm=0,  steps=1)
+plot(PRISM,stat = "lag.rejH0", affirm=25, steps=1)
+plot(PRISM,stat = "lag.n",     affirm=25, steps=1)
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
+
+Under, $\Delta=0$, we can see the empirical CDF of the sample size.
+Below, is the ECDF for study with an unrestricted sample size.
 
 ``` r
 par(mfrow=c(1,2))
-plot(PRISM2$mcmcECDFs$mcmcEndOfStudyEcdfN$W25_S25_A0_L75_NInf,las=1, 
+plot(PRISM$mcmcECDFs$mcmcEndOfStudyEcdfN$W25_S25_A0_L75_NInf,las=1, 
      main = "Sample Size ECDF\nmu = 0, S=25, A=0, L=75, N=Inf")
-plot(PRISM2$mcmcECDFs$mcmcEndOfStudyEcdfN$W25_S25_A25_L75_NInf,las=1, 
+plot(PRISM$mcmcECDFs$mcmcEndOfStudyEcdfN$W25_S25_A25_L75_NInf,las=1, 
      main = "Sample Size ECDF\nmu = 0, S=25, A=25, L=75, N=Inf")
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
 
-Evaluate operating characteristics under a range of plausible outcomes.
+Having established Type I error control, we can further evaluate
+operating characteristics under a range of plausible outcomes.
 
 ``` r
 # Obtain design under range of effects
 se <- round(seq(-0.1, 0.7, by = 0.05),2)
-system.time(PRISMse2 <- fixedDesignEffects(PRISM2, shift = se))
+system.time(PRISMse2 <- fixedDesignEffects(PRISM, shift = se))
 ```
 
     [1] "effect: -0.1"
@@ -141,50 +188,73 @@ system.time(PRISMse2 <- fixedDesignEffects(PRISM2, shift = se))
     [1] "effect: 0.65"
     [1] "effect: 0.7"
 
-       user  system elapsed 
-      4.503   5.636   3.886 
+        user   system  elapsed 
+    2594.197  139.316  656.370 
 
 ``` r
 par(mfrow=c(2,2))
-plot(PRISMse2, stat = "lag.rejH0", steps = 25, affirm = 0,  N = 300, lag = 75)
-plot(PRISMse2, stat = "lag.n",     steps = 25, affirm = 0,  N = 300, lag = 75)
-plot(PRISMse2, stat = "lag.bias",  steps = 25, affirm = 0,  N = 300, lag = 75)
-plot(PRISMse2, stat = "lag.cover", steps = 25, affirm = 0,  N = 300, lag = 75, ylim=c(0.93, 0.97))
+plot(PRISMse2, stat = "lag.rejH0", steps = 25, affirm = 25,  N = 300, lag = 75)
+plot(PRISMse2, stat = "lag.n",     steps = 25, affirm = 25,  N = 300, lag = 75)
+plot(PRISMse2, stat = "lag.bias",  steps = 25, affirm = 25,  N = 300, lag = 75)
+plot(PRISMse2, stat = "lag.cover", steps = 25, affirm = 25,  N = 300, lag = 75, ylim=c(0.93, 0.97))
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
-
-ECDF of sample size for a treatment effect in the Grey Zone.
+<img src="README_files/figure-gfm/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
 
 ``` r
-plot(PRISMse2$`effect1_0.3`$mcmcECDFs$mcmcEndOfStudyEcdfNLag$W25_S25_A0_L0_N300,las=1, 
-     main = "Sample Size ECDF\nmu = 0.3")
+par(mfrow=c(2,2))
+plot(PRISMse2, stat = "lag.stopNotROPE",       steps = 25, affirm = 25,  N = 300, lag = 75)
+plot(PRISMse2, stat = "lag.stopNotROME",       steps = 25, affirm = 25,  N = 300, lag = 75)
+plot(PRISMse2, stat = "lag.stopInconclusive",  steps = 25, affirm = 25,  N = 300, lag = 75)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
+
+Effects in the ROE are the most likely to end inconclusively, and there
+is low probability for effects in ROWPE and ROME to end inconclusively.
+The investigator could use the SGPVs for ROWPE and ROME to suggest
+whether to further investigate. If the investigator has ability to
+continue recruiting, they would need to allow the Type I error to be
+greater than 0.025 as originally planned. The study could continue with
+increased enrollment if it’d be approved to have a Type I error of
+0.05.; however, operating characteristics should be re-evaluated.
+
+The ECDF of sample size for a given treatment effect can be evaluated.
+
+``` r
+par(mfrow=c(2,2))
+plot(PRISMse2$`effect1_-0.1`$mcmcECDFs$mcmcEndOfStudyEcdfNLag$W25_S25_A0_L0_N300,las=1, 
+     main = "Sample Size ECDF\nmu = -0.1")
+plot(PRISMse2$`effect1_0.1`$mcmcECDFs$mcmcEndOfStudyEcdfNLag$W25_S25_A0_L0_N300,las=1, 
+     main = "Sample Size ECDF\nmu = 0.1")
+plot(PRISMse2$`effect1_0.3`$mcmcECDFs$mcmcEndOfStudyEcdfNLag$W25_S25_A0_L0_N300,las=1, 
+     main = "Sample Size ECDF\nmu = 0.3")
+plot(PRISMse2$`effect1_0.5`$mcmcECDFs$mcmcEndOfStudyEcdfNLag$W25_S25_A0_L0_N300,las=1, 
+     main = "Sample Size ECDF\nmu = 0.5")
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
 
 ## Example interpretations following SeqSGPV monitoring of PRISM:
 
-1.  The estimated treatment effect was 1.05 (95% confidence interval:
-    0.24, 1.85) which is evidence that the treatment effect is at least
-    trivially better than the null hypothesis (p$_{ROWPE}$ = 0) and is
-    evidence to reject the null hypothesis (p$_{NULL}$ = 0).
+1.  The estimated mean difference was 0.54 (95% confidence interval:
+    0.09, 0.98) which is evidence that the treatment effect is at least
+    practically better than the null hypothesis (p\$\_{ROWPE}\$ = 0) and
+    the evidence for being scientifically meaningful (p\$\_{ROME}\$ =
+    0.54).
 
-2.  The estimated treatment effect was -0.61 (95% confidence interval:
-    -1.45, 0.24) which is evidence that the treatment effect is not
-    scientifically meaningful (p$_{ROME}$ = 0). The evidence toward the
-    null hypothesis is $p_{NULL} = 0.86$.
+2.  The estimated mean difference was -0.17 (95% confidence interval:
+    -0.81, 0.48) which is evidence that the treatment effect is not
+    scientifically meaningful (p\$\_{ROME}\$ = 0) and the evidence for
+    being practically equivalent or worse than the point null is
+    p\$\_{ROWPE}\$=0.69.
 
-3.  The estimated treatment effect was 0.26 (95% confidence interval:
-    0.005, 0.514), which is suggestive though inconclusive evidence to
-    rule out at essentially null effects (p$_{ROWPE}$ = 0.14) yet is
-    evidence to reject the null hypothesis (p$_{NULL}$ = 0).
-
-4.  The estimated treatment effect was 0.30 (95% confidence interval:
-    -0.10, 0.69) which is insufficient evidence to rule out any of
-    essentially null effects (p$_{ROWPE}$ = 0.22), scientifically
-    meaningful effects (p$_{ROME}$ = 0.25), nor the null hypothesis
-    effects (p$_{NULL}$ = 0.13).
+3.  The estimated mean difference was 0.31 (95% credible interval: 0.07,
+    0.56) at the maximum sample size, which is inconclusive evidence to
+    rule out practically null effects (p\$\_{ROWPE}\$ = 0.01) and
+    scientifically meaningful effects (p\$\_{ROME}\$=0.12). There is
+    more evidence that the effect is practically null than
+    scientifically meaningful.
 
 For each conclusion, the following clarification may be provided: Based
 on simulations, there may be an absolute bias, in terms of effect size,

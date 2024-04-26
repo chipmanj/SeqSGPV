@@ -1,5 +1,5 @@
 ---
-title: "Phase II, single arm bernoulli outcomes"
+title: "one arm, bernoulli outcomes, prior effect generation"
 output: github_document
 editor_options: 
   markdown: 
@@ -13,12 +13,7 @@ knitr::opts_chunk$set(echo = TRUE, comment=NA, message=FALSE, warning=FALSE, fig
 ```{r, cache=FALSE, echo=FALSE, results='hide'}
 library(SeqSGPV)
 nreps <- 20
-# files.sources <- list.files("../../R/",pattern = ".R")
-# sapply(paste0("R/",files.sources),source)
-# library(epiR)
 ```
-
-## Example 4: Re-visiting example 1 with prior-based effect generation
 
 This example uses a small number of replicates to demonstrate how to
 obtain end of study replicates where the effect generation follows a

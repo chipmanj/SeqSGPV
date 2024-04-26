@@ -1,7 +1,5 @@
-Phase II, single arm bernoulli outcomes
+one arm, bernoulli outcomes, prior effect generation
 ================
-
-## Example 4: Re-visiting example 1 with prior-based effect generation
 
 This example uses a small number of replicates to demonstrate how to
 obtain end of study replicates where the effect generation follows a

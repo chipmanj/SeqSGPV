@@ -1,24 +1,22 @@
-Phase II, single arm bernoulli outcomes
+one arm, bernoulli outcomes
 ================
 
-## Phase II, single arm bernoulli outcomes
+## Context
 
-A prostate cancer trial is designed to assess the margin status (an
-immediate outcome) following a novel surgery technique.
+A prostate cancer trial is designed to assess an immediate outcome
+following a novel surgery technique. Let $\pi$ be the probability of
+success. The standard of care has a success rate of $\pi=0.20$. A
+minimally scientifically meaningful effect is $\pi = 0.40$.
 
-H0: prob success $\le$ 0.2  
-H1: prob success \> 0.2
+For this early phase study, the clinician deems success probabilities
+less than 0.225 as essentially equivalent or worse than the standard of
+care (i.e. ROWPE).
 
 The investigators says the study can afford up to 40 participants and
 wants to know the design-based average sample size, Type I error, and
-Power across a range of treatment effects. The investigator wishes to
+power across a range of treatment effects. The investigator wishes to
 use repeated 95% credible intervals with a Beta(0.005, 0.005) prior on
 the success probability.
-
-For this early phase study, the clinician deems success probabilities
-less than 0.225 as essentially equivalent or worse than the null
-hypothesis (i.e. ROWPE). The minimal scientifically meaningful effect
-(i.e. ROME boundary) is 0.4.
 
 As a secondary outcome, the investigator is interested in 3m quality of
 life. Before measuring a single patient’s outcome, an additional 5-10
@@ -41,7 +39,7 @@ monitor the trial at every outcome.
 # Monitoring every 1 up to 3 outcomes
 # maximum sample size = 35 - 40
 # possible number of lag/delayed outcomes: 0, 5, 10
-nreps <- 200
+nreps <- 50000
 system.time(PRISM <-  SeqSGPV(nreps            = nreps,
                               dataGeneration   = rbinom, dataGenArgs = list(n=40, size=1, prob = .2),
                               effectGeneration = 0, effectGenArgs=NULL,  effectScale  = "identity",
@@ -62,8 +60,8 @@ system.time(PRISM <-  SeqSGPV(nreps            = nreps,
                               printProgress    = FALSE))
 ```
 
-       user  system elapsed 
-     12.146   1.039   4.201 
+        user   system  elapsed 
+    9342.957  134.172 1575.271 
 
 Type I error under different monitoring frequencies. Increasing the
 number of observations between assessments (steps) and requiring a
@@ -81,10 +79,10 @@ plot(PRISM,stat = "n",     affirm=0, steps=2,lag=0,ylim=c(14,23))
 
 <img src="README_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
 
-For comparison, consider monitoring the ROE with a point-null boundary
-(ROE_PN_BOUNDED) – determining the trial successful when there is
-evidence for an effect \> 0.2 and futile when there is evidence the
-effect is \< 0.4.
+For comparison, consider SGPV interval monitoring the ROE with a
+point-null boundary (ROE-PN-BOUNDED) – determining the trial successful
+when there is evidence for an effect \> 0.2 and futile when there is
+evidence the effect is \< 0.4.
 
 ``` r
 # Change to monitoring null-bound ROE
@@ -100,16 +98,16 @@ system.time(ROE_PN_BOUNDED <-  do.call(SeqSGPV, inputs))
 par(mfrow=c(2,2))
 # Compare different designs
 plot(PRISM,        stat = "rejH0", affirm=0, steps=1,lag=0,ylim=c(0.02, 0.10))
-title(sub="PRISM", adj=0)
+title(sub="ROE-PRISM", adj=0)
 abline(h=.05)
 plot(PRISM,        stat = "rejH0", affirm=1, steps=3,lag=0,ylim=c(0.02, 0.10))
-title(sub="PRISM", adj=0)
+title(sub="ROE-PRISM", adj=0)
 abline(h=.05)
 plot(ROE_PN_BOUNDED,stat = "rejH0", affirm=0, steps=1,lag=0,ylim=c(0.02, 0.10))
-title(sub="Null-bound ROE", adj=0)
+title(sub="ROE-PN-BOUNDED", adj=0)
 abline(h=.05)
 plot(ROE_PN_BOUNDED,stat = "rejH0", affirm=1, steps=3,lag=0,ylim=c(0.02, 0.10))
-title(sub="Null-bound ROE", adj=0)
+title(sub="ROE-PN-BOUNDED", adj=0)
 abline(h=.05)
 ```
 
@@ -125,13 +123,13 @@ summary(PRISM,effect = 0,steps=1,affirm=0,wait=9,N=39,lag=0)
 
     Given: theta = 0.2, W = 9 S = 1, A = 0 and N = 39, with 0 lag (delayed) outcomes
     H0   : theta is less than or equal to 0.2
-      Average sample size              = 15.57
-      P( reject H0 )                   = 0.05
-      P( conclude not ROPE effect )    = 0.045
-      P( conclude not ROME effect )    = 0.905
-      P( conclude PRISM inconclusive ) = 0.05
-      Coverage                         = 0.78
-      Bias                             = -0.0487
+      Average sample size              = 16.6981
+      P( reject H0 )                   = 0.0507
+      P( conclude not ROPE effect )    = 0.049
+      P( conclude not ROME effect )    = 0.8797
+      P( conclude PRISM inconclusive ) = 0.0714
+      Coverage                         = 0.8141
+      Bias                             = -0.0352
 
 ``` r
 summary(ROE_PN_BOUNDED,effect = 0,steps=3,affirm=1,wait=6,N=39,lag=0)
@@ -153,9 +151,9 @@ Average sample size between PRISM and ROE_PN_BOUNDED designs.
 ``` r
 par(mfrow=c(1,2))
 plot(PRISM,        stat = "n", affirm=0, steps=1,lag=0,ylim=c(14,23))
-title(sub="PRISM", adj=0)
+title(sub="ROE-PRISM", adj=0)
 plot(ROE_PN_BOUNDED,stat = "n", affirm=1, steps=3,lag=0,ylim=c(14,23))
-title(sub="Null-bound ROE", adj=0)
+title(sub="ROE-PN-BOUNDED", adj=0)
 ```
 
 <img src="README_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
@@ -164,28 +162,16 @@ Operating characteristics of PRISM design across a range of effects.
 
 ``` r
 # Obtain design under range of effects
-se <- seq(-0.05, 0.3, by = 0.025)
+se <- seq(-0.05, 0.3, by = 0.125)
 system.time(PRISMse <- fixedDesignEffects(PRISM, shift = se))
 ```
 
     [1] "effect: -0.05"
-    [1] "effect: -0.025"
-    [1] "effect: 0"
-    [1] "effect: 0.025"
-    [1] "effect: 0.05"
     [1] "effect: 0.075"
-    [1] "effect: 0.1"
-    [1] "effect: 0.125"
-    [1] "effect: 0.15"
-    [1] "effect: 0.175"
     [1] "effect: 0.2"
-    [1] "effect: 0.225"
-    [1] "effect: 0.25"
-    [1] "effect: 0.275"
-    [1] "effect: 0.3"
 
-       user  system elapsed 
-    192.113  19.563  63.252 
+         user    system   elapsed 
+    28003.591   385.164  4765.081 
 
 ``` r
 plot(PRISMse, stat = "rejH0", steps = 1, affirm = 0, N = 39, lag=0)
@@ -200,15 +186,15 @@ summary(PRISMse, effect = 0.2, wait = 9, steps = 1, affirm = 0, N = 39, lag = 0)
 
     Given: theta = 0.4, W = 9 S = 1, A = 0 and N = 39, with 0 lag (delayed) outcomes
     H0   : theta is less than or equal to 0.2
-      Average sample size              = 18.105
-      P( reject H0 )                   = 0.785
-      P( conclude not ROPE effect )    = 0.775
-      P( conclude not ROME effect )    = 0.125
-      P( conclude PRISM inconclusive ) = 0.1
-      Coverage                         = 0.84
-      Bias                             = 0.0368
+      Average sample size              = 18.8114
+      P( reject H0 )                   = 0.7699
+      P( conclude not ROPE effect )    = 0.745
+      P( conclude not ROME effect )    = 0.139
+      P( conclude PRISM inconclusive ) = 0.116
+      Coverage                         = 0.8363
+      Bias                             = 0.0359
 
-As an atlernative design, the clinician could consider Simon’s Two Stage
+As an alternative design, the clinician could consider Simon’s Two Stage
 Design.
 
 ``` r
@@ -228,26 +214,27 @@ clinfun::ph2simon(pu = 0.2, pa = 0.4, ep1 = 0.05, ep2 = 0.2,nmax = 40)
 
 ## Example interpretations following SeqSGPV monitoring of PRISM:
 
-1.  The estimated success probability was 0.39 (95% credible interval:
-    0.23, 0.54) which is evidence that the treatment effect is at least
-    trivially better than the null hypothesis (p$_{ROWPE}$ = 0) and is
-    evidence to reject the null hypothesis (p$_{NULL}$ = 0).
+1.  The estimated success probability was 0.54 (95% credible interval:
+    0.26, 0.81) which is evidence that the treatment effect is at least
+    trivially better than the null hypothesis (p$_{ROWPE}$ = 0) and the
+    evidence for being scientifically meaningful (p$_{ROME}$ = 0.74).
 
-2.  The estimated success probability was 0.13 (95% credible interval:
-    0.00, 0.33) which is evidence that the treatment effect is not
-    scientifically meaningful (p$_{ROME}$ = 0). The evidence toward the
-    null hypothesis is $p_{NULL} = 0.61$.
+2.  The estimated success probability was 0.11 (95% credible interval:
+    ~0.00, 0.36) which is evidence that the treatment effect is not
+    scientifically meaningful (p$_{ROME}$ = 0) and the evidence for
+    being practically equivalent or worse than the point null is
+    p\$\_{ROWPE}\$=0.56.
 
 3.  The estimated success probability was 0.35 (95% credible interval:
-    0.203, 0.508), which is suggestive though inconclusive evidence to
-    rule out at essentially null effects (p$_{ROWPE}$ = 0.07) yet is
-    evidence to reject the null hypothesis (p$_{NULL}$ = 0).
+    0.21, 0.50), which is suggestive though inconclusive evidence to
+    rule out at essentially null effects (p$_{ROWPE}$ = 0.04) and
+    insufficient to rule out scientifically meaningful effects
+    (p\$\_{ROME}\$=0.35).
 
-4.  The estimated treatment effect was 0.29 (95% confidence interval:
-    0.16, 0.45) which is insufficient evidence to rule out any of
-    essentially null effects (p$_{ROWPE}$ = 0.23), scientifically
-    meaningful effects (p$_{ROME}$ = 0.16), or the null hypothesis
-    effects (p$_{NULL}$ = 0.15).
+4.  The estimated treatment effect was 0.28 (95% confidence interval:
+    0.15, 0.42) which is insufficient evidence to rule out essentially
+    null effects (p$_{ROWPE}$ = 0.37) and scientifically meaningful
+    effects (p$_{ROME}$ = 0.07).
 
 ## Delayed outcomes
 
