@@ -26,9 +26,10 @@ adults 18+ in an urban city to reduce their sodium intake. At enrollment
 a baseline measure of sodium intake will be assessed and then
 participants will be randomized 1:1 to receive the phone app. The
 estimand of interest is the mean difference in 3-month sodium intake,
-$\Delta$, between the two arms. Assuming loss-to-follow-up is not
-related to treatment assignment, the trial will compare the observed
-3-month sodium intake, adjusted for baseline, between treatment arms.
+$\Delta$, between the two arms for the city’s population. Assuming
+loss-to-follow-up is not related to treatment assignment, the trial will
+compare the observed 3-month sodium intake, adjusted for baseline,
+between treatment arms.
 
 In previous studies, the outcome has been observed to be heavily skewed,
 similar to a `dgamma(shape=2,scale=sqrt(0.5))` distribution, and a
@@ -48,16 +49,16 @@ by ROE$`_{(0.075, 0.50)}`$.
 The investigator wants a Type I error $\le$ 0.025 when $`\Delta = 0`$.
 
 The investigators say the study can afford up to 300 participants,
-though a maximum of 150 participants would be ideal, and would like to
-know the design-based average sample size, Type I error, and Power
-across a range of treatment effects. The investigator prefers to monitor
-for meaningful effects using a 95% confidence interval.
+though a maximum of 150 participants would be ideal. The investigators
+would like to know the design-based average sample size, Type I error,
+and Power across a range of treatment effects. The investigator prefers
+to monitor for meaningful effects using a 95% confidence interval.
 
 Logistically, the outcome takes 1 month to observe, and the planned
 accrual is 25 participants a month. The team wishes to monitor outcomes
-monthly. Hence, the wait time would be 25 observations, and there could
-be 75 delayed outcomes at the point of evaluation. If the accrual is
-slower, then the number of delayed outcomes could be lower.
+monthly. Hence, there could be 75 delayed outcomes at the point of
+evaluation. If the accrual is slower, then the number of delayed
+outcomes could be lower.
 
 To inform the wait time, the investigator would want the expected width
 of the confidence interval to be, approximately, no more than 1 .
@@ -220,7 +221,8 @@ plot(PRISM$mcmcECDFs$mcmcEndOfStudyEcdfN$W50_S25_A25_L75_N300,las=1,
 <img src="README_files/figure-gfm/unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
 
 Having established Type I error control, we can further evaluate
-operating characteristics under a range of plausible outcomes.
+operating characteristics under a range of plausible outcomes. To be
+conservative the affirmation step of $A=25$ will be used.
 
 This next step was run previously but is shown here again as it is when
 the step would more naturally take place.
@@ -253,11 +255,8 @@ plot(PRISMse, stat = "lag.stopInconclusive",  steps = 25, affirm = 25,  N = 150,
 Effects in the ROE are the most likely to end inconclusively, and there
 is low probability for effects in ROWPE and ROME to end inconclusively.
 The investigator could use the SGPVs for ROWPE and ROME to suggest
-whether to further investigate. If the investigator has ability to
-continue recruiting, they would need to allow the Type I error to be
-greater than 0.025 as originally planned. The study could continue with
-increased enrollment if it’d be approved to have a Type I error of
-0.05.; however, operating characteristics should be re-evaluated.
+whether to further investigate the intervention (see example
+interpretation \#3).
 
 The ECDF of sample size for a given treatment effect can be evaluated.
 
@@ -297,8 +296,7 @@ plot(PRISMse$`effect1_0.5`$mcmcECDFs$mcmcEndOfStudyEcdfNLag$W50_S25_A0_L0_N300,l
     scientifically meaningful.
 
 For each conclusion, the following clarification may be provided: Based
-on simulations, there may be an absolute bias, in terms of effect size,
-as large 0.02 and interval coverage as low as 0.93. The bias is towards
-the null for effects less than 0.31 and away from the null for effects
-greater than 0.31 (see figure of simulated design-based bias and
-coverage).
+on simulations with $W=50, S=25, A=25, N=150$ with a lag of observing 75
+outcomes, the risk of bias is expected to be minimal and the 95%
+confidence interval has near correct coverage. Please refer to the
+figure of simulated design-based bias and coverage.

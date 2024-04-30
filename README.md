@@ -7,13 +7,13 @@ The SeqSGPV package is used to design a study with sequential monitoring
 of scientifically meaningful hypotheses using the second generation
 p-value (SGPV).
 
-It supports the paper [Sequential monitoring using the Second Generation
-P-Value with Type I error controlled by monitoring
-frequency](https://arxiv.org/pdf/2204.10678.pdf) which advances how to:
+It supports the paper “Sequential monitoring using the Second Generation
+P-Value with Type I error controlled by monitoring frequency” which
+advances how to:
 
 1.  Specify scientifically meaningful hypotheses using a constrained
-    Region of Equilvance (Freedman et al., 1984). The constrained set of
-    hypotheses are called Pre-Specified Regions Indicating Scientific
+    Region of Equivalence (Freedman et al., 1984). The constrained set
+    of hypotheses are called Pre-Specified Regions Indicating Scientific
     Merit (PRISM).
 2.  Sequentially monitor the SGPV (SeqSGPV) for scientifically
     meaningful hypotheses.
@@ -29,19 +29,32 @@ are scientifically meaningful and an end-study inference that evaluates
 these effects.
 
 For intervention studies, Freedman et al. (1984) categorizes effects as
-being: universally acceptable for adopting an intervention; universally
-unacceptable compared to standard of care; or scientifically amibiguous
-for whether the effect is superior to standard of care. The latter set
-of effects form the ROE. Strategies for specifying ROE include setting
-the point null as a ROE boundary \[Hobbs & Carlin (2008); Section 2.2\],
-setting the ROE away from the point null \[Freedman et al. (1984);
-Figure 1\], and surrounding the point null (Kruschke, 2013). Kruschke
-(2013) calls the latter strategy a Region of Practical Equivalence
-(ROPE); see footnote[^1] for clarification between the ROPE and ROE.
+being: universally acceptable for adopting the intervention; universally
+unacceptable compared to standard of care; or scientifically ambiguous
+for whether the intervention should be adopted over the standard of
+care. The latter set of scientifically ambiguous effects form the ROE.
 
-In a 2-sided study, the PRISM includes a ROPE and Region of Meaningful
-effects (ROME). In a 1-sided study, the PRISM includes a Region of Worse
-or Practically Equivalent effects (ROWPE) and ROME.
+Strategies for specifying ROE include setting the point null as a ROE
+boundary \[Hobbs & Carlin (2008); Section 2.2\], setting the ROE away
+from the point null \[Freedman et al. (1984); Figure 1\], and
+surrounding the point null (Kruschke, 2013). Kruschke (2013) calls the
+latter strategy a Region of Practical Equivalence (ROPE); see
+footnote[^1] for clarification between the ROPE and ROE.
+
+The PRISM constrains ROE to be set away from the point null (similar in
+spirit to \[Freedman et al. (1984); Figure 1\]) but with a more explicit
+constraint. The PRISM divides the parameter space into three exhaustive,
+non-empty, and mutually exclusive regions:
+
+1.  The ROPE as defined by Kruschke (2013) to include effects
+    practically equivalent to the point null.
+2.  The ROE as defined by \[Freedman et al. (1984); Figure 1\] to
+    include scientifically ambiguous effects.
+3.  The Region of Meaningful Effects (ROME) to include effects that are
+    scientifically meaningful.
+
+In a 1-sided hypothesis, the ROPE is replaced by a ROWPE denoting a
+Region of Worse or Practically Equivalent effects.
 
 <figure>
 <img src="images/AMwithSGPV_Figsv09_1.jpg"
@@ -53,10 +66,7 @@ hypothesis (i.e. ROPE/ROWPE).</figcaption>
 </figure>
 
 In the context of interval monitoring, error rates and sample size are
-impacted by ROE specification. The PRISM is a constrained version of the
-ROE in which the ROE boundary is set away from the point null. This
-specification induces two adjacent regions to the ROE: the ROPE and a
-Region of Meaningful Effects (ROME).
+impacted by ROE specification.
 
 Compared to ROPE monitoring, PRISM monitoring also reduces the risk of
 type I error yet resolves the issue of indefinite monitoring at ROPE
@@ -92,13 +102,12 @@ The adjustment, $`max\left\{\frac{|I|}{2|H|},1\right\}`$, is a small
 sample size correction – setting $`p_H`$ to half of the overlap when the
 inferential interval overwhelms $`H`$ by at least twice the length.
 
-In [Sequential monitoring using the Second Generation P-Value with Type
-I error controlled by monitoring
-frequency](https://arxiv.org/pdf/2204.10678.pdf), foundational
-likelihood, frequentist, and Bayesian metrics are compared and
-contrasted in terms of minimal assumptions, handling of composite
-hypotheses, and conclusions that can be drawn. The SGPV makes no further
-assumptions beyond those inherited by the inferential interval. It does
+In “Sequential monitoring using the Second Generation P-Value with Type
+I error controlled by monitoring frequency”, foundational likelihood,
+frequentist, and Bayesian metrics are compared and contrasted in terms
+of minimal assumptions, handling of composite hypotheses, and
+conclusions that can be drawn. The SGPV makes no further assumptions
+beyond those that may be inherited by the inferential interval. It does
 not require a likelihood, prior, study design, or error rates.
 
 See examples for interpreting possible end of study conclusions using
@@ -106,10 +115,10 @@ the SGPV.
 
 # Why change monitoring frequency
 
-Controlling the design-based Type I error is generally considered an
-important metric for reducing the risk of false discoveries. In SeqSGPV,
-error rates can be controlled through PRISM specification and/or
-monitoring frequency.[^2]
+Controlling the design-based Type I error is recommended for trials to
+receive regulatory approval US Food and Drug Administration (2010). In
+SeqSGPV, error rates can be controlled through PRISM specification
+and/or monitoring frequency.[^2]
 
 Since scientific relevance (i.e., PRISM) is considered fixed, monitoring
 frequency is a targettable means for controlling error rates. These
@@ -117,24 +126,19 @@ include a wait time until evaluating stopping rules, the frequency of
 evaluations, a maximum sample size, and an affirmation rule. The
 affirmation rule is used in dose-escalation trials once a number of
 patients have consecutively been enrolled at the recommended maximum
-tolerable dose. We use it here to further control error rates.
+tolerable dose. We use it here to further control error rates and
+frequency properties after setting a practial wait time, monitoring
+frequency, and maximum sample size.
 
 **Synergy between 1-sided PRISM and monitoring frequency**: On their
-own, both the PRISM and monitoring frequency help reduce the risk of
-Type I error. When used together, the 1-sided PRISM and monitoring
-frequency can dramatically reduce the average sample size to achieve a
-Type I error. When outcomes are delayed, the risk of reversing a
-decision on the null hypothesis decreases when monitoring a 1-sided
+own, both the PRISM and monitoring frequency strategy help reduce the
+risk of Type I error. When used together, the 1-sided PRISM and
+monitoring frequency can notably reduce the average sample size to
+achieve a Type I error. When outcomes are delayed, the risk of reversing
+a decision on the null hypothesis decreases when monitoring a 1-sided
 PRISM more so than under a 1-sided null-bound ROE. Additional
 strategies, such as posterior predictive probabilities could be
 considered to further inform decisions under delayed outcomes.
-
-**Comment on monitoring confidence intervals**: When using confidence
-intervals, the investigator should determine how to address issues of
-bias and coverage which is common to sequential monitoring. This aspect
-is beyond the scope of the paper [Sequential monitoring using the Second
-Generation P-Value with Type I error controlled by monitoring
-frequency](https://arxiv.org/pdf/2204.10678.pdf).
 
 # Package overview
 
@@ -159,19 +163,17 @@ outcomes.
 Depending on computing environment, simulations may be time consuming to
 obtain many (10s of thousands) replicates and more so for bernoulli
 outcomes. The user may consider starting with a small number of
-replicates (200 - 1000) to get a sense of design operating
+replicates (200 - 2000) to get a sense of design operating
 characteristics. Sample size estimates of a single look trial may also
 inform design parameters.
 
 # Study design examples
 
 Study designs and interpretations of a single trial are provided below
-for 1-2 arm trials with bernoulli or normally distributed outcomes.
+for 2 arm trials with bernoulli or normally distributed outcomes.
 
 - [two arm trial, continuous
   outcomes](examples/two-arm-continuous/README.md)
-- [one arm trial, bernoulli
-  outcomes](examples/one-arm-bernoulli/README.md)
 - [two arm trial, bernoulli
   outcomes](examples/two-arm-bernoulli/README.md)
 
@@ -231,13 +233,22 @@ regularized models</span>. *Frontiers in Ecology and Evolution*, *7*,
 
 </div>
 
+<div id="ref-us2010guidance" class="csl-entry">
+
+US Food and Drug Administration. (2010). *<span class="nocase">Guidance
+for the use of Bayesian statistics in medical device clinical
+trials</span>*.
+
+</div>
+
 </div>
 
 [^1]: Kruschke (2013) uses ‘equivalence’ to refer to effects indifferent
     to the point null whereas Freedman et al. (1984) uses ‘equivalence’
     to refer to effects in which there is ambiguity on whether an effect
     is clearly superior to standard of care. Hence, ROE is a broader
-    term.
+    term. A ROPE encompasses the point null and could be considered a
+    ROE; whereas, there are no constraints on ROE.
 
 [^2]: Jennison & Turnbull (1989) provide error rate control for
     intervals that adjust for frequency properties using group

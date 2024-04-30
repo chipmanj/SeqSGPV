@@ -4,3 +4,5 @@
 .Ruserdata
 test.R
 README_cache/gfm/*
+.bib
+examples/one-arm-bernoulli/*

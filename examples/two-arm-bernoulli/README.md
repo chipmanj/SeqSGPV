@@ -43,7 +43,8 @@ H1: $\theta$ \> 1
 
 The PRISM is defined by ROE$`_{(1.10, 1.50)}`$.
 
-Power calculation for a single-look study
+To benchmark sample size, power calculation for a single-look study may
+be calculated as:
 
 ``` r
 epiR::epi.sscc(OR = 1.5, p1 = NA, p0 = 0.35, n = NA, power = 0.80, r = 1,
@@ -65,13 +66,13 @@ epiR::epi.sscc(OR = 1.5, p1 = NA, p0 = 0.35, n = NA, power = 0.80, r = 1,
     $OR
     [1] 1.5
 
-Based on this sample size calculation, the investigator can afford 650
-participants and has potential to enroll up to 800 participants.
-Outcomes are assessed within two-weeks, which is short enough to allow
-all outcomes to be observed before evaluating stopping rules. The
-accrual plan is to enroll 50 participants a month. The study team plans
-to evaluate outcomes after every 50 observations after observing the
-first 150 outcomes.
+Informed by this sample size calculation, the investigator can afford at
+least 650 participants and up to 1000 observations. Outcomes are
+assessed within two-weeks, which is short enough to allow all outcomes
+to be observed before evaluating stopping rules (though with taking a
+2-week enrollment hiatus). The accrual plan is to enroll 50 participants
+a month. The study team plans to evaluate outcomes after every 50
+observations after observing the first 150 outcomes.
 
 ``` r
 system.time(PRISM <-  SeqSGPV(nreps            = nreps,
@@ -126,24 +127,46 @@ PRISM$mcmcMonitoring <- NULL
 ```
 
 ``` r
-summary(PRISM, N=800, affirm = 0)
+summary(PRISM, N=1000, affirm = 0)
 ```
 
 
-    Given: effect = 1, W = 150 S = 50, A = 0 and N = 800, with 0 lag (delayed) outcomes
+    Given: effect = 1, W = 150 S = 50, A = 0 and N = 1000, with 0 lag (delayed) outcomes
     H0   : effect is less than or equal to 1
-      Average sample size              = 397.35
-      P( reject H0 )                   = 0.055
-      P( conclude not ROPE effect )    = 0.0435
-      P( conclude not ROME effect )    = 0.8455
-      P( conclude PRISM inconclusive ) = 0.111
-      Coverage                         = 0.92
-      Bias                             = -0.0584
+      Average sample size              = 414.55
+      P( reject H0 )                   = 0.054
+      P( conclude not ROPE effect )    = 0.046
+      P( conclude not ROME effect )    = 0.901
+      P( conclude PRISM inconclusive ) = 0.053
+      Coverage                         = 0.921
+      Bias                             = -0.0629
 
 Under this design and an odds-ratio effect of 1 (i.e. zero effect), the
-probability of concluding not ROPE is 0.03 and the probability of
-concluding not ROME is 0.85. By the 2000th observation there is a 0.12
+probability of concluding not ROPE is 0.05 and the probability of
+concluding not ROME is 0.90. By the 1000th observation there is a 0.05
 probability of not ending not being PRISM conclusive.
+
+``` r
+summary(PRISM, N=1000, affirm = 50)
+```
+
+
+    Given: effect = 1, W = 150 S = 50, A = 50 and N = 1000, with 0 lag (delayed) outcomes
+    H0   : effect is less than or equal to 1
+      Average sample size              = 495.7
+      P( reject H0 )                   = 0.0435
+      P( conclude not ROPE effect )    = 0.03
+      P( conclude not ROME effect )    = 0.8915
+      P( conclude PRISM inconclusive ) = 0.0785
+      Coverage                         = 0.9255
+      Bias                             = -0.0646
+
+Though there is an increase in the average sample size, including the
+affirmation step decreases the error rate of not concluding ROPE to
+0.03. The probability of not concluding ROME changes from 0.90 to 0.89.
+The Type I error rate is controlled to be under 0.05. (Caveat: these
+estimates are under limited replicates and more are needed to estimate
+error rates with greater precision).
 
 We may suppose that the success rate in the control group is 0.27
 (rather than 0.35). Under this assumption, we can evaluate how this
@@ -170,25 +193,31 @@ system.time(PRISMb <-  SeqSGPV(nreps            = nreps,
 ```
 
         user   system  elapsed 
-    1217.799   99.822  340.065 
+    1170.748   95.818  317.882 
 
 ``` r
-summary(PRISMb, N=800, affirm = 0)
+summary(PRISMb, N=1000, affirm = 50)
 ```
 
 
-    Given: effect = 1, W = 150 S = 50, A = 0 and N = 800, with 0 lag (delayed) outcomes
+    Given: effect = 1, W = 150 S = 50, A = 50 and N = 1000, with 0 lag (delayed) outcomes
     H0   : effect is less than or equal to 1
-      Average sample size              = 421.45
-      P( reject H0 )                   = 0.043
-      P( conclude not ROPE effect )    = 0.0315
-      P( conclude not ROME effect )    = 0.823
-      P( conclude PRISM inconclusive ) = 0.1455
-      Coverage                         = 0.9305
-      Bias                             = -0.076
+      Average sample size              = 530.15
+      P( reject H0 )                   = 0.04
+      P( conclude not ROPE effect )    = 0.0285
+      P( conclude not ROME effect )    = 0.8475
+      P( conclude PRISM inconclusive ) = 0.124
+      Coverage                         = 0.932
+      Bias                             = -0.0643
 
-And we can see what would be the impact if the rate in the control group
-were 0.40.
+If the baseline rate were 0.27, it appears that the probability of not
+concluding ROPE slightly decreases (0.03) though so too does the
+probability of not concluding ROME. The sample size appears to increase.
+However, more replicates would be needed to affirm this initial
+assessment.
+
+And, we can see what would be the impact if the rate in the control
+group were 0.40.
 
 ``` r
 system.time(PRISMc <-  SeqSGPV(nreps            = nreps,
@@ -211,22 +240,30 @@ system.time(PRISMc <-  SeqSGPV(nreps            = nreps,
 ```
 
        user  system elapsed 
-    865.080  58.988 274.483 
+    876.089  62.363 271.592 
 
 ``` r
-summary(PRISMc, N=800, affirm = 0)
+summary(PRISMc, N=1000, affirm = 50)
 ```
 
 
-    Given: effect = 1, W = 150 S = 50, A = 0 and N = 800, with 0 lag (delayed) outcomes
+    Given: effect = 1, W = 150 S = 50, A = 50 and N = 1000, with 0 lag (delayed) outcomes
     H0   : effect is less than or equal to 1
-      Average sample size              = 381.175
-      P( reject H0 )                   = 0.0485
-      P( conclude not ROPE effect )    = 0.038
-      P( conclude not ROME effect )    = 0.8635
-      P( conclude PRISM inconclusive ) = 0.0985
-      Coverage                         = 0.9285
-      Bias                             = -0.0624
+      Average sample size              = 477.375
+      P( reject H0 )                   = 0.0405
+      P( conclude not ROPE effect )    = 0.027
+      P( conclude not ROME effect )    = 0.91
+      P( conclude PRISM inconclusive ) = 0.063
+      Coverage                         = 0.9275
+      Bias                             = -0.0662
+
+With too few replicates to be conclusive, this change in the baseline
+rate in the control group appears to have minimal impact upon operating
+characteristics, though with a decrease in average sample size.
+
+The next step would be to increase the number of replicates for greater
+precision of operating characteristics. In this example, we will suppose
+the operating characteristics meet satisfaction.
 
 Having established Type I error control, we can further evaluate
 operating characteristics under a range of plausible outcomes.
@@ -243,15 +280,15 @@ system.time(PRISMse <- fixedDesignEffects(PRISM, shift = se))
 
 ``` r
 par(mfrow=c(3,2))
-plot(PRISMse, stat = "rejH0", N = 800, affirm = 0)
-plot(PRISMse, stat = "stopNotROPE", N = 800, affirm = 0)
-plot(PRISMse, stat = "stopNotROME", N = 800, affirm = 0)
-plot(PRISMse, stat = "stopInconclusive", N = 800, affirm = 0)
-plot(PRISMse, stat = "bias", N = 800, affirm = 0)
-plot(PRISMse, stat = "cover", N = 800, affirm = 0)
+plot(PRISMse, stat = "rejH0",            N = 1000, affirm = 50)
+plot(PRISMse, stat = "stopNotROPE",      N = 1000, affirm = 50)
+plot(PRISMse, stat = "stopNotROME",      N = 1000, affirm = 50)
+plot(PRISMse, stat = "stopInconclusive", N = 1000, affirm = 50)
+plot(PRISMse, stat = "n",                N = 1000, affirm = 50)
+plot(PRISMse, stat = "cover",            N = 1000, affirm = 50)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
 
 ## Example interpretations following SeqSGPV monitoring of PRISM:
 
@@ -273,3 +310,10 @@ plot(PRISMse, stat = "cover", N = 800, affirm = 0)
     scientifically meaningful effects (p$`_{ROME}`$=0.09). There is more
     evidence that the effect is scientifically meaningful rather than
     practically null.
+
+For each conclusion, the following clarification may be provided[^1]:
+Based on simulations with $W=150, S=50, A=50, N=1000$, the coverage may
+be as low as 0.89. Please refer to the figure of simulated design-based
+bias and coverage.
+
+[^1]: More replicates would be needed for this clarification sentence.

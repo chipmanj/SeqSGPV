@@ -23,7 +23,7 @@ for more precision in estimated operating characteristics.
 
 ``` r
 library(SeqSGPV)
-nreps <- 2000
+nreps <- 200
 ```
 
 ## Context
@@ -33,9 +33,15 @@ following a novel surgery technique. Let $\pi$ be the probability of
 success. The standard of care has a success rate of $\pi=0.20$. A
 minimally scientifically meaningful effect is $\pi = 0.40$.
 
+Without incorporating scientific relevance, a traditional hypothesis
+could be:
+
+H0: $\pi$ $\le$ 0.20  
+H1: $\pi$ \> 0.40
+
 For this early phase study, the clinician deems success probabilities
 less than 0.225 as essentially equivalent or worse than the standard of
-care (i.e. ROWPE).
+care (i.e. ROWPE). The PRISM is defined by ROE$`_{(0.225, 0.40)}`$.
 
 The investigators says the study can afford up to 40 participants and
 wants to know the design-based average sample size, Type I error, and
@@ -45,9 +51,9 @@ the success probability.
 
 As a secondary outcome, the investigator is interested in 3m quality of
 life. Before measuring a single patient’s outcome, an additional 5-10
-participants may be placed on the trial. This outcome will be assessed
-in [Section: Delayed Outcomes](#Delayed-outcomes) yet simulated in the
-initial call to SeqSGPV.
+participants may be placed on the trial. The impact of delayed outcomes
+will be assessed in [Section: Delayed Outcomes](#Delayed-outcomes) yet
+simulated in the initial call to SeqSGPV assuming immediate outcomes.
 
 The investigator wants a Type I error $\le$ 0.05 and is willing to
 monitor the trial at every outcome.
@@ -92,16 +98,16 @@ system.time(PRISM <-  SeqSGPV(nreps            = nreps,
                               modelFitArgs     = list(conf.level=.95, 
                                                       prior.shape1=0.005, prior.shape2=0.005,
                                                       methods="bayes", type="central"),
-                              wait             = 5:10,
-                              steps            = 1:3,
-                              affirm           = 0:1,
+                              wait             = c(15,20,25),
+                              steps            = c(3,5),
+                              affirm           = c(0,3,5),
                               lag              = c(0,5,10),
-                              N                = 35:40,
+                              N                = c(38,40,45),
                               printProgress    = FALSE))
 ```
 
        user  system elapsed 
-    419.645   6.098  75.357 
+     35.168   3.413   7.436 
 
 ``` r
 # Note: This step is typically done after evaluating operating characteristics
@@ -110,28 +116,16 @@ system.time(PRISM <-  SeqSGPV(nreps            = nreps,
 # minimal retained data (after removing the simulated date).
 
 # Obtain design under range of effects
-se <- seq(-0.05, 0.3, by = 0.025)
+se <- seq(-0.05, 0.3, by = 0.125)
 system.time(PRISMse <- fixedDesignEffects(PRISM, shift = se))
 ```
 
     [1] "effect: -0.05"
-    [1] "effect: -0.025"
-    [1] "effect: 0"
-    [1] "effect: 0.025"
-    [1] "effect: 0.05"
     [1] "effect: 0.075"
-    [1] "effect: 0.1"
-    [1] "effect: 0.125"
-    [1] "effect: 0.15"
-    [1] "effect: 0.175"
     [1] "effect: 0.2"
-    [1] "effect: 0.225"
-    [1] "effect: 0.25"
-    [1] "effect: 0.275"
-    [1] "effect: 0.3"
 
-        user   system  elapsed 
-    5940.215  104.817 1037.548 
+       user  system elapsed 
+    113.450  10.643  22.610 
 
 ``` r
 # This next step is not required but is done for reducing the size of the Rmd cache.
@@ -139,20 +133,49 @@ PRISM$mcmcMonitoring <- NULL
 ```
 
 Type I error under different monitoring frequencies. Increasing the
-number of observations between assessments (steps) and requiring a
-stopping rule to be affirmed decreases Type I error.
+number of observations between assessments (steps from 1 to 5) and
+requiring a stopping rule to be affirmed decreases Type I error.
 
 ``` r
 par(mfrow=c(2,2))
-plot(PRISM,stat = "rejH0", affirm=0, steps=1,lag=0,ylim=c(0.02, 0.10))
+plot(PRISM,stat = "rejH0", affirm=0, steps=3,lag=0,ylim=c(0.02, 0.10))
 abline(h=.05)
-plot(PRISM,stat = "rejH0", affirm=0, steps=2,lag=0,ylim=c(0.02, 0.10))
+plot(PRISM,stat = "rejH0", affirm=0, steps=3,lag=0,ylim=c(0.02, 0.10))
 abline(h=.05)
-plot(PRISM,stat = "n",     affirm=0, steps=1,lag=0,ylim=c(14,23))
-plot(PRISM,stat = "n",     affirm=0, steps=2,lag=0,ylim=c(14,23))
+plot(PRISM,stat = "rejH0", affirm=5, steps=5,lag=0,ylim=c(0.02, 0.10))
+abline(h=.05)
+plot(PRISM,stat = "rejH0", affirm=5, steps=5,lag=0,ylim=c(0.02, 0.10))
+abline(h=.05)
 ```
 
 <img src="README_files/figure-gfm/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
+
+``` r
+plot(PRISM,stat = "cover", affirm=5, steps=5,lag=0)
+abline(h=.05)
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-5-2.png" style="display: block; margin: auto;" />
+
+We may be interested in the impact upon average sample size for these
+same changes to monitoring frequency.
+
+``` r
+par(mfrow=c(2,2))
+plot(PRISM,stat = "n", affirm=0, steps=3,lag=0,ylim=c(15, 30))
+abline(h=.05)
+plot(PRISM,stat = "n", affirm=0, steps=5,lag=0,ylim=c(15, 30))
+abline(h=.05)
+plot(PRISM,stat = "n", affirm=5, steps=3,lag=0,ylim=c(15, 30))
+abline(h=.05)
+plot(PRISM,stat = "n", affirm=5, steps=5,lag=0,ylim=c(15, 30))
+abline(h=.05)
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
+
+With a minimal increase in average sample size, $S=1, A=1$ controls Type
+I error for all $W$ considered.
 
 For comparison, consider SGPV interval monitoring the ROE with a
 point-null boundary (ROE-PN-BOUNDED) – determining the trial successful
@@ -168,73 +191,29 @@ system.time(ROE_PN_BOUNDED <-  do.call(SeqSGPV, inputs))
 ```
 
        user  system elapsed 
-    413.549   8.327  70.241 
+    398.824   9.506  72.357 
 
 ``` r
 par(mfrow=c(2,2))
 # Compare different designs
-plot(PRISM,        stat = "rejH0", affirm=0, steps=1,lag=0,ylim=c(0.02, 0.10))
+plot(PRISM,        stat = "rejH0", affirm=0, steps=3,lag=0,ylim=c(0.02, 0.10))
 title(sub="ROE-PRISM", adj=0)
 abline(h=.05)
-plot(PRISM,        stat = "rejH0", affirm=1, steps=3,lag=0,ylim=c(0.02, 0.10))
+plot(PRISM,        stat = "rejH0", affirm=0, steps=5,lag=0,ylim=c(0.02, 0.10))
 title(sub="ROE-PRISM", adj=0)
 abline(h=.05)
-plot(ROE_PN_BOUNDED,stat = "rejH0", affirm=0, steps=1,lag=0,ylim=c(0.02, 0.10))
+plot(ROE_PN_BOUNDED,stat = "rejH0", affirm=0, steps=3,lag=0,ylim=c(0.02, 0.10))
 title(sub="ROE-PN-BOUNDED", adj=0)
 abline(h=.05)
-plot(ROE_PN_BOUNDED,stat = "rejH0", affirm=1, steps=3,lag=0,ylim=c(0.02, 0.10))
+plot(ROE_PN_BOUNDED,stat = "rejH0", affirm=0, steps=5,lag=0,ylim=c(0.02, 0.10))
 title(sub="ROE-PN-BOUNDED", adj=0)
 abline(h=.05)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-8-1.png" style="display: block; margin: auto;" />
 
-Comparing Type I error for the same maximum sample size and nearly
-equivalent Type I error.
-
-``` r
-summary(PRISM,effect = 0,steps=1,affirm=0,wait=9,N=39,lag=0)
-```
-
-
-    Given: theta = 0.2, W = 9 S = 1, A = 0 and N = 39, with 0 lag (delayed) outcomes
-    H0   : theta is less than or equal to 0.2
-      Average sample size              = 16.836
-      P( reject H0 )                   = 0.0485
-      P( conclude not ROPE effect )    = 0.047
-      P( conclude not ROME effect )    = 0.878
-      P( conclude PRISM inconclusive ) = 0.075
-      Coverage                         = 0.8305
-      Bias                             = -0.033
-
-``` r
-summary(ROE_PN_BOUNDED,effect = 0,steps=3,affirm=1,wait=6,N=39,lag=0)
-```
-
-
-    Given: theta = 0.2, W = 6 S = 3, A = 1 and N = 39, with 0 lag (delayed) outcomes
-    H0   : theta is less than or equal to 0.2
-      Average sample size              = 18.4035
-      P( reject H0 )                   = 0.055
-      P( conclude not ROPE effect )    = 0.055
-      P( conclude not ROME effect )    = 0.8455
-      P( conclude PRISM inconclusive ) = 0.0995
-      Coverage                         = 0.671
-      Bias                             = -0.0501
-
-Average sample size between PRISM and ROE_PN_BOUNDED designs.
-
-``` r
-par(mfrow=c(1,2))
-plot(PRISM,        stat = "n", affirm=0, steps=1,lag=0,ylim=c(14,23))
-title(sub="ROE-PRISM", adj=0)
-plot(ROE_PN_BOUNDED,stat = "n", affirm=1, steps=3,lag=0,ylim=c(14,23))
-title(sub="ROE-PN-BOUNDED", adj=0)
-```
-
-<img src="README_files/figure-gfm/unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
-
-Operating characteristics of PRISM design across a range of effects.
+Back to PRISM SeqSGPV, we would want to know the operating
+characteristics of PRISM design across a range of effects.
 
 ``` r
 # Obtain design under range of effects
@@ -243,25 +222,18 @@ system.time(PRISMse <- fixedDesignEffects(PRISM, shift = se))
 ```
 
 ``` r
-plot(PRISMse, stat = "rejH0", steps = 1, affirm = 0, N = 39, lag=0)
+par(mfrow=c(3,2))
+plot(PRISMse, stat = "rejH0",            steps = 3, wait=25, affirm = 0, lag = 0)
+plot(PRISMse, stat = "stopNotROPE",      steps = 3, wait=25, affirm = 0, lag = 0)
+plot(PRISMse, stat = "stopNotROME",      steps = 3, wait=25, affirm = 0, lag = 0)
+plot(PRISMse, stat = "stopInconclusive", steps = 3, wait=25, affirm = 0, lag = 0)
+plot(PRISMse, stat = "n",                steps = 3, wait=25, affirm = 0, lag = 0)
+plot(PRISMse, stat = "cover",            steps = 3, wait=25, affirm = 0, lag = 0)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
 
-``` r
-summary(PRISMse, effect = 0.2, wait = 9, steps = 1, affirm = 0, N = 39, lag = 0)
-```
-
-
-    Given: theta = 0.4, W = 9 S = 1, A = 0 and N = 39, with 0 lag (delayed) outcomes
-    H0   : theta is less than or equal to 0.2
-      Average sample size              = 18.773
-      P( reject H0 )                   = 0.749
-      P( conclude not ROPE effect )    = 0.721
-      P( conclude not ROME effect )    = 0.155
-      P( conclude PRISM inconclusive ) = 0.124
-      Coverage                         = 0.8185
-      Bias                             = 0.0293
+The interval coverage suffers
 
 ## Example interpretations following SeqSGPV monitoring of PRISM:
 
@@ -283,11 +255,6 @@ summary(PRISMse, effect = 0.2, wait = 9, steps = 1, affirm = 0, N = 39, lag = 0)
     insufficient to rule out scientifically meaningful effects
     (p$`_{ROME}`$=0.35).
 
-4.  The estimated treatment effect was 0.28 (95% confidence interval:
-    0.15, 0.42) which is insufficient evidence to rule out essentially
-    null effects (p$`_{ROWPE}`$ = 0.37) and scientifically meaningful
-    effects (p$`_{ROME}`$ = 0.07).
-
 ## Delayed outcomes
 
 The same investigator in wants to study short term (3m) quality of life
@@ -296,12 +263,10 @@ delay) of five outcomes.
 
 ``` r
 par(mfrow=c(2,2))
-plot(PRISM,        stat = "lag.rejH0",         affirm=0, steps=1,lag=5,N=38,ylim=c(0.02, 0.10))
+plot(PRISM,        stat = "lag.rejH0",         affirm=3, steps=3,lag=5,N=38,ylim=c(0.02, 0.10))
 abline(h=0.05)
-plot(PRISM,        stat = "lag.n",             affirm=0, steps=1,lag=5,N=38,ylim=c(10, 30))
-plot(PRISMse,      stat = "lag.rejH0",         affirm=0, steps=1,lag=5,N=38,ylim=c(0, 1))
+plot(PRISM,        stat = "lag.n",             affirm=3, steps=3,lag=5,N=38,ylim=c(10, 30))
+plot(PRISMse,      stat = "lag.rejH0",         affirm=3, steps=3,lag=5,N=38,ylim=c(0, 1))
 abline(h=c(0.05, 0.8, 0.9))
-plot(PRISMse,      stat = "lag.n",             affirm=0, steps=1,lag=5,N=38,ylim=c(10, 30))
+plot(PRISMse,      stat = "lag.n",             affirm=3, steps=3,lag=5,N=38,ylim=c(10, 30))
 ```
-
-<img src="README_files/figure-gfm/unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
