@@ -41,7 +41,7 @@ the odds ratio, $\theta$ could be:
 H0: $\theta$ $\le$ 1  
 H1: $\theta$ \> 1
 
-The PRISM is defined by ROE$_{(1.10, 1.50)}$.
+The PRISM is defined by ROE$`_{(1.10, 1.50)}`$.
 
 Power calculation for a single-look study
 
@@ -257,18 +257,19 @@ plot(PRISMse, stat = "cover", N = 800, affirm = 0)
 
 1.  The estimated odds ratio was 2.47 (95% confidence interval: 1.11,
     5.46) which is evidence that the treatment effect is at least
-    trivially better than the null hypothesis (p$_{ROWPE}$ = 0) and the
-    evidence for being scientifically meaningful (p$_{ROME}$ = 0.91).
+    trivially better than the null hypothesis (p$`_{ROWPE}`$ = 0) and
+    the evidence for being scientifically meaningful (p$`_{ROME}`$ =
+    0.91).
 
 2.  The estimated odds ratio was 0.88 (95% confidence interval: 0.52,
     1.49) which is evidence that the treatment effect is not
-    scientifically meaningful (p$_{ROME}$ = 0) and the evidence for
+    scientifically meaningful (p$`_{ROME}`$ = 0) and the evidence for
     being practically equivalent or worse than the point null is
-    p$_{ROWPE}$=0.60.
+    p$`_{ROWPE}`$=0.60.
 
 3.  The estimated odds ratio was 1.14 (95% credible interval: 0.83,
     1.57) at the maximum sample size, which is inconclusive evidence to
-    rule out practically null effects (p$_{ROWPE}$ = 0.36) and
-    scientifically meaningful effects (p$_{ROME}$=0.09). There is more
+    rule out practically null effects (p$`_{ROWPE}`$ = 0.36) and
+    scientifically meaningful effects (p$`_{ROME}`$=0.09). There is more
     evidence that the effect is scientifically meaningful rather than
     practically null.

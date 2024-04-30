@@ -43,9 +43,9 @@ H1: $\Delta$ \> 0
 
 However, practically equivalent effects to the null are up to 0.075. The
 minimally scientifically meaningful effect is 0.5. The PRISM is defined
-by ROE$_{(0.075, 0.50)}$.
+by ROE$`_{(0.075, 0.50)}`$.
 
-The investigator wants a Type I error $\le$ 0.025 when $\Delta = 0$.
+The investigator wants a Type I error $\le$ 0.025 when $`\Delta = 0`$.
 
 The investigators say the study can afford up to 300 participants,
 though a maximum of 150 participants would be ideal, and would like to
@@ -103,7 +103,7 @@ power.t.test(power = 0.8, delta=.5, sig.level = 0.025, alternative = "one.sided"
     NOTE: n is number in *each* group
 
 A SeqSGPV trial design to monitor PRISM is set with $W=25$,
-$S=\{1, 25\}$, $N=\{100, 150, 300, Inf\}$, and $A=\{0, 25\}$.
+$`S=\{1, 25\}`$, $`N=\{100, 150, 300, Inf\}`$, and $`A=\{0, 25\}`$.
 
 ``` r
 # 2 sample trial with skewed outcomes and monitoring assuming normality (95% CIs)
@@ -279,20 +279,20 @@ plot(PRISMse$`effect1_0.5`$mcmcECDFs$mcmcEndOfStudyEcdfNLag$W50_S25_A0_L0_N300,l
 
 1.  The estimated mean difference was 0.54 (95% confidence interval:
     0.09, 0.98) which is evidence that the treatment effect is at least
-    practically better than the null hypothesis (p$_{ROWPE}$ = 0) and
-    the evidence for being scientifically meaningful (p$_{ROME}$ =
+    practically better than the null hypothesis (p$`_{ROWPE}`$ = 0) and
+    the evidence for being scientifically meaningful (p$`_{ROME}`$ =
     0.54).
 
 2.  The estimated mean difference was -0.17 (95% confidence interval:
     -0.81, 0.48) which is evidence that the treatment effect is not
-    scientifically meaningful (p$_{ROME}$ = 0) and the evidence for
+    scientifically meaningful (p$`_{ROME}`$ = 0) and the evidence for
     being practically equivalent or worse than the point null is
-    p$_{ROWPE}$=0.69.
+    p$`_{ROWPE}`$=0.69.
 
 3.  The estimated mean difference was 0.31 (95% confidence interval:
     0.07, 0.56) at the maximum sample size, which is inconclusive
-    evidence to rule out practically null effects (p$_{ROWPE}$ = 0.01)
-    and scientifically meaningful effects (p$_{ROME}$=0.12). There is
+    evidence to rule out practically null effects (p$`_{ROWPE}`$ = 0.01)
+    and scientifically meaningful effects (p$`_{ROME}`$=0.12). There is
     more evidence that the effect is practically null than
     scientifically meaningful.
 

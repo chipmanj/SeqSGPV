@@ -183,25 +183,25 @@ summary(PRISMse, effect = 0.2, wait = 9, steps = 1, affirm = 0, N = 39, lag = 0)
 
 1.  The estimated success probability was 0.54 (95% credible interval:
     0.26, 0.81) which is evidence that the treatment effect is at least
-    trivially better than the null hypothesis (p$_{ROWPE}$ = 0) and the
-    evidence for being scientifically meaningful (p$_{ROME}$ = 0.74).
+    trivially better than the null hypothesis (p$`_{ROWPE}`$ = 0) and the
+    evidence for being scientifically meaningful (p$`_{ROME}`$ = 0.74).
 
 2.  The estimated success probability was 0.11 (95% credible interval:
     \~0.00, 0.36) which is evidence that the treatment effect is not
-    scientifically meaningful (p$_{ROME}$ = 0) and the evidence for
+    scientifically meaningful (p$`_{ROME}`$ = 0) and the evidence for
     being practically equivalent or worse than the point null is
-    p\$\_{ROWPE}\$=0.56.
+    p$`_{ROWPE}`$=0.56.
 
 3.  The estimated success probability was 0.35 (95% credible interval:
     0.21, 0.50), which is suggestive though inconclusive evidence to
-    rule out at essentially null effects (p$_{ROWPE}$ = 0.04) and
+    rule out at essentially null effects (p$`_{ROWPE}`$ = 0.04) and
     insufficient to rule out scientifically meaningful effects
-    (p\$\_{ROME}\$=0.35).
+    (p$`_{ROME}`$=0.35).
 
 4.  The estimated treatment effect was 0.28 (95% confidence interval:
     0.15, 0.42) which is insufficient evidence to rule out essentially
-    null effects (p$_{ROWPE}$ = 0.37) and scientifically meaningful
-    effects (p$_{ROME}$ = 0.07).
+    null effects (p$`_{ROWPE}`$ = 0.37) and scientifically meaningful
+    effects (p$`_{ROME}`$ = 0.07).
 
 ## Delayed outcomes {#delayed-outcomes}
 

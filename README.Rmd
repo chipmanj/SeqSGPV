@@ -43,33 +43,18 @@ Establishing scientific relevance requires pre-specifying which effects
 are scientifically meaningful and an end-study inference that evaluates
 these effects.
 
-For intervention studies, @Freedman:1984wz divides effects as being: (1)
-universally acceptable for adopting an intervention, (2) universally
-unacceptable, or (3) debatably acceptable. The latter set of effects
-form the ROE. Strategies for specifying ROE include setting the point
-null as a ROE boundary [@Hobbs:2008ce; Section 2.2], setting the ROE
-away from the point null [@Freedman:1984wz; Figure 1], and surrounding
-the point null [@Kruschke:2013jy]. @Kruschke:2013jy calls the latter
-strategy a Region of Practical Equivalence (ROPE); see footnote[^1] for
-clarification between the ROPE and ROE.
+For intervention studies, @Freedman:1984wz categorizes effects as being: universally acceptable for adopting an intervention; universally unacceptable compared to standard of care; or scientifically amibiguous for whether the effect is superior to standard of care. The latter set of effects form the ROE. Strategies for specifying ROE include setting the point null as a ROE boundary [@Hobbs:2008ce; Section 2.2], setting the ROE away from the point null [@Freedman:1984wz; Figure 1], and surrounding the point null [@Kruschke:2013jy]. @Kruschke:2013jy calls the latter strategy a Region of Practical Equivalence (ROPE); see footnote[^1] for clarification between the ROPE and ROE.
 
-[^1]: ROPE as effects practically equivalent to the point null whereas
-    theFreedman refers to the ROE as effects where the scientific
-    communitymay disagree on whether an intervention has enough value to
-    beimplemented. Hence, ROE is a broader term.
+[^1]: @Kruschke:2013jy uses 'equivalence' to refer to effects indifferent to the point null whereas @Freedman:1984wz uses 'equivalence' to refer to effects in which there is ambiguity on whether an effect is clearly superior to standard of care. Hence, ROE is a broader term.
 
 In a 2-sided study, the PRISM includes a ROPE and Region of Meaningful
-effects (ROME). In a 1-sided study, the PRISM includes a Region of Worse
-or Practically Equivalent effects (ROWPE) and ROME.
+effects (ROME). In a 1-sided study, the PRISM includes a Region of Worse or Practically Equivalent effects (ROWPE) and ROME.
 
-![Pre-Specified Regions Indicating Scientific Merit (PRISM) for one- and
-two-sided hypotheses. The PRISM always includes an indifference zone
-that surrounds the point null hypothesis (i.e.
+![Pre-Specified Regions Indicating Scientific Merit (PRISM) for one- and two-sided hypotheses. The PRISM always includes an indifference zone that surrounds the point null hypothesis (i.e.
 ROPE/ROWPE).](images/AMwithSGPV_Figsv09_1.jpg)
 
 In the context of interval monitoring, error rates and sample size are
-impacted by ROE specification. The PRISM is a constrained version of the
-ROE in which the ROE boundary is set away from the point null. This
+impacted by ROE specification. The PRISM is a constrained version of the ROE in which the ROE boundary is set away from the point null. This
 specification induces two adjacent regions to the ROE: the ROPE and a
 Region of Meaningful Effects (ROME).
 
@@ -77,10 +62,7 @@ Compared to ROPE monitoring, PRISM monitoring also reduces the risk of
 type I error yet resolves the issue of indefinite monitoring at ROPE
 boundaries.
 
-Compared to null-bound ROE monitoring, PRISM monitoring reduces the risk
-of Type I error for the same monitoring frequency and allows for earlier
-monitoring and yields smaller average sample size to achieve the same
-Type I error.
+Compared to null-bound ROE monitoring, PRISM monitoring reduces the risk of Type I error for the same monitoring frequency and allows for earlier monitoring and yields smaller average sample size to achieve the same Type I error.
 
 # Why SGPV
 
@@ -88,14 +70,13 @@ The SGPV is an evidence-based metric that measures the overlap between
 an inferential interval and scientifically meaningful hypotheses.
 Described as 'method agnostic' [@stewart2019second], the SGPV may be
 calculated for any inferential interval (ex: bayesian, frequentist,
-likelihood, etc.). For an interval hypothesis, $`H`$, the SGPV is denoted
-as p$`_H`$ and calculated as:
+likelihood, etc.). For an interval hypothesis, $`H`$, the SGPV is denoted as p$`_H`$ and calculated as:
 
 The SGPV [@Blume:SGPV] is an evidence-based metric that quantifies the
 overlap between an interval $`I`$ and the set of effects in a composite
 hypothesis *H*. The interval includes [*a*, *b*] where *a* and *b* are
 real numbers such that *a*\<*b*, and the length of the interval is *b-a*
-and denoted $`I$. The overlap between the interval and the set *H* is
+and denoted $`I`$. The overlap between the interval and the set *H* is
 $`\left| I \cap H \right|$. The SGPV is then calculated as
 
 
@@ -103,47 +84,22 @@ $`\left| I \cap H \right|$. The SGPV is then calculated as
 p_{H} = \frac{| I \cap H |}{|I|} \times \max \left\{\frac{| I |}{2 | H |}, 1 \right\}.
 ```
 
-\noindent The adjustment, $`max\left\{\frac{|I|}{2|H|},1\right\}`$, is a
-small sample size correction -- setting $`p_H`$ to half of the overlap
-when the inferential interval overwhelms $`H`$ by at least twice the
-length. 
+\noindent The adjustment, $`max\left\{\frac{|I|}{2|H|},1\right\}`$, is a small sample size correction -- setting $`p_H`$ to half of the overlap when the inferential interval overwhelms $`H`$ by at least twice the length. 
 
-This sentence uses $\` and \`$ delimiters to show math inline:  $`\sqrt{3x-1}+(1+x)^2`$
 
 In [Sequential monitoring using the Second Generation P-Value with Type
-I error controlled by monitoring
-frequency](https://arxiv.org/pdf/2204.10678.pdf), foundational
-likelihood, frequentist, and Bayesian metrics are compared and
-contrasted in terms of minimal assumptions, handling of composite
-hypotheses, and conclusions that can be drawn. The SGPV makes no further
-assumptions beyond those inherited by the inferential interval. It does
-not require a likelihood, prior, study design, or error rates.
+I error controlled by monitoring frequency](https://arxiv.org/pdf/2204.10678.pdf), foundational likelihood, frequentist, and Bayesian metrics are compared and contrasted in terms of minimal assumptions, handling of composite hypotheses, and conclusions that can be drawn. The SGPV makes no further assumptions beyond those inherited by the inferential interval. It does not require a likelihood, prior, study design, or error rates.
 
 See examples for interpreting possible end of study conclusions using
 the SGPV.
 
 # Why change monitoring frequency
 
-Controlling the design-based Type I error is generally considered an
-important metric for reducing the risk of false discoveries. In SeqSGPV,
-error rates can be controlled through PRISM specification and/or
-monitoring frequency.[^2]
+Controlling the design-based Type I error is generally considered an important metric for reducing the risk of false discoveries. In SeqSGPV, error rates can be controlled through PRISM specification and/or monitoring frequency.[^2]
 
-[^2]: @jennison1989interim provide error rate control for intervals that
-    adjust for frequency properties using group sequential methods. For
-    intervals which do not adjust for frequency properties, Type I error
-    can be controlled through a combination of the PRISM's ROPE and
-    monitoring frequency mechanisms of wait time (W), frequency of
-    evaluation (S for steps between evaluations), maximum sample size
-    (N), and affirmation steps (A).
+[^2]: @jennison1989interim provide error rate control for intervals that adjust for frequency properties using group sequential methods. For intervals which do not adjust for frequency properties, Type I error can be controlled through a combination of the PRISM's ROPE and monitoring frequency mechanisms of wait time (W), frequency of evaluation (S for steps between evaluations), maximum sample size (N), and affirmation steps (A).
 
-Since scientific relevance (i.e., PRISM) is considered fixed, monitoring
-frequency is a targettable means for controlling error rates. These
-include a wait time until evaluating stopping rules, the frequency of
-evaluations, a maximum sample size, and an affirmation rule. The
-affirmation rule is used in dose-escalation trials once a number of
-patients have consecutively been enrolled at the recommended maximum
-tolerable dose. We use it here to further control error rates.
+Since scientific relevance (i.e., PRISM) is considered fixed, monitoring frequency is a targettable means for controlling error rates. These include a wait time until evaluating stopping rules, the frequency of evaluations, a maximum sample size, and an affirmation rule. The affirmation rule is used in dose-escalation trials once a number of patients have consecutively been enrolled at the recommended maximum tolerable dose. We use it here to further control error rates.
 
 **Synergy between 1-sided PRISM and monitoring frequency**: On their
 own, both the PRISM and monitoring frequency help reduce the risk of

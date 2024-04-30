@@ -28,11 +28,12 @@ Establishing scientific relevance requires pre-specifying which effects
 are scientifically meaningful and an end-study inference that evaluates
 these effects.
 
-For intervention studies, Freedman et al. (1984) divides effects as
-being: (1) universally acceptable for adopting an intervention, (2)
-universally unacceptable, or (3) debatably acceptable. The latter set of
-effects form the ROE. Strategies for specifying ROE include setting the
-point null as a ROE boundary \[Hobbs & Carlin (2008); Section 2.2\],
+For intervention studies, Freedman et al. (1984) categorizes effects as
+being: universally acceptable for adopting an intervention; universally
+unacceptable compared to standard of care; or scientifically amibiguous
+for whether the effect is superior to standard of care. The latter set
+of effects form the ROE. Strategies for specifying ROE include setting
+the point null as a ROE boundary \[Hobbs & Carlin (2008); Section 2.2\],
 setting the ROE away from the point null \[Freedman et al. (1984);
 Figure 1\], and surrounding the point null (Kruschke, 2013). Kruschke
 (2013) calls the latter strategy a Region of Practical Equivalence
@@ -79,9 +80,9 @@ The SGPV (Blume et al., 2018) is an evidence-based metric that
 quantifies the overlap between an interval $`I`$ and the set of effects
 in a composite hypothesis *H*. The interval includes \[*a*, *b*\] where
 *a* and *b* are real numbers such that *a*\<*b*, and the length of the
-interval is *b-a* and denoted $`I$. The overlap between the interval and
-the set *H* is $`\left| I \cap H \right|$. The SGPV is then calculated
-as
+interval is *b-a* and denoted $`I`$. The overlap between the interval
+and the set *H* is $`\left| I \cap H \right|$. The SGPV is then
+calculated as
 
 ``` math
 p_{H} = \frac{| I \cap H |}{|I|} \times \max \left\{\frac{| I |}{2 | H |}, 1 \right\}.
@@ -90,9 +91,6 @@ p_{H} = \frac{| I \cap H |}{|I|} \times \max \left\{\frac{| I |}{2 | H |}, 1 \ri
 The adjustment, $`max\left\{\frac{|I|}{2|H|},1\right\}`$, is a small
 sample size correction – setting $`p_H`$ to half of the overlap when the
 inferential interval overwhelms $`H`$ by at least twice the length.
-
-This sentence uses $\` and \`$ delimiters to show math inline:
-$`\sqrt{3x-1}+(1+x)^2`$
 
 In [Sequential monitoring using the Second Generation P-Value with Type
 I error controlled by monitoring
@@ -235,10 +233,11 @@ regularized models</span>. *Frontiers in Ecology and Evolution*, *7*,
 
 </div>
 
-[^1]: ROPE as effects practically equivalent to the point null whereas
-    theFreedman refers to the ROE as effects where the scientific
-    communitymay disagree on whether an intervention has enough value to
-    beimplemented. Hence, ROE is a broader term.
+[^1]: Kruschke (2013) uses ‘equivalence’ to refer to effects indifferent
+    to the point null whereas Freedman et al. (1984) uses ‘equivalence’
+    to refer to effects in which there is ambiguity on whether an effect
+    is clearly superior to standard of care. Hence, ROE is a broader
+    term.
 
 [^2]: Jennison & Turnbull (1989) provide error rate control for
     intervals that adjust for frequency properties using group
