@@ -72,23 +72,24 @@ The SGPV is an evidence-based metric that measures the overlap between
 an inferential interval and scientifically meaningful hypotheses.
 Described as ‘method agnostic’ (Stewart & Blume, 2019), the SGPV may be
 calculated for any inferential interval (ex: bayesian, frequentist,
-likelihood, etc.). For an interval hypothesis, $H$, the SGPV is denoted
-as p$_H$ and calculated as:
+likelihood, etc.). For an interval hypothesis, $`H`$, the SGPV is
+denoted as p$`_H`$ and calculated as:
 
 The SGPV (Blume et al., 2018) is an evidence-based metric that
-quantifies the overlap between an interval $I$ and the set of effects in
-a composite hypothesis *H*. The interval includes \[*a*, *b*\] where *a*
-and *b* are real numbers such that *a*\<*b*, and the length of the
-interval is *b-a* and denoted $I$. The overlap between the interval and
-the set *H* is $\left| I \cap H \right|$. The SGPV is then calculated as
+quantifies the overlap between an interval $`I`$ and the set of effects
+in a composite hypothesis *H*. The interval includes \[*a*, *b*\] where
+*a* and *b* are real numbers such that *a*\<*b*, and the length of the
+interval is *b-a* and denoted $`I$. The overlap between the interval and
+the set *H* is $`\left| I \cap H \right|$. The SGPV is then calculated
+as
 
 ``` math
 p_{H} = \frac{| I \cap H |}{|I|} \times \max \left\{\frac{| I |}{2 | H |}, 1 \right\}.
 ```
 
 The adjustment, $`max\left\{\frac{|I|}{2|H|},1\right\}`$, is a small
-sample size correction – setting $p_H$ to half of the overlap when the
-inferential interval overwhelms $H$ by at least twice the length.
+sample size correction – setting $`p_H`$ to half of the overlap when the
+inferential interval overwhelms $`H`$ by at least twice the length.
 
 This sentence uses $\` and \`$ delimiters to show math inline:
 $`\sqrt{3x-1}+(1+x)^2`$
