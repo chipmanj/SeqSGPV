@@ -82,9 +82,11 @@ and *b* are real numbers such that *a*\<*b*, and the length of the
 interval is *b-a* and denoted $I$. The overlap between the interval and
 the set *H* is $\left| I \cap H \right|$. The SGPV is then calculated as
 
-$$
+![](http://www.sciweavers.org/tex2img.php?eq=%5Cbegin%7Bequation%2A%7D%0Ap_%7BH%7D%20%3D%20%5Cfrac%7B%7C%20I%20%5Ccap%20H%20%7C%7D%7B%7CI%7C%7D%20%5Ctimes%20%5Cmax%20%5Cleft%5C%7B%5Cfrac%7B%7C%20I%20%7C%7D%7B2%20%7C%20H%20%7C%7D%2C%201%20%5Cright%5C%7D.%0A%5Cend%7Bequation%2A%7D&bc=White&fc=Black&im=jpg&fs=12&ff=modern&edit=0)
+
+``` math
 p_{H} = \frac{| I \cap H |}{|I|} \times \max \left\{\frac{| I |}{2 | H |}, 1 \right\}.
-$$
+```
 
 The adjustment, $max\left\{\frac{|I|}{2|H|},1\right\}$, is a small
 sample size correction – setting $p_H$ to half of the overlap when the
