@@ -1,6 +1,31 @@
 one arm, bernoulli outcomes
 ================
 
+``` r
+Sys.info()[c("sysname","release","version","machine")]
+```
+
+                                                                                                     sysname 
+                                                                                                    "Darwin" 
+                                                                                                     release 
+                                                                                                    "22.6.0" 
+                                                                                                     version 
+    "Darwin Kernel Version 22.6.0: Mon Feb 19 19:48:53 PST 2024; root:xnu-8796.141.3.704.6~1/RELEASE_X86_64" 
+                                                                                                     machine 
+                                                                                                    "x86_64" 
+
+In this example, 2000 replicates are used to get an initial sense of
+operating characteristics. SeqSGPV is more time intensive for bernoulli
+outcomes with multiple combinations of wait, step, N, and affirm. It is
+recommended to start with a small number of replicates, even under 1000,
+to get an initial sense of operating characteristics and then increase
+for more precision in estimated operating characteristics.
+
+``` r
+library(SeqSGPV)
+nreps <- 2000
+```
+
 ## Context
 
 A prostate cancer trial is designed to assess an immediate outcome
@@ -27,19 +52,34 @@ initial call to SeqSGPV.
 The investigator wants a Type I error $\le$ 0.05 and is willing to
 monitor the trial at every outcome.
 
-## Code and design development
+## Simon’s two-stage design
+
+For context, the operating characteristics of Simon’s two-stage design
+are:
 
 ``` r
-# Example 1
-# 1 arm phase II trial with bernoulli outcomes
-# H0: prob success <= 0.2
-# H1: prob success > 0.2
+clinfun::ph2simon(pu = 0.2, pa = 0.4, ep1 = 0.05, ep2 = 0.2,nmax = 40)
+```
+
+
+     Simon 2-stage Phase II design 
+
+    Unacceptable response rate:  0.2 
+    Desirable response rate:  0.4 
+    Error rates: alpha =  0.05 ; beta =  0.2 
+
+            r1 n1  r  n EN(p0) PET(p0)   qLo   qHi
+    Minimax  4 18 10 33  22.25  0.7164 0.168 1.000
+    Optimal  3 14 11 38  21.24  0.6982 0.000 0.168
+
+## SeqSGPV
+
+``` r
 # PRISM: deltaG1 = 0.225, deltaG2 = 0.4
 # Wait time until first evaluation = 5 - 10
 # Monitoring every 1 up to 3 outcomes
 # maximum sample size = 35 - 40
 # possible number of lag/delayed outcomes: 0, 5, 10
-nreps <- 50000
 system.time(PRISM <-  SeqSGPV(nreps            = nreps,
                               dataGeneration   = rbinom, dataGenArgs = list(n=40, size=1, prob = .2),
                               effectGeneration = 0, effectGenArgs=NULL,  effectScale  = "identity",
@@ -60,8 +100,43 @@ system.time(PRISM <-  SeqSGPV(nreps            = nreps,
                               printProgress    = FALSE))
 ```
 
+       user  system elapsed 
+    419.645   6.098  75.357 
+
+``` r
+# Note: This step is typically done after evaluating operating characteristics
+# under the point null. It will be shown again later.
+# This step is done here for the sake of saving an Rmd cache with
+# minimal retained data (after removing the simulated date).
+
+# Obtain design under range of effects
+se <- seq(-0.05, 0.3, by = 0.025)
+system.time(PRISMse <- fixedDesignEffects(PRISM, shift = se))
+```
+
+    [1] "effect: -0.05"
+    [1] "effect: -0.025"
+    [1] "effect: 0"
+    [1] "effect: 0.025"
+    [1] "effect: 0.05"
+    [1] "effect: 0.075"
+    [1] "effect: 0.1"
+    [1] "effect: 0.125"
+    [1] "effect: 0.15"
+    [1] "effect: 0.175"
+    [1] "effect: 0.2"
+    [1] "effect: 0.225"
+    [1] "effect: 0.25"
+    [1] "effect: 0.275"
+    [1] "effect: 0.3"
+
         user   system  elapsed 
-    9342.957  134.172 1575.271 
+    5940.215  104.817 1037.548 
+
+``` r
+# This next step is not required but is done for reducing the size of the Rmd cache.
+PRISM$mcmcMonitoring <- NULL
+```
 
 Type I error under different monitoring frequencies. Increasing the
 number of observations between assessments (steps) and requiring a
@@ -77,7 +152,7 @@ plot(PRISM,stat = "n",     affirm=0, steps=1,lag=0,ylim=c(14,23))
 plot(PRISM,stat = "n",     affirm=0, steps=2,lag=0,ylim=c(14,23))
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
 
 For comparison, consider SGPV interval monitoring the ROE with a
 point-null boundary (ROE-PN-BOUNDED) – determining the trial successful
@@ -88,11 +163,12 @@ evidence the effect is \< 0.4.
 # Change to monitoring null-bound ROE
 inputs <- PRISM$inputs
 inputs$PRISM$deltaG1 <- 0.20
+inputs$PRISM$outData <- FALSE
 system.time(ROE_PN_BOUNDED <-  do.call(SeqSGPV, inputs))
 ```
 
        user  system elapsed 
-     12.153   1.129   4.301 
+    413.549   8.327  70.241 
 
 ``` r
 par(mfrow=c(2,2))
@@ -111,7 +187,7 @@ title(sub="ROE-PN-BOUNDED", adj=0)
 abline(h=.05)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
 
 Comparing Type I error for the same maximum sample size and nearly
 equivalent Type I error.
@@ -123,13 +199,13 @@ summary(PRISM,effect = 0,steps=1,affirm=0,wait=9,N=39,lag=0)
 
     Given: theta = 0.2, W = 9 S = 1, A = 0 and N = 39, with 0 lag (delayed) outcomes
     H0   : theta is less than or equal to 0.2
-      Average sample size              = 16.6981
-      P( reject H0 )                   = 0.0507
-      P( conclude not ROPE effect )    = 0.049
-      P( conclude not ROME effect )    = 0.8797
-      P( conclude PRISM inconclusive ) = 0.0714
-      Coverage                         = 0.8141
-      Bias                             = -0.0352
+      Average sample size              = 16.836
+      P( reject H0 )                   = 0.0485
+      P( conclude not ROPE effect )    = 0.047
+      P( conclude not ROME effect )    = 0.878
+      P( conclude PRISM inconclusive ) = 0.075
+      Coverage                         = 0.8305
+      Bias                             = -0.033
 
 ``` r
 summary(ROE_PN_BOUNDED,effect = 0,steps=3,affirm=1,wait=6,N=39,lag=0)
@@ -138,13 +214,13 @@ summary(ROE_PN_BOUNDED,effect = 0,steps=3,affirm=1,wait=6,N=39,lag=0)
 
     Given: theta = 0.2, W = 6 S = 3, A = 1 and N = 39, with 0 lag (delayed) outcomes
     H0   : theta is less than or equal to 0.2
-      Average sample size              = 19.305
-      P( reject H0 )                   = 0.06
-      P( conclude not ROPE effect )    = 0.06
-      P( conclude not ROME effect )    = 0.815
-      P( conclude PRISM inconclusive ) = 0.125
-      Coverage                         = 0.695
-      Bias                             = -0.0466
+      Average sample size              = 18.4035
+      P( reject H0 )                   = 0.055
+      P( conclude not ROPE effect )    = 0.055
+      P( conclude not ROME effect )    = 0.8455
+      P( conclude PRISM inconclusive ) = 0.0995
+      Coverage                         = 0.671
+      Bias                             = -0.0501
 
 Average sample size between PRISM and ROE_PN_BOUNDED designs.
 
@@ -156,28 +232,21 @@ plot(ROE_PN_BOUNDED,stat = "n", affirm=1, steps=3,lag=0,ylim=c(14,23))
 title(sub="ROE-PN-BOUNDED", adj=0)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
 
 Operating characteristics of PRISM design across a range of effects.
 
 ``` r
 # Obtain design under range of effects
-se <- seq(-0.05, 0.3, by = 0.125)
+se <- seq(-0.05, 0.3, by = 0.025)
 system.time(PRISMse <- fixedDesignEffects(PRISM, shift = se))
 ```
-
-    [1] "effect: -0.05"
-    [1] "effect: 0.075"
-    [1] "effect: 0.2"
-
-         user    system   elapsed 
-    28003.591   385.164  4765.081 
 
 ``` r
 plot(PRISMse, stat = "rejH0", steps = 1, affirm = 0, N = 39, lag=0)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
 
 ``` r
 summary(PRISMse, effect = 0.2, wait = 9, steps = 1, affirm = 0, N = 39, lag = 0)
@@ -186,31 +255,13 @@ summary(PRISMse, effect = 0.2, wait = 9, steps = 1, affirm = 0, N = 39, lag = 0)
 
     Given: theta = 0.4, W = 9 S = 1, A = 0 and N = 39, with 0 lag (delayed) outcomes
     H0   : theta is less than or equal to 0.2
-      Average sample size              = 18.8114
-      P( reject H0 )                   = 0.7699
-      P( conclude not ROPE effect )    = 0.745
-      P( conclude not ROME effect )    = 0.139
-      P( conclude PRISM inconclusive ) = 0.116
-      Coverage                         = 0.8363
-      Bias                             = 0.0359
-
-As an alternative design, the clinician could consider Simon’s Two Stage
-Design.
-
-``` r
-clinfun::ph2simon(pu = 0.2, pa = 0.4, ep1 = 0.05, ep2 = 0.2,nmax = 40)
-```
-
-
-     Simon 2-stage Phase II design 
-
-    Unacceptable response rate:  0.2 
-    Desirable response rate:  0.4 
-    Error rates: alpha =  0.05 ; beta =  0.2 
-
-            r1 n1  r  n EN(p0) PET(p0)   qLo   qHi
-    Minimax  4 18 10 33  22.25  0.7164 0.168 1.000
-    Optimal  3 14 11 38  21.24  0.6982 0.000 0.168
+      Average sample size              = 18.773
+      P( reject H0 )                   = 0.749
+      P( conclude not ROPE effect )    = 0.721
+      P( conclude not ROME effect )    = 0.155
+      P( conclude PRISM inconclusive ) = 0.124
+      Coverage                         = 0.8185
+      Bias                             = 0.0293
 
 ## Example interpretations following SeqSGPV monitoring of PRISM:
 
@@ -252,4 +303,4 @@ abline(h=c(0.05, 0.8, 0.9))
 plot(PRISMse,      stat = "lag.n",             affirm=0, steps=1,lag=5,N=38,ylim=c(10, 30))
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-12-1.png" style="display: block; margin: auto;" />

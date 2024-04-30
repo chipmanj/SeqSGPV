@@ -10,8 +10,20 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, comment=NA, message=FALSE, warning=FALSE, fig.width = 8, fig.height = 8, fig.align='center', eval=TRUE)
 ```
 
-```{r, cache=FALSE, echo=FALSE, results='hide'}
+```{r}
+Sys.info()[c("sysname","release","version","machine")]
+```
+
+In this example, 2000 replicates are used to get an initial sense of
+operating characteristics. SeqSGPV is more time intensive for bernoulli
+outcomes with multiple combinations of wait, step, N, and affirm. It is
+recommended to start with a small number of replicates, even under 1000,
+to get an initial sense of operating characteristics and then increase
+for more precision in estimated operating characteristics.
+
+```{r, cache=FALSE, echo=TRUE, results='hide'}
 library(SeqSGPV)
+nreps <- 2000
 ```
 
 ## Context
@@ -40,19 +52,23 @@ initial call to SeqSGPV.
 The investigator wants a Type I error $\le$ 0.05 and is willing to
 monitor the trial at every outcome.
 
-## Code and design development
+## Simon's two-stage design
+
+For context, the operating characteristics of Simon's two-stage design
+are:
+
+```{r}
+clinfun::ph2simon(pu = 0.2, pa = 0.4, ep1 = 0.05, ep2 = 0.2,nmax = 40)
+```
+
+## SeqSGPV
 
 ```{r, cache=TRUE, eval=TRUE}
-# Example 1
-# 1 arm phase II trial with bernoulli outcomes
-# H0: prob success <= 0.2
-# H1: prob success > 0.2
 # PRISM: deltaG1 = 0.225, deltaG2 = 0.4
 # Wait time until first evaluation = 5 - 10
 # Monitoring every 1 up to 3 outcomes
 # maximum sample size = 35 - 40
 # possible number of lag/delayed outcomes: 0, 5, 10
-nreps <- 50000
 system.time(PRISM <-  SeqSGPV(nreps            = nreps,
                               dataGeneration   = rbinom, dataGenArgs = list(n=40, size=1, prob = .2),
                               effectGeneration = 0, effectGenArgs=NULL,  effectScale  = "identity",
@@ -72,6 +88,19 @@ system.time(PRISM <-  SeqSGPV(nreps            = nreps,
                               N                = 35:40,
                               printProgress    = FALSE))
 
+
+
+# Note: This step is typically done after evaluating operating characteristics
+# under the point null. It will be shown again later.
+# This step is done here for the sake of saving an Rmd cache with
+# minimal retained data (after removing the simulated date).
+
+# Obtain design under range of effects
+se <- seq(-0.05, 0.3, by = 0.025)
+system.time(PRISMse <- fixedDesignEffects(PRISM, shift = se))
+
+# This next step is not required but is done for reducing the size of the Rmd cache.
+PRISM$mcmcMonitoring <- NULL
 ```
 
 Type I error under different monitoring frequencies. Increasing the
@@ -98,6 +127,7 @@ evidence the effect is \< 0.4.
 # Change to monitoring null-bound ROE
 inputs <- PRISM$inputs
 inputs$PRISM$deltaG1 <- 0.20
+inputs$PRISM$outData <- FALSE
 system.time(ROE_PN_BOUNDED <-  do.call(SeqSGPV, inputs))
 ```
 
@@ -138,22 +168,15 @@ title(sub="ROE-PN-BOUNDED", adj=0)
 
 Operating characteristics of PRISM design across a range of effects.
 
-```{r, cache=TRUE, fig.height=6, fig.width=6, fig.align='center', eval=TRUE}
+```{r, cache=TRUE, eval=FALSE}
 # Obtain design under range of effects
-se <- seq(-0.05, 0.3, by = 0.125)
+se <- seq(-0.05, 0.3, by = 0.025)
 system.time(PRISMse <- fixedDesignEffects(PRISM, shift = se))
 ```
 
-```{r, fig.align='center', fig.height=5, fig.width=5, eval=TRUE}
+```{r, fig.align='center', fig.height=6, fig.width=6, eval=TRUE}
 plot(PRISMse, stat = "rejH0", steps = 1, affirm = 0, N = 39, lag=0)
 summary(PRISMse, effect = 0.2, wait = 9, steps = 1, affirm = 0, N = 39, lag = 0)
-```
-
-As an alternative design, the clinician could consider Simon's Two Stage
-Design.
-
-```{r}
-clinfun::ph2simon(pu = 0.2, pa = 0.4, ep1 = 0.05, ep2 = 0.2,nmax = 40)
 ```
 
 ## Example interpretations following SeqSGPV monitoring of PRISM:

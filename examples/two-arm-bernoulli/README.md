@@ -1,5 +1,30 @@
-one arm, bernoulli outcomes
+two arm, bernoulli outcomes
 ================
+
+``` r
+Sys.info()[c("sysname","release","version","machine")]
+```
+
+                                                                                                     sysname 
+                                                                                                    "Darwin" 
+                                                                                                     release 
+                                                                                                    "22.6.0" 
+                                                                                                     version 
+    "Darwin Kernel Version 22.6.0: Mon Feb 19 19:48:53 PST 2024; root:xnu-8796.141.3.704.6~1/RELEASE_X86_64" 
+                                                                                                     machine 
+                                                                                                    "x86_64" 
+
+In this example, 2000 replicates are used to get an initial sense of
+operating characteristics. SeqSGPV is more time intensive for bernoulli
+outcomes with a sample size as below. It is recommended to start with a
+small number of replicates, even under 1000, to get an initial sense of
+operating characteristics and then increase for more precision in
+estimated operating characteristics.
+
+``` r
+library(SeqSGPV)
+nreps <- 2000
+```
 
 ## Context
 
@@ -21,9 +46,6 @@ The PRISM is defined by ROE$_{(1.10, 1.50)}$.
 Power calculation for a single-look study
 
 ``` r
-# H0: OR < 1
-# H1: OR > 1
-# PRISM: deltaG1 = 1.05, deltaG2 = 1.75
 epiR::epi.sscc(OR = 1.5, p1 = NA, p0 = 0.35, n = NA, power = 0.80, r = 1,
                sided.test = 1, conf.level = 0.95, method = "unmatched", fleiss = FALSE)
 ```
@@ -70,8 +92,38 @@ system.time(PRISM <-  SeqSGPV(nreps            = nreps,
                               printProgress    = FALSE))
 ```
 
-       user  system elapsed 
-    119.389  24.501  39.980 
+        user   system  elapsed 
+    1050.659   83.962  318.605 
+
+``` r
+# Note: This step is typically done after evaluating operating characteristics
+# under the point null. It will be shown again later.
+# This step is done here for the sake of saving an Rmd cache with
+# minimal retained data (after removing the simulated date).
+
+# Shift effects
+# On the log-odds scale, shift from -0.1 to 0.7 and exponentiate back to odds ratio scale
+se <- round(exp(seq(-0.1, .7, by = .1)),2)
+system.time(PRISMse <- fixedDesignEffects(PRISM, shift = se))
+```
+
+    [1] "effect: 0.9"
+    [1] "effect: 1"
+    [1] "effect: 1.11"
+    [1] "effect: 1.22"
+    [1] "effect: 1.35"
+    [1] "effect: 1.49"
+    [1] "effect: 1.65"
+    [1] "effect: 1.82"
+    [1] "effect: 2.01"
+
+         user    system   elapsed 
+    11919.734  1010.723  2904.278 
+
+``` r
+# This next step is not required but is done for reducing the size of the Rmd cache.
+PRISM$mcmcMonitoring <- NULL
+```
 
 ``` r
 summary(PRISM, N=800, affirm = 0)
@@ -80,17 +132,17 @@ summary(PRISM, N=800, affirm = 0)
 
     Given: effect = 1, W = 150 S = 50, A = 0 and N = 800, with 0 lag (delayed) outcomes
     H0   : effect is less than or equal to 1
-      Average sample size              = 398
-      P( reject H0 )                   = 0.075
-      P( conclude not ROPE effect )    = 0.065
-      P( conclude not ROME effect )    = 0.805
-      P( conclude PRISM inconclusive ) = 0.13
-      Coverage                         = 0.905
-      Bias                             = -0.0394
+      Average sample size              = 397.35
+      P( reject H0 )                   = 0.055
+      P( conclude not ROPE effect )    = 0.0435
+      P( conclude not ROME effect )    = 0.8455
+      P( conclude PRISM inconclusive ) = 0.111
+      Coverage                         = 0.92
+      Bias                             = -0.0584
 
 Under this design and an odds-ratio effect of 1 (i.e. zero effect), the
-probability of concluding not ROPE is XXX and the probability of
-concluding not ROME is XXX. By the 1000th observation there is a XX
+probability of concluding not ROPE is 0.03 and the probability of
+concluding not ROME is 0.85. By the 2000th observation there is a 0.12
 probability of not ending not being PRISM conclusive.
 
 We may suppose that the success rate in the control group is 0.27
@@ -113,11 +165,12 @@ system.time(PRISMb <-  SeqSGPV(nreps            = nreps,
                                affirm           = c(0,50),
                                lag              = 0,
                                N                = c(650,800,1000),
-                               printProgress    = FALSE))
+                               printProgress    = FALSE,
+                               outData          = FALSE))
 ```
 
-       user  system elapsed 
-    119.055  16.390  34.687 
+        user   system  elapsed 
+    1217.799   99.822  340.065 
 
 ``` r
 summary(PRISMb, N=800, affirm = 0)
@@ -126,13 +179,13 @@ summary(PRISMb, N=800, affirm = 0)
 
     Given: effect = 1, W = 150 S = 50, A = 0 and N = 800, with 0 lag (delayed) outcomes
     H0   : effect is less than or equal to 1
-      Average sample size              = 443.5
-      P( reject H0 )                   = 0.03
-      P( conclude not ROPE effect )    = 0.03
-      P( conclude not ROME effect )    = 0.785
-      P( conclude PRISM inconclusive ) = 0.185
-      Coverage                         = 0.94
-      Bias                             = -0.0623
+      Average sample size              = 421.45
+      P( reject H0 )                   = 0.043
+      P( conclude not ROPE effect )    = 0.0315
+      P( conclude not ROME effect )    = 0.823
+      P( conclude PRISM inconclusive ) = 0.1455
+      Coverage                         = 0.9305
+      Bias                             = -0.076
 
 And we can see what would be the impact if the rate in the control group
 were 0.40.
@@ -153,11 +206,12 @@ system.time(PRISMc <-  SeqSGPV(nreps            = nreps,
                                affirm           = c(0,50),
                                lag              = 0,
                                N                = c(650,800,1000),
-                               printProgress    = FALSE))
+                               printProgress    = FALSE,
+                               outData          = FALSE))
 ```
 
        user  system elapsed 
-     85.127  11.821  29.638 
+    865.080  58.988 274.483 
 
 ``` r
 summary(PRISMc, N=800, affirm = 0)
@@ -166,13 +220,19 @@ summary(PRISMc, N=800, affirm = 0)
 
     Given: effect = 1, W = 150 S = 50, A = 0 and N = 800, with 0 lag (delayed) outcomes
     H0   : effect is less than or equal to 1
-      Average sample size              = 378
-      P( reject H0 )                   = 0.045
-      P( conclude not ROPE effect )    = 0.03
-      P( conclude not ROME effect )    = 0.87
-      P( conclude PRISM inconclusive ) = 0.1
-      Coverage                         = 0.93
-      Bias                             = -0.0676
+      Average sample size              = 381.175
+      P( reject H0 )                   = 0.0485
+      P( conclude not ROPE effect )    = 0.038
+      P( conclude not ROME effect )    = 0.8635
+      P( conclude PRISM inconclusive ) = 0.0985
+      Coverage                         = 0.9285
+      Bias                             = -0.0624
+
+Having established Type I error control, we can further evaluate
+operating characteristics under a range of plausible outcomes.
+
+This next step was run previously but is shown here again as it is when
+the step would more naturally take place.
 
 ``` r
 # Shift effects
@@ -181,48 +241,17 @@ se <- round(exp(seq(-0.1, .7, by = .1)),2)
 system.time(PRISMse <- fixedDesignEffects(PRISM, shift = se))
 ```
 
-    [1] "effect: 0.9"
-    [1] "effect: 1"
-    [1] "effect: 1.11"
-    [1] "effect: 1.22"
-    [1] "effect: 1.35"
-    [1] "effect: 1.49"
-    [1] "effect: 1.65"
-    [1] "effect: 1.82"
-    [1] "effect: 2.01"
-
-        user   system  elapsed 
-    1174.798  143.937  306.064 
-
 ``` r
+par(mfrow=c(3,2))
 plot(PRISMse, stat = "rejH0", N = 800, affirm = 0)
-```
-
-<img src="README_files/figure-gfm/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
-
-``` r
 plot(PRISMse, stat = "stopNotROPE", N = 800, affirm = 0)
-```
-
-<img src="README_files/figure-gfm/unnamed-chunk-10-2.png" style="display: block; margin: auto;" />
-
-``` r
 plot(PRISMse, stat = "stopNotROME", N = 800, affirm = 0)
-```
-
-<img src="README_files/figure-gfm/unnamed-chunk-10-3.png" style="display: block; margin: auto;" />
-
-``` r
 plot(PRISMse, stat = "stopInconclusive", N = 800, affirm = 0)
-```
-
-<img src="README_files/figure-gfm/unnamed-chunk-10-4.png" style="display: block; margin: auto;" />
-
-``` r
+plot(PRISMse, stat = "bias", N = 800, affirm = 0)
 plot(PRISMse, stat = "cover", N = 800, affirm = 0)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-10-5.png" style="display: block; margin: auto;" />
+<img src="README_files/figure-gfm/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
 
 ## Example interpretations following SeqSGPV monitoring of PRISM:
 
@@ -235,11 +264,11 @@ plot(PRISMse, stat = "cover", N = 800, affirm = 0)
     1.49) which is evidence that the treatment effect is not
     scientifically meaningful (p$_{ROME}$ = 0) and the evidence for
     being practically equivalent or worse than the point null is
-    p\$\_{ROWPE}\$=0.60.
+    p$_{ROWPE}$=0.60.
 
 3.  The estimated odds ratio was 1.14 (95% credible interval: 0.83,
     1.57) at the maximum sample size, which is inconclusive evidence to
     rule out practically null effects (p$_{ROWPE}$ = 0.36) and
-    scientifically meaningful effects (p\$\_{ROME}\$=0.09). There is
-    more evidence that the effect is scientifically meaningful rather
-    than practically null.
+    scientifically meaningful effects (p$_{ROME}$=0.09). There is more
+    evidence that the effect is scientifically meaningful rather than
+    practically null.

@@ -52,7 +52,7 @@ hypothesis (i.e. ROPE/ROWPE).</figcaption>
 </figure>
 
 In the context of interval monitoring, error rates and sample size are
-impacted by ROE specifation. The PRISM is a constrained version of the
+impacted by ROE specification. The PRISM is a constrained version of the
 ROE in which the ROE boundary is set away from the point null. This
 specification induces two adjacent regions to the ROE: the ROPE and a
 Region of Meaningful Effects (ROME).
@@ -86,7 +86,7 @@ $$
 p_{H} = \frac{| I \cap H |}{|I|} \times \max \left\{\frac{| I |}{2 | H |}, 1 \right\}.
 $$
 
-The adjustment, $max\left\[\frac{|I|}{2|H|},1\right\]$, is a small
+The adjustment, $max\left\{\frac{|I|}{2|H|},1\right\}$, is a small
 sample size correction – setting $p_H$ to half of the overlap when the
 inferential interval overwhelms $H$ by at least twice the length.
 
@@ -98,6 +98,9 @@ contrasted in terms of minimal assumptions, handling of composite
 hypotheses, and conclusions that can be drawn. The SGPV makes no further
 assumptions beyond those inherited by the inferential interval. It does
 not require a likelihood, prior, study design, or error rates.
+
+See examples for interpreting possible end of study conclusions using
+the SGPV.
 
 # Why change monitoring frequency
 
@@ -163,12 +166,10 @@ inform design parameters.
 Study designs and interpretations of a single trial are provided below
 for 1-2 arm trials with bernoulli or normally distributed outcomes.
 
+- [two arm trial, continuous
+  outcomes](examples/two-arm-continuous/README.md)
 - [one arm trial, bernoulli
   outcomes](examples/one-arm-bernoulli/README.md)
-- [one arm trial, bernoulli outcomes, effect generated from prior
-  distribution](examples/one-arm-bernoulli-prior-generated-effect/README.md)
-- [two arm trial, continous
-  outcomes](examples/two-arm-continuous/README.md)
 - [two arm trial, bernoulli
   outcomes](examples/two-arm-bernoulli/README.md)
 

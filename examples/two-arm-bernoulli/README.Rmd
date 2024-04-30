@@ -1,5 +1,5 @@
 ---
-title: "one arm, bernoulli outcomes"
+title: "two arm, bernoulli outcomes"
 output: github_document
 editor_options: 
   markdown: 
@@ -10,9 +10,15 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, comment=NA, message=FALSE, warning=FALSE, fig.width = 8, fig.height = 8, fig.align='center', eval=TRUE)
 ```
 
-```{r, cache=FALSE, echo=FALSE, results='hide'}
+```{r}
+Sys.info()[c("sysname","release","version","machine")]
+```
+
+In this example, 2000 replicates are used to get an initial sense of operating characteristics. SeqSGPV is more time intensive for bernoulli outcomes with a sample size as below. It is recommended to start with a small number of replicates, even under 1000, to get an initial sense of operating characteristics and then increase for more precision in estimated operating characteristics.
+
+```{r, cache=FALSE, echo=TRUE, results='hide'}
 library(SeqSGPV)
-nreps <- 200
+nreps <- 2000
 ```
 
 ## Context
@@ -35,9 +41,6 @@ The PRISM is defined by ROE$_{(1.10, 1.50)}$.
 Power calculation for a single-look study
 
 ```{r, cache=TRUE, eval=TRUE}
-# H0: OR < 1
-# H1: OR > 1
-# PRISM: deltaG1 = 1.05, deltaG2 = 1.75
 epiR::epi.sscc(OR = 1.5, p1 = NA, p0 = 0.35, n = NA, power = 0.80, r = 1,
                sided.test = 1, conf.level = 0.95, method = "unmatched", fleiss = FALSE)
 ```
@@ -67,6 +70,21 @@ system.time(PRISM <-  SeqSGPV(nreps            = nreps,
                               lag              = 0,
                               N                = c(650,800,1000),
                               printProgress    = FALSE))
+
+
+
+# Note: This step is typically done after evaluating operating characteristics
+# under the point null. It will be shown again later.
+# This step is done here for the sake of saving an Rmd cache with
+# minimal retained data (after removing the simulated date).
+
+# Shift effects
+# On the log-odds scale, shift from -0.1 to 0.7 and exponentiate back to odds ratio scale
+se <- round(exp(seq(-0.1, .7, by = .1)),2)
+system.time(PRISMse <- fixedDesignEffects(PRISM, shift = se))
+
+# This next step is not required but is done for reducing the size of the Rmd cache.
+PRISM$mcmcMonitoring <- NULL
 ```
 
 ```{r, cache=FALSE, eval=TRUE}
@@ -74,8 +92,8 @@ summary(PRISM, N=800, affirm = 0)
 ```
 
 Under this design and an odds-ratio effect of 1 (i.e. zero effect), the
-probability of concluding not ROPE is XXX and the probability of
-concluding not ROME is XXX. By the 1000th observation there is a XX
+probability of concluding not ROPE is 0.03 and the probability of
+concluding not ROME is 0.85. By the 2000th observation there is a 0.12
 probability of not ending not being PRISM conclusive.
 
 We may suppose that the success rate in the control group is 0.27
@@ -98,7 +116,8 @@ system.time(PRISMb <-  SeqSGPV(nreps            = nreps,
                                affirm           = c(0,50),
                                lag              = 0,
                                N                = c(650,800,1000),
-                               printProgress    = FALSE))
+                               printProgress    = FALSE,
+                               outData          = FALSE))
 ```
 
 ```{r, cache=FALSE, eval=TRUE}
@@ -124,25 +143,34 @@ system.time(PRISMc <-  SeqSGPV(nreps            = nreps,
                                affirm           = c(0,50),
                                lag              = 0,
                                N                = c(650,800,1000),
-                               printProgress    = FALSE))
+                               printProgress    = FALSE,
+                               outData          = FALSE))
 ```
 
 ```{r, cache=TRUE, eval=TRUE}
 summary(PRISMc, N=800, affirm = 0)
 ```
 
-```{r, cache=TRUE, eval=TRUE}
+Having established Type I error control, we can further evaluate
+operating characteristics under a range of plausible outcomes.
+
+This next step was run previously but is shown here again as it is when the step 
+would more naturally take place.
+
+```{r, eval=FALSE}
 # Shift effects
 # On the log-odds scale, shift from -0.1 to 0.7 and exponentiate back to odds ratio scale
 se <- round(exp(seq(-0.1, .7, by = .1)),2)
 system.time(PRISMse <- fixedDesignEffects(PRISM, shift = se))
 ```
 
-```{r, fig.align='center', fig.height=5, fig.width=5}
+```{r, fig.align='center', fig.height=10, fig.width=7}
+par(mfrow=c(3,2))
 plot(PRISMse, stat = "rejH0", N = 800, affirm = 0)
 plot(PRISMse, stat = "stopNotROPE", N = 800, affirm = 0)
 plot(PRISMse, stat = "stopNotROME", N = 800, affirm = 0)
 plot(PRISMse, stat = "stopInconclusive", N = 800, affirm = 0)
+plot(PRISMse, stat = "bias", N = 800, affirm = 0)
 plot(PRISMse, stat = "cover", N = 800, affirm = 0)
 ```
 
@@ -157,11 +185,11 @@ plot(PRISMse, stat = "cover", N = 800, affirm = 0)
     1.49) which is evidence that the treatment effect is not
     scientifically meaningful (p$_{ROME}$ = 0) and the evidence for
     being practically equivalent or worse than the point null is
-    p\$\_{ROWPE}\$=0.60.
+    p$_{ROWPE}$=0.60.
 
 3.  The estimated odds ratio was 1.14 (95% credible interval: 0.83,
     1.57) at the maximum sample size, which is inconclusive evidence to
     rule out practically null effects (p$_{ROWPE}$ = 0.36) and
-    scientifically meaningful effects (p\$\_{ROME}\$=0.09). There is
+    scientifically meaningful effects (p$_{ROME}$=0.09). There is
     more evidence that the effect is scientifically meaningful rather
     than practically null.
